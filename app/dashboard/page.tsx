@@ -5,12 +5,6 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { supabase } from "../lib/supabaseClient";
 import ProfilePicture from "../components/ProfilePicture";
-import type { Metadata } from 'next';
-
-export const metadata: Metadata = {
-  title: 'Dashboard - briefica',
-  description: 'Your briefica dashboard',
-};
 
 type ArtifactRow = {
   id: string;
@@ -50,6 +44,11 @@ export default function DashboardPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [typeFilter, setTypeFilter] = useState<"all" | "bset" | "bmod" | "tbank">("all");
   const [msg, setMsg] = useState<string | null>(null);
+
+  // SET PAGE TITLE
+  useEffect(() => {
+    document.title = 'Dashboard - briefica';
+  }, []);
 
   useEffect(() => {
     async function guard() {
