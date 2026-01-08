@@ -123,7 +123,7 @@ export default function HomePage() {
         <h1 className="text-4xl md:text-5xl font-bold mb-6">
           A NEW WAY TO OUTLINE?
           <br />
-          TIME TO MAKE A B-LINE!
+          TIME TO MAKE A B-LINE!!
         </h1>
         <p className="text-xl text-white/70 mb-8 max-w-2xl mx-auto">
           briefica is a native desktop editor and web platform for structured
