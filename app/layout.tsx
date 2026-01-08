@@ -16,7 +16,7 @@ export const metadata: Metadata = {
   title: "briefica - legal knowledge, structured & shareable",
   description: "Native desktop editor and web platform for structured legal logic files",
   icons: {
-    icon: '/public/favicon.png',
+    icon: 'favicon.png',
   },
 };
 
