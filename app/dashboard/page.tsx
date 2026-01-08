@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { supabase } from "../lib/supabaseClient";
+import ProfilePicture from "../components/ProfilePicture";
 
 type ArtifactRow = {
   id: string;
@@ -25,6 +26,7 @@ type UserProfile = {
   upload_count: number;
   friend_count: number;
   pending_requests: number;
+  profile_picture_url: string | null;
 };
 
 export default function DashboardPage() {
@@ -53,7 +55,7 @@ export default function DashboardPage() {
 
       const { data: profile } = await supabase
         .from("profiles")
-        .select("user_id, username, law_school")
+        .select("user_id, username, law_school, profile_picture_url")
         .eq("user_id", data.user.id)
         .single();
 
@@ -61,7 +63,7 @@ export default function DashboardPage() {
         setCurrentUserId(profile.user_id);
         
         // Load user stats
-        await loadUserProfile(profile.user_id, profile.username, profile.law_school);
+        await loadUserProfile(profile.user_id, profile.username, profile.law_school, profile.profile_picture_url);
         
         // Load friends
         await loadFriends(profile.user_id);
@@ -70,7 +72,7 @@ export default function DashboardPage() {
     guard();
   }, [router]);
 
-  async function loadUserProfile(userId: string, username: string, lawSchool: string | null) {
+  async function loadUserProfile(userId: string, username: string, lawSchool: string | null, profilePictureUrl: string | null) {
     // Get upload count
     const { count: uploadCount } = await supabase
       .from("artifacts")
@@ -97,6 +99,7 @@ export default function DashboardPage() {
       upload_count: uploadCount ?? 0,
       friend_count: friendCount ?? 0,
       pending_requests: pendingCount ?? 0,
+      profile_picture_url: profilePictureUrl,
     });
   }
 
@@ -327,6 +330,10 @@ export default function DashboardPage() {
     router.push("/");
   }
 
+  function handleProfilePictureUpdate(newUrl: string) {
+    setUserProfile(prev => prev ? { ...prev, profile_picture_url: newUrl } : null);
+  }
+
   function badge(t: ArtifactRow["type"]) {
     return t === "bset" ? ".bset" : t === "bmod" ? ".bmod" : ".tbank";
   }
@@ -412,12 +419,12 @@ export default function DashboardPage() {
             >
               Upload
             </button>
-<button
-  onClick={() => router.push("/downloads")}
-  className="inline-flex items-center justify-center rounded-lg border border-white/20 bg-white/10 px-4 py-2 hover:bg-white/15 transition-colors"
->
-  download briefica
-</button>
+            <button
+              onClick={() => router.push("/downloads")}
+              className="inline-flex items-center justify-center rounded-lg border border-white/20 bg-white/10 px-4 py-2 hover:bg-white/15 transition-colors"
+            >
+              download briefica
+            </button>
             <button
               onClick={handleLogout}
               className="border border-white/20 rounded-lg py-2 px-4 font-medium hover:bg-white/5 transition-colors"
@@ -431,22 +438,33 @@ export default function DashboardPage() {
           {/* LEFT SIDEBAR */}
           <aside className="w-72 flex-shrink-0">
             {/* PROFILE WIDGET */}
-            {userProfile && (
+            {userProfile && currentUserId && (
               <div className="border border-white/10 bg-[#1e1e1e] rounded-2xl p-4 mb-4">
-                <button
-                  onClick={() => router.push(`/u/${userProfile.username}`)}
-                  className="text-xl font-semibold hover:text-white/80 transition-colors"
-                >
-                  @{userProfile.username}
-                </button>
-                
-                {userProfile.law_school && (
-                  <p className="text-sm text-white/60 mt-1">
-                    {userProfile.law_school}
-                  </p>
-                )}
+                <div className="flex items-center gap-3 mb-3">
+                  <ProfilePicture
+                    userId={currentUserId}
+                    currentPictureUrl={userProfile.profile_picture_url}
+                    username={userProfile.username}
+                    size={60}
+                    editable={true}
+                    onUpdate={handleProfilePictureUpdate}
+                  />
+                  <div className="flex-1">
+                    <button
+                      onClick={() => router.push(`/u/${userProfile.username}`)}
+                      className="text-xl font-semibold hover:text-white/80 transition-colors"
+                    >
+                      @{userProfile.username}
+                    </button>
+                    {userProfile.law_school && (
+                      <p className="text-sm text-white/60 mt-1">
+                        {userProfile.law_school}
+                      </p>
+                    )}
+                  </div>
+                </div>
 
-                <div className="mt-3 flex items-center gap-4 text-sm">
+                <div className="flex items-center gap-4 text-sm">
                   <div>
                     <span className="text-white/60">Uploads: </span>
                     <span className="font-medium">{userProfile.upload_count}</span>
@@ -460,10 +478,8 @@ export default function DashboardPage() {
                 {userProfile.pending_requests > 0 && (
                   <button
                     onClick={() => router.push("/friends")}
-                    className="mt-4 w-full rounded-lg py-2 px-4 font-medium transition-colors flex items-center justify-center gap-2 text-white"
+                    className="mt-4 w-full rounded-lg py-2 px-4 font-medium transition-colors flex items-center justify-center gap-2 text-white hover:opacity-90"
                     style={{ backgroundColor: '#66b2ff' }}
-                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#5aa3ee'}
-                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#66b2ff'}
                   >
                     Add Friends
                     <span className="bg-white rounded-full px-2 py-0.5 text-xs font-bold" style={{ color: '#66b2ff' }}>

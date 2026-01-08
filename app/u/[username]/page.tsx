@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { supabase } from "../../lib/supabaseClient";
+import ProfilePicture from "../../components/ProfilePicture";
 
 type Artifact = {
   id: string;
