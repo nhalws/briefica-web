@@ -228,18 +228,21 @@ export default function UserProfilePage() {
                     </select>
                   ) : (
                     profile.law_school ? (
-                      <div className="flex items-center gap-2 text-lg text-white/70 mb-4">
-                        {profileSchoolLogo && (
+                      profileSchoolLogo ? (
+                        <div className="flex items-center gap-2 text-lg text-white/70 mb-4">
                           <Image
                             src={profileSchoolLogo}
                             alt={`${profile.law_school} logo`}
-                            width={96}
-                            height={96}
+                            width={64}
+                            height={64}
                             className="rounded"
                           />
-                        )}
-                        <span>{profile.law_school}</span>
-                      </div>
+                        </div>
+                      ) : (
+                        <p className="text-lg text-white/70 mb-4">
+                          {profile.law_school}
+                        </p>
+                      )
                     ) : (
                       <p className="text-lg text-white/70 mb-4">
                         No law school set

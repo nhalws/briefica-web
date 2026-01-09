@@ -465,7 +465,7 @@ export default function DashboardPage() {
                     </button>
                     {userProfile.law_school && (
                       <div className="flex items-center gap-2 text-sm text-white/60 mt-1">
-                        {userLawSchoolLogo && (
+                        {userLawSchoolLogo ? (
                           <Image
                             src={userLawSchoolLogo}
                             alt={`${userProfile.law_school} logo`}
@@ -473,8 +473,9 @@ export default function DashboardPage() {
                             height={64}
                             className="rounded"
                           />
+                        ) : (
+                          <span>{userProfile.law_school}</span>
                         )}
-                        <span>{userProfile.law_school}</span>
                       </div>
                     )}
                   </div>
