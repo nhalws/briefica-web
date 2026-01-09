@@ -457,29 +457,27 @@ export default function DashboardPage() {
                     onUpdate={handleProfilePictureUpdate}
                   />
                   <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={() => router.push(`/u/${userProfile.username}`)}
-                        className="text-xl font-semibold hover:text-white/80 transition-colors"
-                      >
-                        @{userProfile.username}
-                      </button>
-                      {userProfile.law_school && (
-                        <>
-                          {userLawSchoolLogo ? (
-                            <Image
-                              src={userLawSchoolLogo}
-                              alt={`${userProfile.law_school} logo`}
-                              width={64}
-                              height={64}
-                              className="rounded"
-                            />
-                          ) : (
-                            <span className="text-sm text-white/60">{userProfile.law_school}</span>
-                          )}
-                        </>
-                      )}
-                    </div>
+                    <button
+                      onClick={() => router.push(`/u/${userProfile.username}`)}
+                      className="text-xl font-semibold hover:text-white/80 transition-colors"
+                    >
+                      @{userProfile.username}
+                    </button>
+                    {userProfile.law_school && (
+                      userLawSchoolLogo ? (
+                        <div className="mt-1">
+                          <Image
+                            src={userLawSchoolLogo}
+                            alt={`${userProfile.law_school} logo`}
+                            width={64}
+                            height={64}
+                            className="rounded"
+                          />
+                        </div>
+                      ) : (
+                        <div className="text-sm text-white/60 mt-1">{userProfile.law_school}</div>
+                      )
+                    )}
                   </div>
                 </div>
 

@@ -210,7 +210,7 @@ export default function UserProfilePage() {
                 />
 
                 <div className="flex-1">
-                  <div className="flex items-center gap-3 flex-wrap mb-2">
+                  <div className="flex flex-col gap-1 mb-2">
                     <h1 className="text-3xl font-bold">@{profile.username}</h1>
                     {/* Law School */}
                     {isEditing ? null : profile.law_school ? (
