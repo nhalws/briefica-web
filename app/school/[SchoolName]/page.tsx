@@ -15,7 +15,14 @@ interface SchoolMember {
 export default function SchoolDirectoryPage() {
   const router = useRouter();
   const params = useParams();
-  const schoolName = params?.schoolName ? decodeURIComponent(params.schoolName as string) : "";
+  
+  // Extract schoolName from params
+  const rawSchoolName = params?.schoolName;
+  const schoolName = typeof rawSchoolName === 'string' 
+    ? decodeURIComponent(rawSchoolName) 
+    : Array.isArray(rawSchoolName) 
+    ? decodeURIComponent(rawSchoolName[0]) 
+    : "";
 
   const [members, setMembers] = useState<SchoolMember[]>([]);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
@@ -31,6 +38,8 @@ export default function SchoolDirectoryPage() {
   useEffect(() => {
     async function loadSchoolDirectory() {
       try {
+        console.log("School name from params:", schoolName);
+        
         if (!schoolName) {
           setError("No school name provided");
           setLoading(false);
@@ -41,12 +50,16 @@ export default function SchoolDirectoryPage() {
         const { data: userData } = await supabase.auth.getUser();
         setCurrentUserId(userData.user?.id || null);
 
+        console.log("Searching for school:", schoolName);
+
         // Load all members from this school
         const { data: profilesData, error: profilesError } = await supabase
           .from("profiles")
-          .select("user_id, username, profile_picture_url")
+          .select("user_id, username, profile_picture_url, law_school")
           .eq("law_school", schoolName)
           .order("username", { ascending: true });
+
+        console.log("Query result:", profilesData, profilesError);
 
         if (profilesError) {
           setError(profilesError.message);
@@ -82,12 +95,15 @@ export default function SchoolDirectoryPage() {
         setLoading(false);
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : "Unknown error occurred";
+        console.error("Error:", errorMessage);
         setError(errorMessage);
         setLoading(false);
       }
     }
 
-    loadSchoolDirectory();
+    if (schoolName) {
+      loadSchoolDirectory();
+    }
   }, [schoolName]);
 
   if (loading) {
@@ -115,6 +131,7 @@ export default function SchoolDirectoryPage() {
           </button>
           <p className="text-red-400">Error: {error}</p>
           <p className="text-white/60 mt-2">School name from URL: &quot;{schoolName}&quot;</p>
+          <p className="text-white/60 mt-2">Raw params: {JSON.stringify(params)}</p>
         </div>
       </main>
     );
