@@ -115,8 +115,8 @@ export default function DashboardPage() {
       .select(`
         requester_id,
         recipient_id,
-        profiles!friend_requests_requester_id_fkey(user_id, username),
-        profiles!friend_requests_recipient_id_fkey(user_id, username)
+        requester:profiles!friend_requests_requester_id_fkey(user_id, username),
+        recipient:profiles!friend_requests_recipient_id_fkey(user_id, username)
       `)
       .or(`requester_id.eq.${userId},recipient_id.eq.${userId}`)
       .eq("status", "accepted");
@@ -127,20 +127,20 @@ export default function DashboardPage() {
       requests.forEach((req: any) => {
         if (req.requester_id === userId) {
           // I sent the request, so the friend is the recipient
-          const recipientProfile = req.profiles as any;
-          if (Array.isArray(recipientProfile) && recipientProfile[1]) {
+          const recipientProfile = req.recipient as any;
+          if (recipientProfile) {
             friendsList.push({
-              user_id: recipientProfile[1].user_id,
-              username: recipientProfile[1].username,
+              user_id: recipientProfile.user_id,
+              username: recipientProfile.username,
             });
           }
         } else {
           // They sent the request, so the friend is the requester
-          const requesterProfile = req.profiles as any;
-          if (Array.isArray(requesterProfile) && requesterProfile[0]) {
+          const requesterProfile = req.requester as any;
+          if (requesterProfile) {
             friendsList.push({
-              user_id: requesterProfile[0].user_id,
-              username: requesterProfile[0].username,
+              user_id: requesterProfile.user_id,
+              username: requesterProfile.username,
             });
           }
         }
