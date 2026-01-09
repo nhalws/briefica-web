@@ -4,8 +4,9 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { supabase } from "../lib/supabaseClient";
-import { getLawSchoolLogo } from "../lib/lawschools";
 import ProfilePicture from "../components/ProfilePicture";
+import SchoolCommunity from "../components/SchoolCommunity";
+import LiveChat from "../components/LiveChat";
 
 type ArtifactRow = {
   id: string;
@@ -45,7 +46,6 @@ export default function DashboardPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [typeFilter, setTypeFilter] = useState<"all" | "bset" | "bmod" | "tbank">("all");
   const [msg, setMsg] = useState<string | null>(null);
-  const userLawSchoolLogo = userProfile?.law_school ? getLawSchoolLogo(userProfile.law_school) : undefined;
 
   // SET PAGE TITLE
   useEffect(() => {
@@ -443,10 +443,10 @@ export default function DashboardPage() {
 
         <div className="flex gap-6">
           {/* LEFT SIDEBAR */}
-          <aside className="w-72 flex-shrink-0">
+          <aside className="w-72 flex-shrink-0 space-y-4">
             {/* PROFILE WIDGET */}
             {userProfile && currentUserId && (
-              <div className="border border-white/10 bg-[#1e1e1e] rounded-2xl p-4 mb-4">
+              <div className="border border-white/10 bg-[#1e1e1e] rounded-2xl p-4">
                 <div className="flex items-center gap-3 mb-3">
                   <ProfilePicture
                     userId={currentUserId}
@@ -464,19 +464,9 @@ export default function DashboardPage() {
                       @{userProfile.username}
                     </button>
                     {userProfile.law_school && (
-                      userLawSchoolLogo ? (
-                        <div className="mt-1">
-                          <Image
-                            src={userLawSchoolLogo}
-                            alt={`${userProfile.law_school} logo`}
-                            width={64}
-                            height={64}
-                            className="rounded"
-                          />
-                        </div>
-                      ) : (
-                        <div className="text-sm text-white/60 mt-1">{userProfile.law_school}</div>
-                      )
+                      <p className="text-sm text-white/60 mt-1">
+                        {userProfile.law_school}
+                      </p>
                     )}
                   </div>
                 </div>
@@ -508,7 +498,7 @@ export default function DashboardPage() {
             )}
 
             {/* FRIENDS LIST */}
-            <div className="border border-white/10 bg-[#1e1e1e] rounded-2xl p-4 sticky top-6">
+            <div className="border border-white/10 bg-[#1e1e1e] rounded-2xl p-4">
               <h2 className="font-semibold mb-4">Friends</h2>
               
               {friends.length === 0 ? (
@@ -529,6 +519,23 @@ export default function DashboardPage() {
                 </div>
               )}
             </div>
+
+            {/* SCHOOL COMMUNITY WIDGET */}
+            {userProfile && currentUserId && (
+              <SchoolCommunity
+                userSchool={userProfile.law_school}
+                currentUserId={currentUserId}
+              />
+            )}
+
+            {/* LIVE CHAT WIDGET */}
+            {userProfile && currentUserId && (
+              <LiveChat
+                currentUserId={currentUserId}
+                username={userProfile.username}
+                userSchool={userProfile.law_school}
+              />
+            )}
           </aside>
 
           {/* MAIN CONTENT */}
