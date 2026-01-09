@@ -9,58 +9,82 @@ interface SchoolMember {
   user_id: string;
   username: string;
   profile_picture_url: string | null;
-  upload_count?: number;
+  upload_count: number;
 }
 
 export default function SchoolDirectoryPage() {
   const router = useRouter();
   const params = useParams();
-  const schoolName = decodeURIComponent(params.schoolName as string);
+  const schoolName = params?.schoolName ? decodeURIComponent(params.schoolName as string) : "";
 
   const [members, setMembers] = useState<SchoolMember[]>([]);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    document.title = `${schoolName} - briefica`;
+    if (schoolName) {
+      document.title = `${schoolName} - briefica`;
+    }
   }, [schoolName]);
 
   useEffect(() => {
     async function loadSchoolDirectory() {
-      // Get current user
-      const { data: userData } = await supabase.auth.getUser();
-      setCurrentUserId(userData.user?.id || null);
+      try {
+        if (!schoolName) {
+          setError("No school name provided");
+          setLoading(false);
+          return;
+        }
 
-      // Load all members from this school
-      const { data: profilesData } = await supabase
-        .from("profiles")
-        .select("user_id, username, profile_picture_url")
-        .eq("law_school", schoolName)
-        .order("username", { ascending: true });
+        // Get current user
+        const { data: userData } = await supabase.auth.getUser();
+        setCurrentUserId(userData.user?.id || null);
 
-      if (!profilesData) {
+        // Load all members from this school
+        const { data: profilesData, error: profilesError } = await supabase
+          .from("profiles")
+          .select("user_id, username, profile_picture_url")
+          .eq("law_school", schoolName)
+          .order("username", { ascending: true });
+
+        if (profilesError) {
+          setError(profilesError.message);
+          setLoading(false);
+          return;
+        }
+
+        if (!profilesData || profilesData.length === 0) {
+          setMembers([]);
+          setLoading(false);
+          return;
+        }
+
+        // Get upload counts for each member
+        const membersWithCounts = await Promise.all(
+          profilesData.map(async (profile) => {
+            const { count } = await supabase
+              .from("artifacts")
+              .select("id", { count: "exact", head: true })
+              .eq("owner_id", profile.user_id)
+              .eq("visibility", "public");
+
+            return {
+              user_id: profile.user_id,
+              username: profile.username,
+              profile_picture_url: profile.profile_picture_url,
+              upload_count: count ?? 0,
+            };
+          })
+        );
+
+        setMembers(membersWithCounts);
         setLoading(false);
-        return;
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : "Unknown error occurred";
+        setError(errorMessage);
+        setLoading(false);
       }
-
-      // Get upload counts for each member
-      const membersWithCounts = await Promise.all(
-        profilesData.map(async (profile) => {
-          const { count } = await supabase
-            .from("artifacts")
-            .select("id", { count: "exact", head: true })
-            .eq("owner_id", profile.user_id)
-            .eq("visibility", "public");
-
-          return {
-            ...profile,
-            upload_count: count ?? 0,
-          };
-        })
-      );
-
-      setMembers(membersWithCounts);
-      setLoading(false);
     }
 
     loadSchoolDirectory();
@@ -71,6 +95,26 @@ export default function SchoolDirectoryPage() {
       <main className="min-h-screen bg-[#2b2b2b] text-white p-6">
         <div className="max-w-6xl mx-auto">
           <p className="text-white/70">Loading directory...</p>
+        </div>
+      </main>
+    );
+  }
+
+  if (error) {
+    return (
+      <main className="min-h-screen bg-[#2b2b2b] text-white p-6">
+        <div className="max-w-6xl mx-auto">
+          <button
+            onClick={() => router.push("/dashboard")}
+            className="text-white/70 hover:text-white flex items-center gap-2 mb-4"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Back to dashboard
+          </button>
+          <p className="text-red-400">Error: {error}</p>
+          <p className="text-white/60 mt-2">School name from URL: &quot;{schoolName}&quot;</p>
         </div>
       </main>
     );
@@ -102,7 +146,7 @@ export default function SchoolDirectoryPage() {
 
         {/* School Info */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">{schoolName}</h1>
+          <h1 className="text-3xl font-bold mb-2">{schoolName || "Unknown School"}</h1>
           <p className="text-white/70">{members.length} member{members.length !== 1 ? 's' : ''}</p>
         </div>
 
