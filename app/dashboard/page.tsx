@@ -469,8 +469,8 @@ export default function DashboardPage() {
                           <Image
                             src={userLawSchoolLogo}
                             alt={`${userProfile.law_school} logo`}
-                            width={96}
-                            height={96}
+                            width={64}
+                            height={64}
                             className="rounded"
                           />
                         )}
