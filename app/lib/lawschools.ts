@@ -28,7 +28,7 @@ export const LAW_SCHOOL_OPTIONS: LawSchoolOption[] = [
   { name: "California – Davis" },
   { name: "California – San Francisco" },
   { name: "California – Irvine" },
-  { name: "California – Los Angeles (UCLA)", logo: "" },
+  { name: "California – Los Angeles (UCLA)", logo: "/ucla.png" },
   { name: "California Western" },
   { name: "Campbell" },
   { name: "Capital" },
