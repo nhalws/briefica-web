@@ -210,9 +210,24 @@ export default function UserProfilePage() {
                 />
 
                 <div className="flex-1">
-                  <h1 className="text-3xl font-bold mb-2">@{profile.username}</h1>
+                  <div className="flex items-center gap-3 flex-wrap mb-2">
+                    <h1 className="text-3xl font-bold">@{profile.username}</h1>
+                    {/* Law School */}
+                    {isEditing ? null : profile.law_school ? (
+                      profileSchoolLogo ? (
+                        <Image
+                          src={profileSchoolLogo}
+                          alt={`${profile.law_school} logo`}
+                          width={64}
+                          height={64}
+                          className="rounded"
+                        />
+                      ) : (
+                        <span className="text-lg text-white/70">{profile.law_school}</span>
+                      )
+                    ) : null}
+                  </div>
 
-                  {/* Law School */}
                   {isEditing ? (
                     <select
                       value={editLawSchool}
@@ -220,30 +235,14 @@ export default function UserProfilePage() {
                       className="w-full px-3 py-2 rounded-lg bg-[#2b2b2b] border border-white/20 focus:border-white/40 focus:outline-none mb-3"
                     >
                       <option value="">Select law school...</option>
-                  {ABA_LAW_SCHOOLS.map((school) => (
+                      {ABA_LAW_SCHOOLS.map((school) => (
                         <option key={school} value={school}>
                           {school}
                         </option>
                       ))}
                     </select>
                   ) : (
-                    profile.law_school ? (
-                      profileSchoolLogo ? (
-                        <div className="flex items-center gap-2 text-lg text-white/70 mb-4">
-                          <Image
-                            src={profileSchoolLogo}
-                            alt={`${profile.law_school} logo`}
-                            width={64}
-                            height={64}
-                            className="rounded"
-                          />
-                        </div>
-                      ) : (
-                        <p className="text-lg text-white/70 mb-4">
-                          {profile.law_school}
-                        </p>
-                      )
-                    ) : (
+                    !profile.law_school && (
                       <p className="text-lg text-white/70 mb-4">
                         No law school set
                       </p>
