@@ -4,7 +4,7 @@ export type LawSchoolOption = {
 };
 
 export const LAW_SCHOOL_OPTIONS: LawSchoolOption[] = [
-  { name: "Akron" },
+  { name: "Akron", logo: "public/akron.png" },
   { name: "Alabama" },
   { name: "Albany" },
   { name: "American" },
