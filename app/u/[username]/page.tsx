@@ -233,8 +233,8 @@ export default function UserProfilePage() {
                           <Image
                             src={profileSchoolLogo}
                             alt={`${profile.law_school} logo`}
-                            width={32}
-                            height={32}
+                            width={96}
+                            height={96}
                             className="rounded"
                           />
                         )}
