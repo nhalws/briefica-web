@@ -5,7 +5,7 @@ import { useRouter, useParams } from "next/navigation";
 import Image from "next/image";
 import { supabase } from "../../lib/supabaseClient";
 import ProfilePicture from "../../components/ProfilePicture";
-import { ABA_LAW_SCHOOLS } from "../../lib/lawschools";
+import { ABA_LAW_SCHOOLS, getLawSchoolLogo } from "../../lib/lawschools";
 
 type UserProfile = {
   user_id: string;
@@ -168,6 +168,8 @@ export default function UserProfilePage() {
     );
   }
 
+  const profileSchoolLogo = getLawSchoolLogo(profile.law_school);
+
   return (
     <main className="min-h-screen bg-[#2b2b2b] text-white p-6">
       <div className="max-w-6xl mx-auto">
@@ -218,16 +220,31 @@ export default function UserProfilePage() {
                       className="w-full px-3 py-2 rounded-lg bg-[#2b2b2b] border border-white/20 focus:border-white/40 focus:outline-none mb-3"
                     >
                       <option value="">Select law school...</option>
-                      {ABA_LAW_SCHOOLS.map((school) => (
+                  {ABA_LAW_SCHOOLS.map((school) => (
                         <option key={school} value={school}>
                           {school}
                         </option>
                       ))}
                     </select>
                   ) : (
-                    <p className="text-lg text-white/70 mb-4">
-                      {profile.law_school || "No law school set"}
-                    </p>
+                    profile.law_school ? (
+                      <div className="flex items-center gap-2 text-lg text-white/70 mb-4">
+                        {profileSchoolLogo && (
+                          <Image
+                            src={profileSchoolLogo}
+                            alt={`${profile.law_school} logo`}
+                            width={32}
+                            height={32}
+                            className="rounded"
+                          />
+                        )}
+                        <span>{profile.law_school}</span>
+                      </div>
+                    ) : (
+                      <p className="text-lg text-white/70 mb-4">
+                        No law school set
+                      </p>
+                    )
                   )}
 
                   <div className="flex items-center gap-6 text-sm">

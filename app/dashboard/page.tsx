@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { supabase } from "../lib/supabaseClient";
+import { getLawSchoolLogo } from "../lib/lawschools";
 import ProfilePicture from "../components/ProfilePicture";
 
 type ArtifactRow = {
@@ -44,6 +45,7 @@ export default function DashboardPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [typeFilter, setTypeFilter] = useState<"all" | "bset" | "bmod" | "tbank">("all");
   const [msg, setMsg] = useState<string | null>(null);
+  const userLawSchoolLogo = userProfile?.law_school ? getLawSchoolLogo(userProfile.law_school) : undefined;
 
   // SET PAGE TITLE
   useEffect(() => {
@@ -462,9 +464,18 @@ export default function DashboardPage() {
                       @{userProfile.username}
                     </button>
                     {userProfile.law_school && (
-                      <p className="text-sm text-white/60 mt-1">
-                        {userProfile.law_school}
-                      </p>
+                      <div className="flex items-center gap-2 text-sm text-white/60 mt-1">
+                        {userLawSchoolLogo && (
+                          <Image
+                            src={userLawSchoolLogo}
+                            alt={`${userProfile.law_school} logo`}
+                            width={20}
+                            height={20}
+                            className="rounded"
+                          />
+                        )}
+                        <span>{userProfile.law_school}</span>
+                      </div>
                     )}
                   </div>
                 </div>
