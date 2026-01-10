@@ -106,7 +106,7 @@ export default function SchoolCommunity({ userSchool, currentUserId }: SchoolCom
             onClick={() => router.push(`/school/${encodeURIComponent(userSchool)}`)}
             className="w-full text-center py-2 rounded-lg border border-white/20 hover:bg-white/5 transition-colors text-sm"
           >
-            View All ({totalCount})
+            Go to {userSchool}
           </button>
         </>
       )}

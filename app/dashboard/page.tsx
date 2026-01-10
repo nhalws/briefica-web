@@ -31,6 +31,7 @@ type UserProfile = {
   pending_requests: number;
   profile_picture_url: string | null;
   total_likes: number;
+  total_downloads: number;
 };
 
 export default function DashboardPage() {
@@ -87,12 +88,19 @@ export default function DashboardPage() {
     const artifactIds = (userArtifacts ?? []).map((a: any) => a.id);
 
     let totalLikes = 0;
+    let totalDownloads = 0;
     if (artifactIds.length > 0) {
       const { count: likesCount } = await supabase
         .from("artifact_likes")
         .select("id", { count: "exact", head: true })
         .in("artifact_id", artifactIds);
       totalLikes = likesCount ?? 0;
+
+      const { count: downloadsCount } = await supabase
+        .from("artifact_downloads")
+        .select("id", { count: "exact", head: true })
+        .in("artifact_id", artifactIds);
+      totalDownloads = downloadsCount ?? 0;
     }
 
     const { count: friendCount } = await supabase
@@ -115,6 +123,7 @@ export default function DashboardPage() {
       pending_requests: pendingCount ?? 0,
       profile_picture_url: profilePictureUrl,
       total_likes: totalLikes,
+      total_downloads: totalDownloads,
     });
   }
 
@@ -503,14 +512,18 @@ export default function DashboardPage() {
                   </div>
                 </div>
 
-                <div className="flex flex-col gap-1 text-sm">
+                <div className="flex flex-col gap-1 text-xs">
                   <div className="flex items-center gap-1">
                     <span className="text-white/60">Uploads:</span>
                     <span className="font-medium">{userProfile.upload_count}</span>
                   </div>
                   <div className="flex items-center gap-1">
-                    <span className="text-white/60">Hearts:</span>
+                    <span className="text-white/60">Likes:</span>
                     <span className="font-medium">{userProfile.total_likes}</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <span className="text-white/60">Downloads:</span>
+                    <span className="font-medium">{userProfile.total_downloads}</span>
                   </div>
                   <div className="flex items-center gap-1">
                     <span className="text-white/60">Friends:</span>
