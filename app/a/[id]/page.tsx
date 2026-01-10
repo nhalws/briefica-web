@@ -422,7 +422,7 @@ export default function ArtifactPage() {
             </button>
           </div>
 
-          <div className="mt-6 flex flex-col gap-3">
+          <div className="mt-6 flex flex-wrap gap-3">
             <button
               onClick={download}
               disabled={busy}
@@ -431,15 +431,23 @@ export default function ArtifactPage() {
               {busy ? "Preparing..." : "Download"}
             </button>
             {artifact.owner_id === currentUserId && (
-              <button
-                onClick={deleteArtifact}
-                disabled={busy}
-                className="bg-red-500 text-white rounded-lg py-2 px-4 font-medium hover:bg-red-400 transition-colors disabled:opacity-50"
-              >
-                {busy ? "Working..." : "Delete Artifact"}
-              </button>
+              <>
+                <button
+                  onClick={() => router.push(`/upload?edit=${artifact.id}`)}
+                  disabled={busy}
+                  className="border border-white/20 rounded-lg py-2 px-4 font-medium hover:bg-white/5 transition-colors disabled:opacity-50"
+                >
+                  Edit
+                </button>
+                <button
+                  onClick={deleteArtifact}
+                  disabled={busy}
+                  className="bg-red-500 text-white rounded-lg py-2 px-4 font-medium hover:bg-red-400 transition-colors disabled:opacity-50"
+                >
+                  {busy ? "Working..." : "Delete"}
+                </button>
+              </>
             )}
-
           </div>
 
           {msg && <p className="text-sm text-red-400 mt-4">{msg}</p>}
