@@ -34,6 +34,15 @@ interface Artifact {
   download_count?: number;
 }
 
+// School logo mapping - add your images here
+const SCHOOL_LOGOS: Record<string, string> = {
+  "UCLA": '', // Add UCLA logo path
+  "Harvard University": '', // Add Harvard logo path
+  "Yale University": '', // Add Yale logo path
+  "Stanford University": '', // Add Stanford logo path
+  "Columbia University": '', // Add Columbia logo path
+};
+
 export default function SchoolDirectoryPage() {
   const router = useRouter();
   const params = useParams<{ schoolName?: string; SchoolName?: string }>();
@@ -56,7 +65,7 @@ export default function SchoolDirectoryPage() {
       : "";
 
   const [members, setMembers] = useState<SchoolMember[]>([]);
-  const [topSets, setTopSets] = useState<Artifact[]>([]);
+  const [topRated, setTopRated] = useState<Artifact[]>([]);
   const [topUsers, setTopUsers] = useState<TopUser[]>([]);
   const [mostDownloaded, setMostDownloaded] = useState<Artifact[]>([]);
   const [artifacts, setArtifacts] = useState<Artifact[]>([]);
@@ -69,8 +78,8 @@ export default function SchoolDirectoryPage() {
   const [error, setError] = useState<string | null>(null);
 
   // Collapsible widget states
-  const [topSetsExpanded, setTopSetsExpanded] = useState(true);
   const [topUsersExpanded, setTopUsersExpanded] = useState(true);
+  const [topRatedExpanded, setTopRatedExpanded] = useState(true);
   const [mostDownloadedExpanded, setMostDownloadedExpanded] = useState(true);
 
   useEffect(() => {
@@ -203,12 +212,11 @@ export default function SchoolDirectoryPage() {
             setArtifacts(artifactsWithCounts);
             setFilteredArtifacts(artifactsWithCounts);
 
-            // Get top 10 .bset files by likes
-            const topBsets = artifactsWithCounts
-              .filter(a => a.type === "bset")
+            // Get top 10 most liked artifacts (all types)
+            const topLiked = artifactsWithCounts
               .sort((a, b) => (b.like_count || 0) - (a.like_count || 0))
               .slice(0, 10);
-            setTopSets(topBsets);
+            setTopRated(topLiked);
 
             // Get top 10 most downloaded (all types)
             const topDownloaded = artifactsWithCounts
@@ -366,6 +374,8 @@ export default function SchoolDirectoryPage() {
     );
   }
 
+  const schoolLogo = SCHOOL_LOGOS[schoolName];
+
   return (
     <main className="min-h-screen bg-[#2b2b2b] text-white p-6">
       <div className="max-w-7xl mx-auto">
@@ -390,24 +400,26 @@ export default function SchoolDirectoryPage() {
           />
         </div>
 
-        {/* School Header */}
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold mb-1">{schoolName}</h1>
-          <p className="text-sm text-white/70">{members.length} member{members.length !== 1 ? 's' : ''} · {artifacts.length} artifact{artifacts.length !== 1 ? 's' : ''}</p>
+        {/* School Header with Logo */}
+        <div className="mb-6 flex items-center gap-4">
+          {schoolLogo && (
+            <Image
+              src={schoolLogo}
+              alt={schoolName}
+              width={96}
+              height={96}
+              className="rounded-xl object-cover"
+            />
+          )}
+          <div>
+            <h1 className="text-3xl font-bold mb-1">{schoolName}</h1>
+            <p className="text-sm text-white/70">{members.length} member{members.length !== 1 ? 's' : ''} · {artifacts.length} artifact{artifacts.length !== 1 ? 's' : ''}</p>
+          </div>
         </div>
 
         <div className="grid lg:grid-cols-3 gap-4 mb-6">
-          {/* Left Column - Member Directory & Subject Prefs */}
+          {/* Left Column - Member Directory */}
           <div className="lg:col-span-2 space-y-4">
-            {/* Subject Preferences */}
-            {currentUserId && (
-              <SubjectPreferences
-                userId={currentUserId}
-                userSchool={schoolName}
-                onUpdate={() => window.location.reload()}
-              />
-            )}
-
             {/* Member Directory Preview */}
             <div className="border border-white/10 bg-[#1e1e1e] rounded-xl p-4">
               <h2 className="text-lg font-bold mb-3">Members</h2>
@@ -443,64 +455,13 @@ export default function SchoolDirectoryPage() {
 
           {/* Right Column - Compact Collapsible Widgets */}
           <div className="space-y-3">
-            {/* Top Rated Sets */}
-            <div className="border border-white/10 bg-[#1e1e1e] rounded-xl overflow-hidden">
-              <button
-                onClick={() => setTopSetsExpanded(!topSetsExpanded)}
-                className="w-full flex items-center justify-between p-3 hover:bg-white/5 transition-colors"
-              >
-                <h2 className="text-sm font-bold">Top Rated Sets</h2>
-                <svg
-                  className={`w-4 h-4 transition-transform ${topSetsExpanded ? 'rotate-180' : ''}`}
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-              </button>
-              {topSetsExpanded && (
-                <div className="px-3 pb-3">
-                  {topSets.length === 0 ? (
-                    <p className="text-xs text-white/60">No .bset files yet</p>
-                  ) : (
-                    <div className="space-y-2">
-                      {topSets.slice(0, 5).map((artifact, index) => (
-                        <button
-                          key={artifact.id}
-                          onClick={() => router.push(`/a/${artifact.id}`)}
-                          className="w-full text-left p-2 rounded-lg hover:bg-white/5 transition-colors"
-                        >
-                          <div className="flex items-start gap-2">
-                            <span className="text-white/40 text-xs font-bold">#{index + 1}</span>
-                            <div className="flex-1 min-w-0">
-                              <div className="text-xs font-medium line-clamp-1">{artifact.title}</div>
-                              <div className="text-xs text-white/60 flex items-center gap-2">
-                                <span>@{artifact.owner_username}</span>
-                                <span className="flex items-center gap-0.5">
-                                  <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                                  </svg>
-                                  {artifact.like_count || 0}
-                                </span>
-                              </div>
-                            </div>
-                          </div>
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-
-            {/* Top Rated Users */}
+            {/* Top Users */}
             <div className="border border-white/10 bg-[#1e1e1e] rounded-xl overflow-hidden">
               <button
                 onClick={() => setTopUsersExpanded(!topUsersExpanded)}
                 className="w-full flex items-center justify-between p-3 hover:bg-white/5 transition-colors"
               >
-                <h2 className="text-sm font-bold">Top Rated Users</h2>
+                <h2 className="text-sm font-bold">Top Users</h2>
                 <svg
                   className={`w-4 h-4 transition-transform ${topUsersExpanded ? 'rotate-180' : ''}`}
                   fill="none"
@@ -535,7 +496,63 @@ export default function SchoolDirectoryPage() {
                               <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
                                 <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                               </svg>
-                              {user.total_likes} likes
+                              {user.total_likes}
+                            </div>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Top Rated */}
+            <div className="border border-white/10 bg-[#1e1e1e] rounded-xl overflow-hidden">
+              <button
+                onClick={() => setTopRatedExpanded(!topRatedExpanded)}
+                className="w-full flex items-center justify-between p-3 hover:bg-white/5 transition-colors"
+              >
+                <h2 className="text-sm font-bold">Top Rated</h2>
+                <svg
+                  className={`w-4 h-4 transition-transform ${topRatedExpanded ? 'rotate-180' : ''}`}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+              {topRatedExpanded && (
+                <div className="px-3 pb-3">
+                  {topRated.length === 0 ? (
+                    <p className="text-xs text-white/60">No artifacts yet</p>
+                  ) : (
+                    <div className="space-y-2">
+                      {topRated.slice(0, 5).map((artifact, index) => (
+                        <button
+                          key={artifact.id}
+                          onClick={() => router.push(`/a/${artifact.id}`)}
+                          className="w-full text-left p-2 rounded-lg hover:bg-white/5 transition-colors"
+                        >
+                          <div className="flex items-start gap-2">
+                            <span className="text-white/40 text-xs font-bold">#{index + 1}</span>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-1 mb-0.5">
+                                <span className="text-xs px-1.5 py-0.5 rounded bg-white/10 border border-white/10">
+                                  {badge(artifact.type)}
+                                </span>
+                              </div>
+                              <div className="text-xs font-medium line-clamp-1">{artifact.title}</div>
+                              <div className="text-xs text-white/60 flex items-center gap-2">
+                                <span>@{artifact.owner_username}</span>
+                                <span className="flex items-center gap-0.5">
+                                  <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                                  </svg>
+                                  {artifact.like_count || 0}
+                                </span>
+                              </div>
                             </div>
                           </div>
                         </button>
@@ -604,63 +621,73 @@ export default function SchoolDirectoryPage() {
           </div>
         </div>
 
-        {/* Search & Filter Section */}
+        {/* Search & Filter Section with Subject Preferences */}
         <div className="mb-4">
           <h2 className="text-xl font-bold mb-3">All Artifacts</h2>
           
-          {/* Search Bar */}
-          <div className="mb-3">
+          {/* Search Bar and Filters with Subject Preferences */}
+          <div className="flex flex-col lg:flex-row gap-3 mb-3">
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search artifacts by title, description, or username..."
-              className="w-full px-4 py-2 rounded-lg bg-[#1e1e1e] border border-white/20 focus:border-white/40 focus:outline-none text-sm"
+              className="flex-1 px-4 py-2 rounded-lg bg-[#1e1e1e] border border-white/20 focus:border-white/40 focus:outline-none text-sm"
             />
-          </div>
 
-          {/* Type Filters */}
-          <div className="flex gap-2">
-            <button
-              onClick={() => setTypeFilter("all")}
-              className={`px-3 py-1.5 text-sm rounded-lg border transition-colors ${
-                typeFilter === "all"
-                  ? "bg-white text-black border-white"
-                  : "border-white/20 hover:bg-white/5"
-              }`}
-            >
-              All
-            </button>
-            <button
-              onClick={() => setTypeFilter("bset")}
-              className={`px-3 py-1.5 text-sm rounded-lg border transition-colors ${
-                typeFilter === "bset"
-                  ? "bg-white text-black border-white"
-                  : "border-white/20 hover:bg-white/5"
-              }`}
-            >
-              .bset
-            </button>
-            <button
-              onClick={() => setTypeFilter("bmod")}
-              className={`px-3 py-1.5 text-sm rounded-lg border transition-colors ${
-                typeFilter === "bmod"
-                  ? "bg-white text-black border-white"
-                  : "border-white/20 hover:bg-white/5"
-              }`}
-            >
-              .bmod
-            </button>
-            <button
-              onClick={() => setTypeFilter("tbank")}
-              className={`px-3 py-1.5 text-sm rounded-lg border transition-colors ${
-                typeFilter === "tbank"
-                  ? "bg-white text-black border-white"
-                  : "border-white/20 hover:bg-white/5"
-              }`}
-            >
-              .tbank
-            </button>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setTypeFilter("all")}
+                className={`px-3 py-1.5 text-sm rounded-lg border transition-colors ${
+                  typeFilter === "all"
+                    ? "bg-white text-black border-white"
+                    : "border-white/20 hover:bg-white/5"
+                }`}
+              >
+                All
+              </button>
+              <button
+                onClick={() => setTypeFilter("bset")}
+                className={`px-3 py-1.5 text-sm rounded-lg border transition-colors ${
+                  typeFilter === "bset"
+                    ? "bg-white text-black border-white"
+                    : "border-white/20 hover:bg-white/5"
+                }`}
+              >
+                .bset
+              </button>
+              <button
+                onClick={() => setTypeFilter("bmod")}
+                className={`px-3 py-1.5 text-sm rounded-lg border transition-colors ${
+                  typeFilter === "bmod"
+                    ? "bg-white text-black border-white"
+                    : "border-white/20 hover:bg-white/5"
+                }`}
+              >
+                .bmod
+              </button>
+              <button
+                onClick={() => setTypeFilter("tbank")}
+                className={`px-3 py-1.5 text-sm rounded-lg border transition-colors ${
+                  typeFilter === "tbank"
+                    ? "bg-white text-black border-white"
+                    : "border-white/20 hover:bg-white/5"
+                }`}
+              >
+                .tbank
+              </button>
+            </div>
+
+            {/* Subject Preferences on right side */}
+            {currentUserId && (
+              <div className="lg:w-64">
+                <SubjectPreferences
+                  userId={currentUserId}
+                  userSchool={schoolName}
+                  onUpdate={() => window.location.reload()}
+                />
+              </div>
+            )}
           </div>
         </div>
 
