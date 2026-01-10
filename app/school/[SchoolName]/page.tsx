@@ -1,5 +1,4 @@
 "use client";
-// Force rebuild - Jan 9 2026
 
 import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
@@ -29,16 +28,17 @@ interface Artifact {
   title: string;
   description: string | null;
   created_at: string;
+  file_url: string;
   owner_username?: string;
   like_count?: number;
-  share_count?: number;
+  download_count?: number;
 }
 
 export default function SchoolDirectoryPage() {
   const router = useRouter();
   const params = useParams();
   
-  const rawSchoolName = (params as Record<string, string | string[] | undefined>)?.schoolName ?? (params as Record<string, string | string[] | undefined>)?.SchoolName;
+  const rawSchoolName = params?.schoolName;
   const schoolName = typeof rawSchoolName === 'string' 
     ? decodeURIComponent(rawSchoolName) 
     : Array.isArray(rawSchoolName) 
@@ -48,6 +48,9 @@ export default function SchoolDirectoryPage() {
   const [members, setMembers] = useState<SchoolMember[]>([]);
   const [topSets, setTopSets] = useState<Artifact[]>([]);
   const [topUsers, setTopUsers] = useState<TopUser[]>([]);
+  const [mostDownloadedSets, setMostDownloadedSets] = useState<Artifact[]>([]);
+  const [mostDownloadedMods, setMostDownloadedMods] = useState<Artifact[]>([]);
+  const [mostDownloadedTbanks, setMostDownloadedTbanks] = useState<Artifact[]>([]);
   const [artifacts, setArtifacts] = useState<Artifact[]>([]);
   const [filteredArtifacts, setFilteredArtifacts] = useState<Artifact[]>([]);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
@@ -155,15 +158,15 @@ export default function SchoolDirectoryPage() {
             owner_username: profilesData.find(p => p.user_id === artifact.owner_id)?.username || "unknown",
           }));
 
-          // Get like counts for all artifacts
+          // Get like counts and download counts for all artifacts
           const artifactIds = artifactsData.map(a => a.id);
           const { data: likes } = await supabase
             .from("artifact_likes")
             .select("artifact_id")
             .in("artifact_id", artifactIds);
 
-          const { data: shares } = await supabase
-            .from("artifact_shares")
+          const { data: downloads } = await supabase
+            .from("artifact_downloads")
             .select("artifact_id")
             .in("artifact_id", artifactIds);
 
@@ -172,15 +175,15 @@ export default function SchoolDirectoryPage() {
             likeCounts[like.artifact_id] = (likeCounts[like.artifact_id] || 0) + 1;
           });
 
-          const shareCounts: Record<string, number> = {};
-          (shares ?? []).forEach((share) => {
-            shareCounts[share.artifact_id] = (shareCounts[share.artifact_id] || 0) + 1;
+          const downloadCounts: Record<string, number> = {};
+          (downloads ?? []).forEach((download) => {
+            downloadCounts[download.artifact_id] = (downloadCounts[download.artifact_id] || 0) + 1;
           });
 
           const artifactsWithCounts = artifactsWithOwners.map(artifact => ({
             ...artifact,
             like_count: likeCounts[artifact.id] || 0,
-            share_count: shareCounts[artifact.id] || 0,
+            download_count: downloadCounts[artifact.id] || 0,
           }));
 
           if (mounted) {
@@ -193,6 +196,25 @@ export default function SchoolDirectoryPage() {
               .sort((a, b) => (b.like_count || 0) - (a.like_count || 0))
               .slice(0, 10);
             setTopSets(topBsets);
+
+            // Get top 10 most downloaded by type
+            const topDownloadedSets = artifactsWithCounts
+              .filter(a => a.type === "bset")
+              .sort((a, b) => (b.download_count || 0) - (a.download_count || 0))
+              .slice(0, 10);
+            setMostDownloadedSets(topDownloadedSets);
+
+            const topDownloadedMods = artifactsWithCounts
+              .filter(a => a.type === "bmod")
+              .sort((a, b) => (b.download_count || 0) - (a.download_count || 0))
+              .slice(0, 10);
+            setMostDownloadedMods(topDownloadedMods);
+
+            const topDownloadedTbanks = artifactsWithCounts
+              .filter(a => a.type === "tbank")
+              .sort((a, b) => (b.download_count || 0) - (a.download_count || 0))
+              .slice(0, 10);
+            setMostDownloadedTbanks(topDownloadedTbanks);
           }
         }
 
@@ -272,6 +294,25 @@ export default function SchoolDirectoryPage() {
 
     setFilteredArtifacts(filtered);
   }, [searchQuery, typeFilter, artifacts]);
+
+  async function handleDownload(artifactId: string, fileUrl: string, fileName: string) {
+    if (!currentUserId) return;
+
+    // Record download in database
+    await supabase.from("artifact_downloads").insert({
+      artifact_id: artifactId,
+      user_id: currentUserId,
+    });
+
+    // Trigger download
+    const link = document.createElement('a');
+    link.href = fileUrl;
+    link.download = fileName;
+    link.click();
+
+    // Refresh page to update counts
+    window.location.reload();
+  }
 
   function badge(type: Artifact["type"]) {
     return type === "bset" ? ".bset" : type === "bmod" ? ".bmod" : ".tbank";
@@ -381,7 +422,7 @@ export default function SchoolDirectoryPage() {
             </div>
           </div>
 
-          {/* Right Column - Top Sets & Top Users */}
+          {/* Right Column - Top Rated & Most Downloaded */}
           <div className="space-y-6">
             {/* Top Rated Sets */}
             <div className="border border-white/10 bg-[#1e1e1e] rounded-2xl p-6">
@@ -435,6 +476,93 @@ export default function SchoolDirectoryPage() {
                       <div className="flex-1">
                         <div className="font-medium">@{user.username}</div>
                         <div className="text-xs text-white/60">❤️ {user.total_likes} likes</div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Most Downloaded Sets */}
+            <div className="border border-white/10 bg-[#1e1e1e] rounded-2xl p-6">
+              <h2 className="text-xl font-bold mb-4">Most Downloaded Sets</h2>
+              {mostDownloadedSets.length === 0 ? (
+                <p className="text-sm text-white/60">No downloads yet</p>
+              ) : (
+                <div className="space-y-3">
+                  {mostDownloadedSets.map((artifact, index) => (
+                    <button
+                      key={artifact.id}
+                      onClick={() => router.push(`/a/${artifact.id}`)}
+                      className="w-full text-left p-3 rounded-lg hover:bg-white/5 transition-colors"
+                    >
+                      <div className="flex items-start gap-2 mb-1">
+                        <span className="text-white/40 text-sm font-bold">#{index + 1}</span>
+                        <div className="flex-1">
+                          <div className="font-medium line-clamp-1">{artifact.title}</div>
+                          <div className="text-xs text-white/60">@{artifact.owner_username}</div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 text-xs text-white/60">
+                        <span>⬇️ {artifact.download_count || 0}</span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Most Downloaded Mods */}
+            <div className="border border-white/10 bg-[#1e1e1e] rounded-2xl p-6">
+              <h2 className="text-xl font-bold mb-4">Most Downloaded Mods</h2>
+              {mostDownloadedMods.length === 0 ? (
+                <p className="text-sm text-white/60">No downloads yet</p>
+              ) : (
+                <div className="space-y-3">
+                  {mostDownloadedMods.map((artifact, index) => (
+                    <button
+                      key={artifact.id}
+                      onClick={() => router.push(`/a/${artifact.id}`)}
+                      className="w-full text-left p-3 rounded-lg hover:bg-white/5 transition-colors"
+                    >
+                      <div className="flex items-start gap-2 mb-1">
+                        <span className="text-white/40 text-sm font-bold">#{index + 1}</span>
+                        <div className="flex-1">
+                          <div className="font-medium line-clamp-1">{artifact.title}</div>
+                          <div className="text-xs text-white/60">@{artifact.owner_username}</div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 text-xs text-white/60">
+                        <span>⬇️ {artifact.download_count || 0}</span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Most Downloaded Test Banks */}
+            <div className="border border-white/10 bg-[#1e1e1e] rounded-2xl p-6">
+              <h2 className="text-xl font-bold mb-4">Most Downloaded Test Banks</h2>
+              {mostDownloadedTbanks.length === 0 ? (
+                <p className="text-sm text-white/60">No downloads yet</p>
+              ) : (
+                <div className="space-y-3">
+                  {mostDownloadedTbanks.map((artifact, index) => (
+                    <button
+                      key={artifact.id}
+                      onClick={() => router.push(`/a/${artifact.id}`)}
+                      className="w-full text-left p-3 rounded-lg hover:bg-white/5 transition-colors"
+                    >
+                      <div className="flex items-start gap-2 mb-1">
+                        <span className="text-white/40 text-sm font-bold">#{index + 1}</span>
+                        <div className="flex-1">
+                          <div className="font-medium line-clamp-1">{artifact.title}</div>
+                          <div className="text-xs text-white/60">@{artifact.owner_username}</div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 text-xs text-white/60">
+                        <span>⬇️ {artifact.download_count || 0}</span>
                       </div>
                     </button>
                   ))}
@@ -514,8 +642,7 @@ export default function SchoolDirectoryPage() {
             filteredArtifacts.map((artifact) => (
               <div
                 key={artifact.id}
-                className="border border-white/10 bg-[#1e1e1e] rounded-2xl p-4 hover:bg-white/5 transition-colors cursor-pointer"
-                onClick={() => router.push(`/a/${artifact.id}`)}
+                className="border border-white/10 bg-[#1e1e1e] rounded-2xl p-4 hover:bg-white/5 transition-colors"
               >
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-3">
@@ -537,16 +664,39 @@ export default function SchoolDirectoryPage() {
                   </button>
                 </div>
 
-                <div className="font-medium mb-1">{artifact.title}</div>
-                {artifact.description && (
-                  <div className="text-sm text-white/70 mb-3 line-clamp-2">
-                    {artifact.description}
-                  </div>
-                )}
+                <button
+                  onClick={() => router.push(`/a/${artifact.id}`)}
+                  className="text-left w-full mb-3"
+                >
+                  <div className="font-medium mb-1">{artifact.title}</div>
+                  {artifact.description && (
+                    <div className="text-sm text-white/70 line-clamp-2">
+                      {artifact.description}
+                    </div>
+                  )}
+                </button>
 
                 <div className="flex items-center gap-4 text-sm text-white/60">
                   <span>❤️ {artifact.like_count || 0}</span>
-                  <span>🔗 {artifact.share_count || 0}</span>
+                  <button
+                    onClick={() => handleDownload(artifact.id, artifact.file_url, `${artifact.title}.${artifact.type}`)}
+                    className="flex items-center gap-1 hover:text-white transition-colors"
+                  >
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"
+                      />
+                    </svg>
+                    <span>{artifact.download_count || 0}</span>
+                  </button>
                 </div>
               </div>
             ))
