@@ -18,7 +18,7 @@ export default function UploadPage() {
   const [userSchool, setUserSchool] = useState<string | null>(null);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [visibility, setVisibility] = useState<"public" | "private" | "friends">("public");
+  const [visibility, setVisibility] = useState<"public" | "private" | "unlisted">("public");
   const [type, setType] = useState<"bset" | "bmod" | "tbank">("bset");
   const [file, setFile] = useState<File | null>(null);
   const [school, setSchool] = useState<string>("");
@@ -128,27 +128,26 @@ export default function UploadPage() {
         data: { publicUrl },
       } = supabase.storage.from("artifacts").getPublicUrl(filePath);
 
-// Create artifact record
-const { data: artifact, error: artifactError } = await supabase
-  .from("artifacts")
-  .insert({
-    owner_id: currentUserId,
-    type,
-    title: title.trim(),
-    description: description.trim() || null,
-    visibility,
-    storage_key: filePath, // IMPORTANT
-    school: school || null,
-    tags: tags.trim() || null,
-  })
-  .select()
-  .single();
+      // Create artifact record - FIXED VERSION
+      const { data: artifact, error: artifactError } = await supabase
+        .from("artifacts")
+        .insert({
+          owner_id: currentUserId,
+          type,
+          title: title.trim(),
+          description: description.trim() || null,
+          visibility,
+          file_url: publicUrl,
+          school: school || null,
+          tags: tags.trim() || null,
+        })
+        .select()
+        .single();
 
-console.log("ARTIFACT INSERT ERROR:", artifactError);
-if (artifactError) throw artifactError;
-
-
-      if (artifactError) throw artifactError;
+      if (artifactError) {
+        console.error("ARTIFACT INSERT ERROR:", artifactError);
+        throw artifactError;
+      }
 
       // Link subjects to artifact
       if (selectedSubjects.length > 0 && artifact) {
@@ -157,18 +156,20 @@ if (artifactError) throw artifactError;
           subject_id: subjectId,
         }));
 
-const { error: subjectsError } = await supabase
-  .from("artifact_subjects")
-  .insert(subjectLinks);
+        const { error: subjectsError } = await supabase
+          .from("artifact_subjects")
+          .insert(subjectLinks);
 
-console.log("ARTIFACT_SUBJECTS INSERT ERROR:", subjectsError);
-if (subjectsError) throw subjectsError;
-
+        if (subjectsError) {
+          console.error("ARTIFACT_SUBJECTS INSERT ERROR:", subjectsError);
+          throw subjectsError;
+        }
       }
 
       // Success! Redirect to dashboard
       router.push("/dashboard");
     } catch (err: any) {
+      console.error("Upload error:", err);
       setError(err.message || "Upload failed");
       setUploading(false);
     }
@@ -346,8 +347,12 @@ if (subjectsError) throw subjectsError;
             <input
               type="file"
               onChange={(e) => setFile(e.target.files?.[0] || null)}
+              accept=".bset,.bmod,.tbank"
               className="w-full px-4 py-2 rounded-lg bg-[#2b2b2b] border border-white/20 focus:border-white/40 focus:outline-none"
             />
+            <p className="text-xs text-white/50 mt-1">
+              Accepted formats: .bset, .bmod, .tbank
+            </p>
           </div>
 
           {/* Visibility */}
@@ -365,14 +370,14 @@ if (subjectsError) throw subjectsError;
                 Public
               </button>
               <button
-                onClick={() => setVisibility("friends")}
+                onClick={() => setVisibility("unlisted")}
                 className={`px-4 py-2 rounded-lg border transition-colors ${
-                  visibility === "friends"
+                  visibility === "unlisted"
                     ? "bg-white text-black border-white"
                     : "border-white/20 hover:bg-white/5"
                 }`}
               >
-                Friends only
+                Unlisted
               </button>
               <button
                 onClick={() => setVisibility("private")}
@@ -385,6 +390,9 @@ if (subjectsError) throw subjectsError;
                 Private
               </button>
             </div>
+            <p className="text-xs text-white/50 mt-1">
+              Public: Anyone can see • Unlisted: Only with link • Private: Only you
+            </p>
           </div>
 
           {/* Upload Button */}
