@@ -8,7 +8,7 @@ import ProfilePicture from "../components/ProfilePicture";
 import SchoolCommunity from "../components/SchoolCommunity";
 import LiveChat from "../components/LiveChat";
 import Footer from "../components/Footer";
-import ConfirmedBanner from "./ConfirmedBanner";
+import ConfirmedBanner from "./Confirmedbanner";
 
 type ArtifactRow = {
   id: string;
