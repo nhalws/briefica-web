@@ -38,11 +38,13 @@ export default function SchoolDirectoryPage() {
   const router = useRouter();
   const params = useParams();
   
-  const rawSchoolName = params?.schoolName;
-  const schoolName = typeof rawSchoolName === 'string' 
-    ? decodeURIComponent(rawSchoolName) 
-    : Array.isArray(rawSchoolName) 
-    ? decodeURIComponent(rawSchoolName[0]) 
+  // FIXED: Robust school name extraction
+  const schoolName = params?.schoolName 
+    ? (typeof params.schoolName === 'string' 
+        ? decodeURIComponent(params.schoolName) 
+        : Array.isArray(params.schoolName) && params.schoolName.length > 0
+        ? decodeURIComponent(params.schoolName[0])
+        : "")
     : "";
 
   const [members, setMembers] = useState<SchoolMember[]>([]);
