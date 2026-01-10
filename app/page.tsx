@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { supabase } from "./lib/supabaseClient";
+import Footer from "./components/Footer";
 
 export default function HomePage() {
   const router = useRouter();
@@ -119,16 +120,15 @@ export default function HomePage() {
       </div>
 
       {/* Hero Section */}
-      <div className="max-w-6xl mx-auto px-5 py-20 text-center">
-        <h1 className="text-4xl md:text-5xl font-bold mb-6">
-          A NEW WAY TO OUTLINE?
+      <div className="max-w-6xl mx-auto px-6 py-20 text-center">
+        <h1 className="text-5xl md:text-6xl font-bold mb-6">
+          STUDY SMARTER,
           <br />
-          TIME TO MAKE A B-LINE.
+          NOT HARDER.
         </h1>
-        <p className="text-xl text-white/70 mb-8 max-w-2xl mx-auto">
-          briefica is a native desktop editor and web platform for structured
-          legal logic files. upload, browse, and share .bset, .bmod, and .tbank
-          files with your community.
+        <p className="text-xl text-white/80 mb-8 max-w-3xl mx-auto">
+          briefica is the all-in-one platform for law students. Create structured briefs with our native desktop app, 
+          share with your school community, and access a growing library of study materials—all in one place.
         </p>
 
         <div className="flex gap-4 justify-center">
@@ -145,7 +145,7 @@ export default function HomePage() {
               onClick={() => router.push("/auth")}
               className="border border-white/20 rounded-lg py-3 px-6 font-medium text-lg hover:bg-white/5 transition-colors"
             >
-              get started
+              get started free
             </button>
           )}
         </div>
@@ -153,6 +153,7 @@ export default function HomePage() {
 
       {/* Features Grid */}
       <div className="max-w-6xl mx-auto px-6 py-20">
+        <h2 className="text-3xl font-bold text-center mb-12">Everything You Need to Succeed</h2>
         <div className="grid md:grid-cols-3 gap-8">
           {/* Native Editor */}
           <div className="border border-white/10 bg-[#1e1e1e] rounded-2xl p-8">
@@ -171,38 +172,14 @@ export default function HomePage() {
                 />
               </svg>
             </div>
-            <h3 className="text-xl font-semibold mb-2">native desktop app</h3>
+            <h3 className="text-xl font-semibold mb-2">Native Desktop App</h3>
             <p className="text-white/70">
-              powerful macOS editor for .bset, .bmod, and .tbank files.
-              built for speed and precision.
+              Powerful macOS editor built specifically for case briefs, outlines, and test banks. 
+              Create .bset, .bmod, and .tbank files with speed and precision.
             </p>
           </div>
 
-          {/* Web Platform */}
-          <div className="border border-white/10 bg-[#1e1e1e] rounded-2xl p-8">
-            <div className="w-12 h-12 rounded-lg flex items-center justify-center mb-4" style={{ backgroundColor: '#66b2ff' }}>
-              <svg
-                className="w-6 h-6 text-white"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"
-                />
-              </svg>
-            </div>
-            <h3 className="text-xl font-semibold mb-2">web distribution</h3>
-            <p className="text-white/70">
-              upload and share your work. browse and download artifacts from
-              the community.
-            </p>
-          </div>
-
-          {/* Community */}
+          {/* Social Features */}
           <div className="border border-white/10 bg-[#1e1e1e] rounded-2xl p-8">
             <div className="w-12 h-12 rounded-lg flex items-center justify-center mb-4" style={{ backgroundColor: '#66b2ff' }}>
               <svg
@@ -219,10 +196,34 @@ export default function HomePage() {
                 />
               </svg>
             </div>
-            <h3 className="text-xl font-semibold mb-2">legal community</h3>
+            <h3 className="text-xl font-semibold mb-2">School Communities</h3>
             <p className="text-white/70">
-              connect with law students and practitioners. share knowledge and
-              collaborate.
+              Connect with classmates at your law school. Join subject-specific channels, 
+              share materials, and collaborate in real-time with live chat.
+            </p>
+          </div>
+
+          {/* Library */}
+          <div className="border border-white/10 bg-[#1e1e1e] rounded-2xl p-8">
+            <div className="w-12 h-12 rounded-lg flex items-center justify-center mb-4" style={{ backgroundColor: '#66b2ff' }}>
+              <svg
+                className="w-6 h-6 text-white"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                />
+              </svg>
+            </div>
+            <h3 className="text-xl font-semibold mb-2">Discover & Download</h3>
+            <p className="text-white/70">
+              Browse thousands of briefs, outlines, and test banks from students at top law schools. 
+              Download materials and open them directly in the app.
             </p>
           </div>
         </div>
@@ -230,7 +231,7 @@ export default function HomePage() {
 
       {/* How It Works */}
       <div className="max-w-6xl mx-auto px-6 py-20">
-        <h2 className="text-3xl font-bold text-center mb-12">how it works</h2>
+        <h2 className="text-3xl font-bold text-center mb-12">How It Works</h2>
 
         <div className="grid md:grid-cols-2 gap-12 items-center">
           <div className="space-y-6">
@@ -239,10 +240,9 @@ export default function HomePage() {
                 1
               </div>
               <div>
-                <h4 className="font-semibold mb-1">download briefica</h4>
+                <h4 className="font-semibold mb-1 text-lg">Download briefica</h4>
                 <p className="text-white/70">
-                  get the native desktop app for macOS. Windows version coming
-                  soon.
+                  Get the native macOS desktop app. Free for all law students. Windows coming soon.
                 </p>
               </div>
             </div>
@@ -252,9 +252,10 @@ export default function HomePage() {
                 2
               </div>
               <div>
-                <h4 className="font-semibold mb-1">create & edit</h4>
+                <h4 className="font-semibold mb-1 text-lg">Create Your Briefs</h4>
                 <p className="text-white/70">
-                  build structured legal logic files using the native editor.
+                  Use the powerful editor to create case briefs, outlines, and test banks. 
+                  Structured templates make organization effortless.
                 </p>
               </div>
             </div>
@@ -264,9 +265,10 @@ export default function HomePage() {
                 3
               </div>
               <div>
-                <h4 className="font-semibold mb-1">upload & share</h4>
+                <h4 className="font-semibold mb-1 text-lg">Join Your School</h4>
                 <p className="text-white/70">
-                  share your work with the community through the web platform.
+                  Set your law school in your profile and instantly connect with classmates. 
+                  Access school-specific chats and subject channels.
                 </p>
               </div>
             </div>
@@ -276,30 +278,114 @@ export default function HomePage() {
                 4
               </div>
               <div>
-                <h4 className="font-semibold mb-1">browse & download</h4>
+                <h4 className="font-semibold mb-1 text-lg">Share & Discover</h4>
                 <p className="text-white/70">
-                  discover and download artifacts from other users. open
-                  directly in the app.
+                  Upload your work to share with the community. Browse and download materials 
+                  from thousands of law students across the country.
                 </p>
               </div>
             </div>
           </div>
 
           <div className="border border-white/10 bg-[#1e1e1e] rounded-2xl p-8">
-            <div className="aspect-video bg-white/5 rounded-lg flex items-center justify-center">
-              <svg
-                className="w-24 h-24 text-white/30"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M14 10l-2 1m0 0l-2-1m2 1v2.5M20 7l-2 1m2-1l-2-1m2 1v2.5M14 4l-2-1-2 1M4 7l2-1M4 7l2 1M4 7v2.5M12 21l-2-1m2 1l2-1m-2 1v-2.5M6 18l-2-1v-2.5M18 18l2-1v-2.5"
-                />
-              </svg>
+            <div className="aspect-video bg-[#2b2b2b] rounded-lg flex items-center justify-center overflow-hidden">
+              <Image
+                src="/b6.png"
+                alt="briefica desktop app"
+                width={600}
+                height={400}
+                className="object-cover w-full h-full"
+              />
+            </div>
+            <p className="text-center text-sm text-white/60 mt-4">
+              The briefica native desktop editor
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Social Features Section */}
+      <div className="max-w-6xl mx-auto px-6 py-20">
+        <h2 className="text-3xl font-bold text-center mb-12">Built for Collaboration</h2>
+        
+        <div className="grid md:grid-cols-2 gap-8">
+          <div className="border border-white/10 bg-[#1e1e1e] rounded-2xl p-8">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: '#66b2ff' }}>
+                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-semibold">Live IRC-Style Chat</h3>
+            </div>
+            <p className="text-white/70">
+              Join the main chat or connect with your school community in dedicated channels. 
+              Real-time messaging for quick questions and study sessions.
+            </p>
+          </div>
+
+          <div className="border border-white/10 bg-[#1e1e1e] rounded-2xl p-8">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: '#66b2ff' }}>
+                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-semibold">Friend Network</h3>
+            </div>
+            <p className="text-white/70">
+              Connect with classmates, follow their uploads, and build your study network. 
+              See what materials your friends are working on.
+            </p>
+          </div>
+
+          <div className="border border-white/10 bg-[#1e1e1e] rounded-2xl p-8">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: '#66b2ff' }}>
+                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-semibold">Subject Channels</h3>
+            </div>
+            <p className="text-white/70">
+              Select up to 3 subjects you're studying and join dedicated channels. 
+              Chat with classmates taking the same courses.
+            </p>
+          </div>
+
+          <div className="border border-white/10 bg-[#1e1e1e] rounded-2xl p-8">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: '#66b2ff' }}>
+                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-semibold">Rankings & Stats</h3>
+            </div>
+            <p className="text-white/70">
+              See top-rated briefs, most downloaded materials, and most helpful contributors 
+              in your school community.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Stats Section */}
+      <div className="max-w-6xl mx-auto px-6 py-20">
+        <div className="border border-white/10 bg-[#1e1e1e] rounded-2xl p-12">
+          <div className="grid md:grid-cols-3 gap-8 text-center">
+            <div>
+              <div className="text-4xl font-bold mb-2" style={{ color: '#66b2ff' }}>200+</div>
+              <div className="text-white/70">ABA Law Schools</div>
+            </div>
+            <div>
+              <div className="text-4xl font-bold mb-2" style={{ color: '#66b2ff' }}>3</div>
+              <div className="text-white/70">File Types</div>
+            </div>
+            <div>
+              <div className="text-4xl font-bold mb-2" style={{ color: '#66b2ff' }}>Free</div>
+              <div className="text-white/70">For All Students</div>
             </div>
           </div>
         </div>
@@ -308,38 +394,32 @@ export default function HomePage() {
       {/* CTA Section */}
       <div className="max-w-6xl mx-auto px-6 py-20">
         <div className="border border-white/10 bg-[#1e1e1e] rounded-2xl p-12 text-center">
-          <h2 className="text-3xl font-bold mb-4">ready to get started?</h2>
+          <h2 className="text-3xl font-bold mb-4">Ready to Get Started?</h2>
           <p className="text-xl text-white/70 mb-8">
-            join the briefica community today.
+            Join thousands of law students already using briefica.
           </p>
-          <button
-            onClick={() => router.push("/downloads")}
-            className="text-white rounded-lg py-3 px-8 font-medium text-lg transition-colors hover:opacity-90"
-            style={{ backgroundColor: '#66b2ff' }}
-          >
-            download now
-          </button>
+          <div className="flex gap-4 justify-center">
+            <button
+              onClick={() => router.push("/downloads")}
+              className="text-white rounded-lg py-3 px-8 font-medium text-lg transition-colors hover:opacity-90"
+              style={{ backgroundColor: '#66b2ff' }}
+            >
+              Download Now
+            </button>
+            {!isLoggedIn && (
+              <button
+                onClick={() => router.push("/auth")}
+                className="border border-white/20 rounded-lg py-3 px-8 font-medium text-lg hover:bg-white/5 transition-colors"
+              >
+                Sign Up Free
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
       {/* Footer */}
-      <footer className="border-t border-white/10 bg-[#1e1e1e]">
-        <div className="max-w-6xl mx-auto px-6 py-8">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <div className="text-white/60 text-sm">
-              © 2026 briefica. all rights reserved.
-            </div>
-            <div className="flex gap-6 text-sm">
-              <a href="/downloads" className="text-white/60 hover:text-white transition-colors">
-                downloads
-              </a>
-              <a href="/auth" className="text-white/60 hover:text-white transition-colors">
-                sign in
-              </a>
-            </div>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </main>
   );
 }
