@@ -5,9 +5,8 @@ import { useRouter, useParams } from "next/navigation";
 import Image from "next/image";
 import { supabase } from "../../lib/supabaseClient";
 import ProfilePicture from "../../components/ProfilePicture";
-import { ABA_LAW_SCHOOLS, getLawSchoolLogo } from "../../lib/lawschools";
 
-type UserProfile = {
+interface UserProfile {
   user_id: string;
   username: string;
   law_school: string | null;
@@ -15,180 +14,209 @@ type UserProfile = {
   profile_picture_url: string | null;
   upload_count: number;
   friend_count: number;
-};
+}
 
-type Artifact = {
+interface Artifact {
   id: string;
   type: "bset" | "bmod" | "tbank";
   title: string;
   description: string | null;
   created_at: string;
-};
+  visibility: "private" | "unlisted" | "public";
+}
 
 export default function UserProfilePage() {
   const router = useRouter();
   const params = useParams();
-  const username = params.username as string;
+  const username = params?.username as string;
 
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [artifacts, setArtifacts] = useState<Artifact[]>([]);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [isOwnProfile, setIsOwnProfile] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
-  const [editLawSchool, setEditLawSchool] = useState("");
-  const [editBio, setEditBio] = useState("");
+  const [pendingRequestCount, setPendingRequestCount] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  // Set page title
+  // Edit modal state
+  const [editingArtifact, setEditingArtifact] = useState<Artifact | null>(null);
+  const [editVisibility, setEditVisibility] = useState<"private" | "unlisted" | "public">("public");
+
   useEffect(() => {
-    document.title = `@${username} - briefica`;
-  }, [username]);
+    async function loadData() {
+      if (!username) return;
 
-  useEffect(() => {
-    async function loadProfile() {
-      setLoading(true);
+      try {
+        // Get current user
+        const { data: userData } = await supabase.auth.getUser();
+        const userId = userData.user?.id || null;
+        setCurrentUserId(userId);
 
-      // Get current user
-      const { data: userData } = await supabase.auth.getUser();
-      const userId = userData.user?.id || null;
-      setCurrentUserId(userId);
+        // Get profile data
+        const { data: profileData, error: profileError } = await supabase
+          .from("profiles")
+          .select("user_id, username, law_school, bio, profile_picture_url")
+          .eq("username", username)
+          .single();
 
-      // Load profile
-      const { data: profileData } = await supabase
-        .from("profiles")
-        .select("user_id, username, law_school, bio, profile_picture_url")
-        .eq("username", username)
-        .single();
+        if (profileError || !profileData) {
+          setError("User not found");
+          setLoading(false);
+          return;
+        }
 
-      if (!profileData) {
+        // Check if viewing own profile
+        const ownProfile = userId === profileData.user_id;
+        setIsOwnProfile(ownProfile);
+
+        // Get upload count
+        const { count: uploadCount } = await supabase
+          .from("artifacts")
+          .select("id", { count: "exact", head: true })
+          .eq("owner_id", profileData.user_id)
+          .eq("visibility", "public");
+
+        // Get friend count
+        const { count: friendCount } = await supabase
+          .from("friend_requests")
+          .select("id", { count: "exact", head: true })
+          .or(`requester_id.eq.${profileData.user_id},recipient_id.eq.${profileData.user_id}`)
+          .eq("status", "accepted");
+
+        setProfile({
+          ...profileData,
+          upload_count: uploadCount ?? 0,
+          friend_count: friendCount ?? 0,
+        });
+
+        // Get pending friend requests count (only for own profile)
+        if (ownProfile && userId) {
+          const { count: pendingCount } = await supabase
+            .from("friend_requests")
+            .select("id", { count: "exact", head: true })
+            .eq("recipient_id", userId)
+            .eq("status", "pending");
+          
+          setPendingRequestCount(pendingCount ?? 0);
+        }
+
+        // Get artifacts
+        const artifactsQuery = supabase
+          .from("artifacts")
+          .select("id, type, title, description, created_at, visibility")
+          .eq("owner_id", profileData.user_id)
+          .order("created_at", { ascending: false });
+
+        // Only show public artifacts if not own profile
+        if (!ownProfile) {
+          artifactsQuery.eq("visibility", "public");
+        }
+
+        const { data: artifactsData } = await artifactsQuery;
+        setArtifacts(artifactsData ?? []);
+
+        document.title = `@${username} - briefica`;
         setLoading(false);
-        return;
+      } catch (err) {
+        setError("Failed to load profile");
+        setLoading(false);
       }
-
-      // Check if this is the current user's profile
-      setIsOwnProfile(userId === profileData.user_id);
-
-      // Get upload count
-      const { count: uploadCount } = await supabase
-        .from("artifacts")
-        .select("id", { count: "exact", head: true })
-        .eq("owner_id", profileData.user_id)
-        .eq("visibility", "public");
-
-      // Get friend count
-      const { count: friendCount } = await supabase
-        .from("friend_requests")
-        .select("id", { count: "exact", head: true })
-        .or(`requester_id.eq.${profileData.user_id},recipient_id.eq.${profileData.user_id}`)
-        .eq("status", "accepted");
-
-      setProfile({
-        ...profileData,
-        upload_count: uploadCount ?? 0,
-        friend_count: friendCount ?? 0,
-      });
-
-      setEditLawSchool(profileData.law_school || "");
-      setEditBio(profileData.bio || "");
-
-      // Load artifacts
-      const { data: artifactsData } = await supabase
-        .from("artifacts")
-        .select("id, type, title, description, created_at")
-        .eq("owner_id", profileData.user_id)
-        .eq("visibility", "public")
-        .order("created_at", { ascending: false });
-
-      setArtifacts(artifactsData ?? []);
-      setLoading(false);
     }
 
-    loadProfile();
+    loadData();
   }, [username]);
-
-  async function handleSave() {
-    if (!profile) return;
-
-    setSaving(true);
-
-    const { error } = await supabase
-      .from("profiles")
-      .update({
-        law_school: editLawSchool || null,
-        bio: editBio || null,
-      })
-      .eq("user_id", profile.user_id);
-
-    if (!error) {
-      setProfile({
-        ...profile,
-        law_school: editLawSchool || null,
-        bio: editBio || null,
-      });
-      setIsEditing(false);
-    }
-
-    setSaving(false);
-  }
 
   function handleProfilePictureUpdate(newUrl: string) {
-    if (profile) {
-      setProfile({ ...profile, profile_picture_url: newUrl });
-    }
-  }
-
-  function badge(t: Artifact["type"]) {
-    return t === "bset" ? ".bset" : t === "bmod" ? ".bmod" : ".tbank";
+    setProfile(prev => prev ? { ...prev, profile_picture_url: newUrl } : null);
   }
 
   async function handleDeleteArtifact(artifactId: string) {
-    if (!isOwnProfile || !currentUserId) return;
-    if (!confirm("Delete this artifact? This cannot be undone.")) return;
-    try {
-      const { error } = await supabase
-        .from("artifacts")
-        .delete()
-        .eq("id", artifactId)
-        .eq("owner_id", currentUserId);
-      if (error) throw error;
-      setArtifacts((prev) => prev.filter((a) => a.id !== artifactId));
-    } catch (e) {
-      console.error("Failed to delete artifact", e);
-    }
+    if (!currentUserId) return;
+
+    const confirmed = window.confirm("Are you sure you want to delete this artifact?");
+    if (!confirmed) return;
+
+    // Delete from database
+    await supabase
+      .from("artifacts")
+      .delete()
+      .eq("id", artifactId)
+      .eq("owner_id", currentUserId);
+
+    // Refresh artifacts
+    setArtifacts(prev => prev.filter(a => a.id !== artifactId));
+  }
+
+  function openEditModal(artifact: Artifact) {
+    setEditingArtifact(artifact);
+    setEditVisibility(artifact.visibility);
+  }
+
+  function closeEditModal() {
+    setEditingArtifact(null);
+  }
+
+  async function saveArtifactVisibility() {
+    if (!editingArtifact || !currentUserId) return;
+
+    await supabase
+      .from("artifacts")
+      .update({ visibility: editVisibility })
+      .eq("id", editingArtifact.id)
+      .eq("owner_id", currentUserId);
+
+    // Update local state
+    setArtifacts(prev => 
+      prev.map(a => 
+        a.id === editingArtifact.id 
+          ? { ...a, visibility: editVisibility }
+          : a
+      )
+    );
+
+    closeEditModal();
+  }
+
+  function badge(type: Artifact["type"]) {
+    return type === "bset" ? ".bset" : type === "bmod" ? ".bmod" : ".tbank";
+  }
+
+  function visibilityBadge(visibility: Artifact["visibility"]) {
+    return visibility === "private" ? "🔒 Private" : visibility === "unlisted" ? "🔗 Unlisted" : "🌐 Public";
   }
 
   if (loading) {
     return (
       <main className="min-h-screen bg-[#2b2b2b] text-white p-6">
-        <div className="max-w-6xl mx-auto">
-          <p className="text-white/70">Loading profile...</p>
+        <div className="max-w-4xl mx-auto">
+          <p className="text-white/70">Loading...</p>
         </div>
       </main>
     );
   }
 
-  if (!profile) {
+  if (error || !profile) {
     return (
       <main className="min-h-screen bg-[#2b2b2b] text-white p-6">
-        <div className="max-w-6xl mx-auto">
-          <p className="text-white/70">User not found.</p>
+        <div className="max-w-4xl mx-auto">
           <button
             onClick={() => router.push("/dashboard")}
-            className="mt-4 text-white/70 hover:text-white underline"
+            className="text-white/70 hover:text-white flex items-center gap-2 mb-4"
           >
-            ← Back to dashboard
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Back to dashboard
           </button>
+          <p className="text-red-400">{error || "Profile not found"}</p>
         </div>
       </main>
     );
   }
-
-  const profileSchoolLogo = getLawSchoolLogo(profile.law_school);
 
   return (
     <main className="min-h-screen bg-[#2b2b2b] text-white p-6">
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <button
@@ -214,8 +242,8 @@ export default function UserProfilePage() {
         <div className="grid md:grid-cols-3 gap-6 mb-8">
           {/* Left Column - Profile Info */}
           <div className="md:col-span-2">
-            <div className="border border-white/10 bg-[#1e1e1e] rounded-2xl p-8">
-              <div className="flex items-start gap-6 mb-6">
+            <div className="border border-white/10 bg-[#1e1e1e] rounded-2xl p-6">
+              <div className="flex items-start gap-4 mb-4">
                 <ProfilePicture
                   userId={profile.user_id}
                   currentPictureUrl={profile.profile_picture_url}
@@ -224,119 +252,58 @@ export default function UserProfilePage() {
                   editable={isOwnProfile}
                   onUpdate={handleProfilePictureUpdate}
                 />
-
                 <div className="flex-1">
-                  <div className="flex flex-col gap-1 mb-2">
-                    <h1 className="text-3xl font-bold">@{profile.username}</h1>
-                    {/* Law School */}
-                    {isEditing ? null : profile.law_school ? (
-                      profileSchoolLogo ? (
-                        <Image
-                          src={profileSchoolLogo}
-                          alt={`${profile.law_school} logo`}
-                          width={64}
-                          height={64}
-                          className="rounded"
-                        />
-                      ) : (
-                        <span className="text-lg text-white/70">{profile.law_school}</span>
-                      )
-                    ) : null}
-                  </div>
-
-                  {isEditing ? (
-                    <select
-                      value={editLawSchool}
-                      onChange={(e) => setEditLawSchool(e.target.value)}
-                      className="w-full px-3 py-2 rounded-lg bg-[#2b2b2b] border border-white/20 focus:border-white/40 focus:outline-none mb-3"
-                    >
-                      <option value="">Select law school...</option>
-                      {ABA_LAW_SCHOOLS.map((school) => (
-                        <option key={school} value={school}>
-                          {school}
-                        </option>
-                      ))}
-                    </select>
-                  ) : (
-                    !profile.law_school && (
-                      <p className="text-lg text-white/70 mb-4">
-                        No law school set
-                      </p>
-                    )
-                  )}
-
-                  <div className="flex items-center gap-6 text-sm">
-                    <div>
-                      <span className="text-white/60">Uploads: </span>
-                      <span className="font-medium">{profile.upload_count}</span>
-                    </div>
-                    <div>
-                      <span className="text-white/60">Friends: </span>
-                      <span className="font-medium">{profile.friend_count}</span>
-                    </div>
-                  </div>
-
-                  {/* Edit Button */}
-                  {isOwnProfile && !isEditing && (
+                  <h1 className="text-3xl font-bold mb-1">@{profile.username}</h1>
+                  {profile.law_school && (
                     <button
-                      onClick={() => setIsEditing(true)}
-                      className="mt-4 px-4 py-2 rounded-lg border border-white/20 hover:bg-white/5 transition-colors text-sm"
+                      onClick={() => router.push(`/school/${encodeURIComponent(profile.law_school!)}`)}
+                      className="text-blue-400 hover:underline mb-2"
                     >
-                      Edit Profile
+                      {profile.law_school}
                     </button>
                   )}
-
-                  {/* Save/Cancel Buttons */}
-                  {isEditing && (
-                    <div className="mt-4 flex gap-2">
-                      <button
-                        onClick={handleSave}
-                        disabled={saving}
-                        className="px-4 py-2 rounded-lg text-white hover:opacity-90 transition-colors disabled:opacity-50"
-                        style={{ backgroundColor: '#66b2ff' }}
-                      >
-                        {saving ? "Saving..." : "Save"}
-                      </button>
-                      <button
-                        onClick={() => {
-                          setIsEditing(false);
-                          setEditLawSchool(profile.law_school || "");
-                          setEditBio(profile.bio || "");
-                        }}
-                        className="px-4 py-2 rounded-lg border border-white/20 hover:bg-white/5 transition-colors"
-                      >
-                        Cancel
-                      </button>
-                    </div>
-                  )}
+                  <div className="flex items-center gap-4 text-sm text-white/70 mt-2">
+                    <span>Uploads: {profile.upload_count}</span>
+                    <button
+                      onClick={() => router.push("/friends")}
+                      className="hover:text-white hover:underline"
+                    >
+                      Friends: {profile.friend_count}
+                    </button>
+                  </div>
                 </div>
               </div>
+
+              {/* Action Buttons */}
+              {isOwnProfile && (
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => router.push("/edit-profile")}
+                    className="border border-white/20 rounded-lg py-2 px-4 font-medium hover:bg-white/5 transition-colors"
+                  >
+                    Edit Profile
+                  </button>
+                  {pendingRequestCount > 0 && (
+                    <button
+                      onClick={() => router.push("/friends")}
+                      className="rounded-lg py-2 px-4 font-medium text-white transition-colors"
+                      style={{ backgroundColor: '#66b2ff' }}
+                    >
+                      You have {pendingRequestCount} friend request{pendingRequestCount !== 1 ? 's' : ''}
+                    </button>
+                  )}
+                </div>
+              )}
             </div>
           </div>
 
           {/* Right Column - Bio */}
           <div className="border border-white/10 bg-[#1e1e1e] rounded-2xl p-6">
-            <h2 className="text-lg font-semibold mb-3">Bio</h2>
-
-            {isEditing ? (
-              <textarea
-                value={editBio}
-                onChange={(e) => setEditBio(e.target.value)}
-                placeholder="Write a short bio..."
-                maxLength={500}
-                rows={6}
-                className="w-full px-3 py-2 rounded-lg bg-[#2b2b2b] border border-white/20 focus:border-white/40 focus:outline-none resize-none"
-              />
+            <h2 className="font-semibold mb-3">Bio</h2>
+            {profile.bio ? (
+              <p className="text-sm text-white/80 whitespace-pre-wrap">{profile.bio}</p>
             ) : (
-              <p className="text-white/70 whitespace-pre-wrap">
-                {profile.bio || "No bio yet."}
-              </p>
-            )}
-
-            {isEditing && (
-              <p className="text-xs text-white/50 mt-2">
-                {editBio.length}/500 characters
-              </p>
+              <p className="text-sm text-white/50">No bio yet</p>
             )}
           </div>
         </div>
@@ -344,55 +311,128 @@ export default function UserProfilePage() {
         {/* Uploads Section */}
         <div>
           <h2 className="text-2xl font-bold mb-4">Uploads</h2>
-
           {artifacts.length === 0 ? (
             <div className="border border-white/10 bg-[#1e1e1e] rounded-2xl p-8 text-center text-white/60">
-              No public uploads yet.
+              {isOwnProfile ? "You haven't uploaded any artifacts yet." : "No public uploads yet."}
             </div>
           ) : (
-            <div className="flex flex-col gap-3">
+            <div className="space-y-3">
               {artifacts.map((artifact) => (
                 <div
                   key={artifact.id}
-                  className="border border-white/10 bg-[#1e1e1e] rounded-2xl p-4 hover:bg-white/5 transition-colors"
+                  className="border border-white/10 bg-[#1e1e1e] rounded-2xl p-4"
                 >
-                  <div className="flex items-center justify-between gap-3 mb-2">
-                    <span className="inline-block px-2 py-1 rounded bg-white/10 border border-white/10 text-xs">
-                      {badge(artifact.type)}
-                    </span>
-                    <span className="text-xs text-white/60">
-                      {new Date(artifact.created_at).toLocaleString()}
-                    </span>
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-3">
+                      <span className="px-2 py-1 rounded bg-white/10 border border-white/10 text-xs">
+                        {badge(artifact.type)}
+                      </span>
+                      {isOwnProfile && (
+                        <span className="text-xs text-white/60">
+                          {visibilityBadge(artifact.visibility)}
+                        </span>
+                      )}
+                      <span className="text-xs text-white/60">
+                        {new Date(artifact.created_at).toLocaleString()}
+                      </span>
+                    </div>
+                    {isOwnProfile && (
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => openEditModal(artifact)}
+                          className="text-blue-400 hover:text-blue-300 text-sm"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handleDeleteArtifact(artifact.id)}
+                          className="text-red-400 hover:text-red-300 text-sm"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    )}
                   </div>
-
                   <button
-                    className="w-full text-left"
                     onClick={() => router.push(`/a/${artifact.id}`)}
+                    className="text-left w-full"
                   >
-                    <div className="font-medium">{artifact.title}</div>
+                    <div className="font-medium mb-1">{artifact.title}</div>
                     {artifact.description && (
-                      <div className="text-sm text-white/70 mt-1 line-clamp-2">
+                      <div className="text-sm text-white/70 line-clamp-2">
                         {artifact.description}
                       </div>
                     )}
                   </button>
-
-                  {isOwnProfile && (
-                    <div className="mt-3 flex justify-end">
-                      <button
-                        onClick={() => handleDeleteArtifact(artifact.id)}
-                        className="text-xs text-red-400 hover:text-red-300 border border-red-500/30 rounded px-3 py-1"
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  )}
                 </div>
               ))}
             </div>
           )}
         </div>
       </div>
+
+      {/* Edit Visibility Modal */}
+      {editingArtifact && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-[#1e1e1e] rounded-2xl p-6 max-w-md w-full border border-white/10">
+            <h2 className="text-xl font-bold mb-4">Edit Artifact Visibility</h2>
+            <p className="text-sm text-white/70 mb-4">{editingArtifact.title}</p>
+            
+            <div className="space-y-3 mb-6">
+              <button
+                onClick={() => setEditVisibility("public")}
+                className={`w-full text-left p-3 rounded-lg border transition-colors ${
+                  editVisibility === "public"
+                    ? "border-white bg-white/10"
+                    : "border-white/20 hover:bg-white/5"
+                }`}
+              >
+                <div className="font-medium">🌐 Public</div>
+                <div className="text-xs text-white/60">Anyone can see this artifact</div>
+              </button>
+              
+              <button
+                onClick={() => setEditVisibility("unlisted")}
+                className={`w-full text-left p-3 rounded-lg border transition-colors ${
+                  editVisibility === "unlisted"
+                    ? "border-white bg-white/10"
+                    : "border-white/20 hover:bg-white/5"
+                }`}
+              >
+                <div className="font-medium">🔗 Unlisted</div>
+                <div className="text-xs text-white/60">Only people with the link can see this</div>
+              </button>
+              
+              <button
+                onClick={() => setEditVisibility("private")}
+                className={`w-full text-left p-3 rounded-lg border transition-colors ${
+                  editVisibility === "private"
+                    ? "border-white bg-white/10"
+                    : "border-white/20 hover:bg-white/5"
+                }`}
+              >
+                <div className="font-medium">🔒 Private</div>
+                <div className="text-xs text-white/60">Only you can see this artifact</div>
+              </button>
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={saveArtifactVisibility}
+                className="flex-1 bg-white text-black rounded-lg py-2 px-4 font-medium hover:bg-white/90 transition-colors"
+              >
+                Save Changes
+              </button>
+              <button
+                onClick={closeEditModal}
+                className="flex-1 border border-white/20 rounded-lg py-2 px-4 font-medium hover:bg-white/5 transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }
