@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import Image from "next/image";
 import { supabase } from "../../lib/supabaseClient";
 
 type Artifact = {
@@ -18,6 +19,7 @@ type Artifact = {
 
 type Profile = {
   username: string;
+  profile_picture_url: string | null;
 };
 
 type Comment = {
@@ -79,7 +81,7 @@ export default function ArtifactPage() {
 
       const { data: p, error: pErr } = await supabase
         .from("profiles")
-        .select("username")
+        .select("username, profile_picture_url")
         .eq("user_id", a.owner_id)
         .single();
 
@@ -321,6 +323,15 @@ export default function ArtifactPage() {
   return (
     <main className="min-h-screen bg-[#2b2b2b] text-white p-6">
       <div className="max-w-5xl mx-auto">
+        <button
+          className="mb-4 text-white/70 hover:text-white flex items-center gap-2"
+          onClick={() => router.push("/dashboard")}
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+          </svg>
+          Back to dashboard
+        </button>
         <div className="border border-white/10 bg-[#1e1e1e] rounded-2xl p-6">
           <div className="flex items-center justify-between gap-3">
             <div className="text-xs text-white/60">
@@ -333,12 +344,23 @@ export default function ArtifactPage() {
             </div>
 
             {uploader?.username ? (
-              <button
-                className="text-sm text-white/80 hover:text-white underline"
-                onClick={() => router.push(`/u/${uploader.username}`)}
-              >
-                @{uploader.username}
-              </button>
+              <div className="flex flex-col items-end gap-1">
+                {uploader.profile_picture_url && (
+                  <Image
+                    src={uploader.profile_picture_url}
+                    alt={uploader.username}
+                    width={48}
+                    height={48}
+                    className="rounded-full border border-white/20"
+                  />
+                )}
+                <button
+                  className="text-sm text-white/80 hover:text-white underline"
+                  onClick={() => router.push(`/u/${uploader.username}`)}
+                >
+                  @{uploader.username}
+                </button>
+              </div>
             ) : (
               <span className="text-sm text-white/50">Unknown uploader</span>
             )}
@@ -348,10 +370,6 @@ export default function ArtifactPage() {
           {artifact.description && (
             <p className="text-white/70 mt-2">{artifact.description}</p>
           )}
-
-          <div className="text-sm text-white/60 mt-4">
-            Downloads: <span className="text-white/80">{downloadCount}</span>
-          </div>
 
           {/* Like and Share Stats */}
           <div className="mt-4 flex items-center gap-6 text-sm">
@@ -412,7 +430,6 @@ export default function ArtifactPage() {
             >
               {busy ? "Preparing..." : "Download"}
             </button>
-
             {artifact.owner_id === currentUserId && (
               <button
                 onClick={deleteArtifact}
@@ -423,20 +440,6 @@ export default function ArtifactPage() {
               </button>
             )}
 
-            <div className="text-xs text-white/60 border border-white/10 rounded-lg p-3 bg-[#2b2b2b]">
-              <div className="font-medium text-white/80 mb-1">Open in Briefica</div>
-              <div>
-                After download, double-click the file (or open it inside Briefica).
-                This is a native Briefica artifact.
-              </div>
-            </div>
-
-            <button
-              onClick={() => router.push("/dashboard")}
-              className="border border-white/20 rounded-lg py-2 px-4 font-medium hover:bg-white/5 transition-colors"
-            >
-              Back to Dashboard
-            </button>
           </div>
 
           {msg && <p className="text-sm text-red-400 mt-4">{msg}</p>}
