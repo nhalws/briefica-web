@@ -15,20 +15,8 @@ type ArtifactRow = {
   title: string;
   description: string | null;
   created_at: string;
+  file_url: string;
 };
-
-type SharePost = {
-  id: string;
-  user_id: string;
-  artifact_id: string;
-  created_at: string;
-  username: string;
-  artifact_title: string;
-};
-
-type FeedItem = 
-  | { type: 'artifact'; data: ArtifactRow }
-  | { type: 'share'; data: SharePost };
 
 type Friend = {
   user_id: string;
@@ -47,17 +35,14 @@ type UserProfile = {
 export default function DashboardPage() {
   const router = useRouter();
   const [rows, setRows] = useState<ArtifactRow[]>([]);
-  const [sharePosts, setSharePosts] = useState<SharePost[]>([]);
-  const [feedItems, setFeedItems] = useState<FeedItem[]>([]);
-  const [filteredFeedItems, setFilteredFeedItems] = useState<FeedItem[]>([]);
+  const [filteredRows, setFilteredRows] = useState<ArtifactRow[]>([]);
   const [usernamesByOwner, setUsernamesByOwner] = useState<Record<string, string>>({});
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [friends, setFriends] = useState<Friend[]>([]);
   const [likeCounts, setLikeCounts] = useState<Record<string, number>>({});
-  const [shareCounts, setShareCounts] = useState<Record<string, number>>({});
+  const [downloadCounts, setDownloadCounts] = useState<Record<string, number>>({});
   const [userLikes, setUserLikes] = useState<Set<string>>(new Set());
-  const [userShares, setUserShares] = useState<Set<string>>(new Set());
   const [searchQuery, setSearchQuery] = useState("");
   const [typeFilter, setTypeFilter] = useState<"all" | "bset" | "bmod" | "tbank">("all");
   const [msg, setMsg] = useState<string | null>(null);
@@ -84,10 +69,7 @@ export default function DashboardPage() {
       if (profile) {
         setCurrentUserId(profile.user_id);
         
-        // Load user stats
         await loadUserProfile(profile.user_id, profile.username, profile.law_school, profile.profile_picture_url);
-        
-        // Load friends
         await loadFriends(profile.user_id);
       }
     }
@@ -95,20 +77,17 @@ export default function DashboardPage() {
   }, [router]);
 
   async function loadUserProfile(userId: string, username: string, lawSchool: string | null, profilePictureUrl: string | null) {
-    // Get upload count
     const { count: uploadCount } = await supabase
       .from("artifacts")
       .select("id", { count: "exact", head: true })
       .eq("owner_id", userId);
 
-    // Get friend count (accepted requests)
     const { count: friendCount } = await supabase
       .from("friend_requests")
       .select("id", { count: "exact", head: true })
       .or(`requester_id.eq.${userId},recipient_id.eq.${userId}`)
       .eq("status", "accepted");
 
-    // Get pending requests count
     const { count: pendingCount } = await supabase
       .from("friend_requests")
       .select("id", { count: "exact", head: true })
@@ -126,7 +105,6 @@ export default function DashboardPage() {
   }
 
   async function loadFriends(userId: string) {
-    // Get all accepted friend requests
     const { data: requests } = await supabase
       .from("friend_requests")
       .select(`
@@ -169,10 +147,9 @@ export default function DashboardPage() {
     async function load() {
       setMsg(null);
 
-      // Load artifacts
-      const { data: artifactsData, error } = await supabase
+      const { data, error } = await supabase
         .from("artifacts")
-        .select("id, owner_id, type, title, description, created_at")
+        .select("id, owner_id, type, title, description, created_at, file_url")
         .eq("visibility", "public")
         .order("created_at", { ascending: false })
         .limit(100);
@@ -182,44 +159,10 @@ export default function DashboardPage() {
         return;
       }
 
-      setRows(artifactsData ?? []);
+      setRows(data ?? []);
+      setFilteredRows(data ?? []);
 
-      // Load share posts
-      const { data: sharePostsData } = await supabase
-        .from("artifact_share_posts")
-        .select(`
-          id,
-          user_id,
-          artifact_id,
-          created_at,
-          profiles!artifact_share_posts_user_id_fkey(username),
-          artifacts!artifact_share_posts_artifact_id_fkey(title)
-        `)
-        .order("created_at", { ascending: false })
-        .limit(100);
-
-      const formattedSharePosts: SharePost[] = (sharePostsData ?? []).map((post: any) => ({
-        id: post.id,
-        user_id: post.user_id,
-        artifact_id: post.artifact_id,
-        created_at: post.created_at,
-        username: post.profiles?.username || "unknown",
-        artifact_title: post.artifacts?.title || "Unknown Artifact",
-      }));
-
-      setSharePosts(formattedSharePosts);
-
-      // Combine and sort feed items
-      const artifacts: FeedItem[] = (artifactsData ?? []).map(a => ({ type: 'artifact' as const, data: a }));
-      const shares: FeedItem[] = formattedSharePosts.map(s => ({ type: 'share' as const, data: s }));
-      const combined = [...artifacts, ...shares].sort((a, b) => 
-        new Date(b.data.created_at).getTime() - new Date(a.data.created_at).getTime()
-      );
-
-      setFeedItems(combined);
-      setFilteredFeedItems(combined);
-
-      const ownerIds = Array.from(new Set((artifactsData ?? []).map((r) => r.owner_id)));
+      const ownerIds = Array.from(new Set((data ?? []).map((r) => r.owner_id)));
       if (ownerIds.length) {
         const { data: ps } = await supabase
           .from("profiles")
@@ -231,17 +174,16 @@ export default function DashboardPage() {
         setUsernamesByOwner(map);
       }
 
-      // Load likes and shares counts
-      const artifactIds = (artifactsData ?? []).map((r) => r.id);
+      const artifactIds = (data ?? []).map((r) => r.id);
       if (artifactIds.length > 0) {
-        await loadLikesAndShares(artifactIds);
+        await loadLikesAndDownloads(artifactIds);
       }
     }
 
     load();
   }, []);
 
-  async function loadLikesAndShares(artifactIds: string[]) {
+  async function loadLikesAndDownloads(artifactIds: string[]) {
     // Load like counts
     const { data: likes } = await supabase
       .from("artifact_likes")
@@ -254,19 +196,19 @@ export default function DashboardPage() {
     });
     setLikeCounts(likesMap);
 
-    // Load share counts
-    const { data: shares } = await supabase
-      .from("artifact_shares")
+    // Load download counts
+    const { data: downloads } = await supabase
+      .from("artifact_downloads")
       .select("artifact_id")
       .in("artifact_id", artifactIds);
 
-    const sharesMap: Record<string, number> = {};
-    (shares ?? []).forEach((share) => {
-      sharesMap[share.artifact_id] = (sharesMap[share.artifact_id] || 0) + 1;
+    const downloadsMap: Record<string, number> = {};
+    (downloads ?? []).forEach((download) => {
+      downloadsMap[download.artifact_id] = (downloadsMap[download.artifact_id] || 0) + 1;
     });
-    setShareCounts(sharesMap);
+    setDownloadCounts(downloadsMap);
 
-    // Load current user's likes and shares
+    // Load current user's likes
     if (currentUserId) {
       const { data: userLikesData } = await supabase
         .from("artifact_likes")
@@ -275,48 +217,28 @@ export default function DashboardPage() {
         .in("artifact_id", artifactIds);
 
       setUserLikes(new Set((userLikesData ?? []).map((l) => l.artifact_id)));
-
-      const { data: userSharesData } = await supabase
-        .from("artifact_shares")
-        .select("artifact_id")
-        .eq("user_id", currentUserId)
-        .in("artifact_id", artifactIds);
-
-      setUserShares(new Set((userSharesData ?? []).map((s) => s.artifact_id)));
     }
   }
 
   useEffect(() => {
-    let filtered = feedItems;
+    let filtered = rows;
 
     if (typeFilter !== "all") {
-      filtered = filtered.filter((item) => 
-        item.type === 'artifact' && item.data.type === typeFilter
-      );
+      filtered = filtered.filter((r) => r.type === typeFilter);
     }
 
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
-      filtered = filtered.filter((item) => {
-        if (item.type === 'artifact') {
-          const artifact = item.data;
-          return (
-            artifact.title.toLowerCase().includes(query) ||
-            artifact.description?.toLowerCase().includes(query) ||
-            usernamesByOwner[artifact.owner_id]?.toLowerCase().includes(query)
-          );
-        } else {
-          const sharePost = item.data;
-          return (
-            sharePost.username.toLowerCase().includes(query) ||
-            sharePost.artifact_title.toLowerCase().includes(query)
-          );
-        }
-      });
+      filtered = filtered.filter(
+        (r) =>
+          r.title.toLowerCase().includes(query) ||
+          r.description?.toLowerCase().includes(query) ||
+          usernamesByOwner[r.owner_id]?.toLowerCase().includes(query)
+      );
     }
 
-    setFilteredFeedItems(filtered);
-  }, [searchQuery, typeFilter, feedItems, usernamesByOwner]);
+    setFilteredRows(filtered);
+  }, [searchQuery, typeFilter, rows, usernamesByOwner]);
 
   async function toggleLike(artifactId: string) {
     if (!currentUserId) return;
@@ -355,85 +277,26 @@ export default function DashboardPage() {
     }
   }
 
-  async function toggleShare(artifactId: string) {
+  async function handleDownload(artifactId: string, fileUrl: string, fileName: string) {
     if (!currentUserId) return;
 
-    const isShared = userShares.has(artifactId);
+    // Record download in database
+    await supabase.from("artifact_downloads").insert({
+      artifact_id: artifactId,
+      user_id: currentUserId,
+    });
 
-    if (isShared) {
-      // Confirm unshare
-      const confirmed = window.confirm("Are you sure you want to unshare this artifact?");
-      if (!confirmed) return;
+    // Update local count
+    setDownloadCounts((prev) => ({
+      ...prev,
+      [artifactId]: (prev[artifactId] || 0) + 1,
+    }));
 
-      // Get the share record
-      const { data: shareRecord } = await supabase
-        .from("artifact_shares")
-        .select("id")
-        .eq("artifact_id", artifactId)
-        .eq("user_id", currentUserId)
-        .single();
-
-      if (shareRecord) {
-        // Delete share post from feed
-        await supabase
-          .from("artifact_share_posts")
-          .delete()
-          .eq("share_id", shareRecord.id);
-
-        // Delete share
-        await supabase
-          .from("artifact_shares")
-          .delete()
-          .eq("artifact_id", artifactId)
-          .eq("user_id", currentUserId);
-
-        setUserShares((prev) => {
-          const next = new Set(prev);
-          next.delete(artifactId);
-          return next;
-        });
-
-        setShareCounts((prev) => ({
-          ...prev,
-          [artifactId]: Math.max(0, (prev[artifactId] || 0) - 1),
-        }));
-
-        // Remove share post from feed WITHOUT refreshing
-        setSharePosts((prev) => prev.filter(p => p.artifact_id !== artifactId || p.user_id !== currentUserId));
-        setFeedItems((prev) => prev.filter(item => 
-          !(item.type === 'share' && item.data.artifact_id === artifactId && item.data.user_id === currentUserId)
-        ));
-      }
-    } else {
-      // Create share
-      const { data: newShare } = await supabase
-        .from("artifact_shares")
-        .insert({
-          artifact_id: artifactId,
-          user_id: currentUserId,
-        })
-        .select()
-        .single();
-
-      if (newShare) {
-        // Create share post for feed
-        await supabase.from("artifact_share_posts").insert({
-          user_id: currentUserId,
-          artifact_id: artifactId,
-          share_id: newShare.id,
-        });
-
-        setUserShares((prev) => new Set(prev).add(artifactId));
-
-        setShareCounts((prev) => ({
-          ...prev,
-          [artifactId]: (prev[artifactId] || 0) + 1,
-        }));
-
-        // Reload feed to show new share post at top
-        window.location.reload();
-      }
-    }
+    // Trigger download
+    const link = document.createElement('a');
+    link.href = fileUrl;
+    link.download = fileName;
+    link.click();
   }
 
   async function handleLogout() {
@@ -702,140 +565,99 @@ export default function DashboardPage() {
             {msg && <p className="text-sm text-white/70 mt-3">{msg}</p>}
 
             <div className="mt-6 flex flex-col gap-3">
-              {filteredFeedItems.map((item) => {
-                if (item.type === 'share') {
-                  // Share post
-                  const sharePost = item.data;
-                  return (
-                    <div
-                      key={`share-${sharePost.id}`}
-                      className="border border-white/10 bg-[#1e1e1e] rounded-2xl p-4"
-                    >
-                      <div className="text-sm text-white/90">
-                        <button
-                          onClick={() => router.push(`/u/${sharePost.username}`)}
-                          className="font-semibold hover:underline"
-                          style={{ color: '#66b2ff' }}
-                        >
-                          @{sharePost.username}
-                        </button>
-                        {' '}shared{' '}
-                        <button
-                          onClick={() => router.push(`/a/${sharePost.artifact_id}`)}
-                          className="font-bold hover:underline"
-                          style={{ color: '#66b2ff' }}
-                        >
-                          {sharePost.artifact_title}
-                        </button>
-                      </div>
-                      <div className="text-xs text-white/40 mt-2">
-                        {new Date(sharePost.created_at).toLocaleString()}
-                      </div>
+              {filteredRows.map((r) => (
+                <div
+                  key={r.id}
+                  className="border border-white/10 bg-[#1e1e1e] rounded-2xl p-4"
+                >
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="text-xs text-white/60">
+                      <span className="inline-block px-2 py-1 rounded bg-white/10 border border-white/10">
+                        {badge(r.type)}
+                      </span>
+                      <span className="ml-3">
+                        {new Date(r.created_at).toLocaleString()}
+                      </span>
                     </div>
-                  );
-                } else {
-                  // Regular artifact
-                  const r = item.data;
-                  return (
-                    <div
-                      key={`artifact-${r.id}`}
-                      className="border border-white/10 bg-[#1e1e1e] rounded-2xl p-4"
+
+                    <button
+                      onClick={() => router.push(`/u/${usernamesByOwner[r.owner_id]}`)}
+                      className="text-xs text-white/70 hover:text-white hover:underline"
                     >
-                      <div className="flex items-center justify-between gap-3">
-                        <div className="text-xs text-white/60">
-                          <span className="inline-block px-2 py-1 rounded bg-white/10 border border-white/10">
-                            {badge(r.type)}
-                          </span>
-                          <span className="ml-3">
-                            {new Date(r.created_at).toLocaleString()}
-                          </span>
-                        </div>
+                      @{usernamesByOwner[r.owner_id] ?? "unknown"}
+                    </button>
+                  </div>
 
-                        <button
-                          onClick={() => router.push(`/u/${usernamesByOwner[r.owner_id]}`)}
-                          className="text-xs text-white/70 hover:text-white hover:underline"
-                        >
-                          @{usernamesByOwner[r.owner_id] ?? "unknown"}
-                        </button>
+                  <button
+                    onClick={() => router.push(`/a/${r.id}`)}
+                    className="text-left w-full"
+                  >
+                    <div className="mt-2 font-medium hover:text-white/80 transition-colors">
+                      {r.title}
+                    </div>
+                    {r.description && (
+                      <div className="text-sm text-white/70 mt-1 line-clamp-2">
+                        {r.description}
                       </div>
+                    )}
+                  </button>
 
-                      <button
-                        onClick={() => router.push(`/a/${r.id}`)}
-                        className="text-left w-full"
+                  {/* Like and Download buttons */}
+                  <div className="mt-3 flex items-center gap-4 text-sm">
+                    <button
+                      onClick={() => toggleLike(r.id)}
+                      className={`flex items-center gap-1.5 transition-colors ${
+                        userLikes.has(r.id)
+                          ? "text-red-400"
+                          : "text-white/60 hover:text-white/80"
+                      }`}
+                    >
+                      <svg
+                        className="w-5 h-5"
+                        fill={userLikes.has(r.id) ? "currentColor" : "none"}
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
                       >
-                        <div className="mt-2 font-medium hover:text-white/80 transition-colors">
-                          {r.title}
-                        </div>
-                        {r.description && (
-                          <div className="text-sm text-white/70 mt-1 line-clamp-2">
-                            {r.description}
-                          </div>
-                        )}
-                      </button>
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                        />
+                      </svg>
+                      <span>{likeCounts[r.id] || 0}</span>
+                    </button>
 
-                      {/* Like and Share buttons */}
-                      <div className="mt-3 flex items-center gap-4 text-sm">
-                        <button
-                          onClick={() => toggleLike(r.id)}
-                          className={`flex items-center gap-1.5 transition-colors ${
-                            userLikes.has(r.id)
-                              ? "text-red-400"
-                              : "text-white/60 hover:text-white/80"
-                          }`}
-                        >
-                          <svg
-                            className="w-5 h-5"
-                            fill={userLikes.has(r.id) ? "currentColor" : "none"}
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-                            />
-                          </svg>
-                          <span>{likeCounts[r.id] || 0}</span>
-                        </button>
+                    <button
+                      onClick={() => handleDownload(r.id, r.file_url, `${r.title}.${r.type}`)}
+                      className="flex items-center gap-1.5 transition-colors text-white/60 hover:text-white/80"
+                    >
+                      <svg
+                        className="w-5 h-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"
+                        />
+                      </svg>
+                      <span>{downloadCounts[r.id] || 0}</span>
+                    </button>
+                  </div>
+                </div>
+              ))}
 
-                        <button
-                          onClick={() => toggleShare(r.id)}
-                          className={`flex items-center gap-1.5 transition-colors ${
-                            userShares.has(r.id)
-                              ? ""
-                              : "text-white/60 hover:text-white/80"
-                          }`}
-                          style={userShares.has(r.id) ? { color: '#66b2ff' } : {}}
-                        >
-                          <svg
-                            className="w-5 h-5"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
-                            />
-                          </svg>
-                          <span>{shareCounts[r.id] || 0}</span>
-                        </button>
-                      </div>
-                    </div>
-                  );
-                }
-              })}
-
-              {!filteredFeedItems.length && feedItems.length > 0 && (
+              {!filteredRows.length && rows.length > 0 && (
                 <div className="text-white/60 border border-white/10 bg-[#1e1e1e] rounded-2xl p-6">
                   No results found for your search.
                 </div>
               )}
 
-              {!feedItems.length && (
+              {!rows.length && (
                 <div className="text-white/60 border border-white/10 bg-[#1e1e1e] rounded-2xl p-6">
                   No public uploads yet. Upload your first artifact.
                 </div>

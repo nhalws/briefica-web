@@ -405,14 +405,11 @@ export default function ArtifactPage() {
             </button>
 
             <button
-              onClick={toggleShare}
-              disabled={!currentUserId}
+              onClick={download}
+              disabled={busy}
               className={`flex items-center gap-1.5 transition-colors ${
-                isShared
-                  ? ""
-                  : "text-white/60 hover:text-white/80"
-              } ${!currentUserId ? "opacity-50 cursor-not-allowed" : ""}`}
-              style={isShared ? { color: '#66b2ff' } : {}}
+                busy ? "opacity-50 cursor-not-allowed" : "text-white/60 hover:text-white/80"
+              }`}
             >
               <svg
                 className="w-6 h-6"
@@ -424,10 +421,10 @@ export default function ArtifactPage() {
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth={2}
-                  d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
+                  d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"
                 />
               </svg>
-              <span>{shareCount}</span>
+              <span>{downloadCount}</span>
             </button>
           </div>
 
