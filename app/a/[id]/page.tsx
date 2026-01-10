@@ -12,7 +12,7 @@ type Artifact = {
   title: string;
   description: string | null;
   storage_key: string;
-  visibility: "private" | "unlisted" | "public";
+  visibility: "private" | "unlisted" | "public" | "friends";
   created_at: string;
   original_filename: string | null;
 };
@@ -45,6 +45,8 @@ export default function ArtifactPage() {
   const [newComment, setNewComment] = useState("");
   const [msg, setMsg] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [editingVisibility, setEditingVisibility] = useState(false);
+  const [newVisibility, setNewVisibility] = useState<Artifact["visibility"]>("public");
 
   const badge = useMemo(() => {
     const t = artifact?.type ?? "bset";
@@ -78,6 +80,7 @@ export default function ArtifactPage() {
         return;
       }
       setArtifact(a);
+      setNewVisibility(a.visibility);
 
       const { data: p, error: pErr } = await supabase
         .from("profiles")
@@ -277,6 +280,26 @@ export default function ArtifactPage() {
     }
   }
 
+  async function saveVisibility() {
+    if (!artifact || !currentUserId || artifact.owner_id !== currentUserId) return;
+    setBusy(true);
+    setMsg(null);
+    try {
+      const { error } = await supabase
+        .from("artifacts")
+        .update({ visibility: newVisibility })
+        .eq("id", artifact.id)
+        .eq("owner_id", currentUserId);
+      if (error) throw error;
+      setArtifact({ ...artifact, visibility: newVisibility });
+      setEditingVisibility(false);
+    } catch (e: any) {
+      setMsg(e?.message ?? "Failed to update visibility.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
   async function deleteArtifact() {
     if (!artifact || !currentUserId || artifact.owner_id !== currentUserId) return;
     if (!confirm("Delete this artifact? This cannot be undone.")) return;
@@ -433,7 +456,7 @@ export default function ArtifactPage() {
             {artifact.owner_id === currentUserId && (
               <>
                 <button
-                  onClick={() => router.push(`/upload?edit=${artifact.id}`)}
+                  onClick={() => setEditingVisibility((prev) => !prev)}
                   disabled={busy}
                   className="border border-white/20 rounded-lg py-2 px-4 font-medium hover:bg-white/5 transition-colors disabled:opacity-50"
                 >
@@ -449,6 +472,37 @@ export default function ArtifactPage() {
               </>
             )}
           </div>
+
+          {editingVisibility && artifact.owner_id === currentUserId && (
+            <div className="mt-3 flex flex-wrap items-center gap-3">
+              <select
+                value={newVisibility}
+                onChange={(e) => setNewVisibility(e.target.value as Artifact["visibility"])}
+                className="px-3 py-2 rounded-lg bg-[#2b2b2b] border border-white/20 focus:border-white/40 focus:outline-none"
+              >
+                <option value="public">Public</option>
+                <option value="friends">Friends only</option>
+                <option value="private">Private</option>
+              </select>
+              <button
+                onClick={saveVisibility}
+                disabled={busy}
+                className="bg-white text-black rounded-lg py-2 px-4 font-medium hover:bg-white/90 transition-colors disabled:opacity-50"
+              >
+                Save
+              </button>
+              <button
+                onClick={() => {
+                  setEditingVisibility(false);
+                  setNewVisibility(artifact.visibility);
+                }}
+                disabled={busy}
+                className="border border-white/20 rounded-lg py-2 px-4 font-medium hover:bg-white/5 transition-colors disabled:opacity-50"
+              >
+                Cancel
+              </button>
+            </div>
+          )}
 
           {msg && <p className="text-sm text-red-400 mt-4">{msg}</p>}
         </div>
