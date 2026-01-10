@@ -47,7 +47,6 @@ export default function DashboardPage() {
   const [commentPreviews, setCommentPreviews] = useState<Record<string, { id: string; content: string; username: string; created_at: string }[]>>({});
   const [searchQuery, setSearchQuery] = useState("");
   const [typeFilter, setTypeFilter] = useState<"all" | "bset" | "bmod" | "tbank">("all");
-  const [viewMode, setViewMode] = useState<"list" | "grid">("list");
   const [msg, setMsg] = useState<string | null>(null);
 
   // SET PAGE TITLE
@@ -607,18 +606,12 @@ export default function DashboardPage() {
                   .tbank
                 </button>
 
-                <button
-                  onClick={() => setViewMode((prev) => (prev === "list" ? "grid" : "list"))}
-                  className="px-4 py-2 rounded-lg border border-white/20 bg-white/10 hover:bg-white/15 transition-colors"
-                >
-                  {viewMode === "list" ? "Grid view" : "List view"}
-                </button>
               </div>
             </div>
 
             {msg && <p className="text-sm text-white/70 mt-3">{msg}</p>}
 
-            <div className={`mt-6 ${viewMode === "grid" ? "grid grid-cols-2 md:grid-cols-3 gap-3" : "flex flex-col gap-3"}`}>
+            <div className="mt-6 flex flex-col gap-3">
               {filteredRows.map((r) => (
                 <div
                   key={r.id}
