@@ -417,13 +417,13 @@ export default function SchoolDirectoryPage() {
           </div>
         </div>
 
-        <div className="grid lg:grid-cols-3 gap-4 mb-6">
-          {/* Left Column - Member Directory */}
-          <div className="lg:col-span-2 space-y-4">
-            {/* Member Directory Preview */}
+        <div className="grid lg:grid-cols-4 gap-4">
+          {/* Left Column - Main Content */}
+          <div className="lg:col-span-3 space-y-4">
+            {/* Member Directory */}
             <div className="border border-white/10 bg-[#1e1e1e] rounded-xl p-4">
               <h2 className="text-lg font-bold mb-3">Members</h2>
-              <div className="grid md:grid-cols-2 gap-2">
+              <div className="grid md:grid-cols-3 gap-2">
                 {members.slice(0, 6).map((member) => (
                   <button
                     key={member.user_id}
@@ -451,19 +451,174 @@ export default function SchoolDirectoryPage() {
                 </p>
               )}
             </div>
+
+            {/* Filters and Subject Preferences Row */}
+            <div className="flex items-start justify-between gap-4">
+              {/* Filter Buttons - Left */}
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setTypeFilter("all")}
+                  className={`px-3 py-1.5 text-sm rounded-lg border transition-colors ${
+                    typeFilter === "all"
+                      ? "bg-white text-black border-white"
+                      : "border-white/20 hover:bg-white/5"
+                  }`}
+                >
+                  All
+                </button>
+                <button
+                  onClick={() => setTypeFilter("bset")}
+                  className={`px-3 py-1.5 text-sm rounded-lg border transition-colors ${
+                    typeFilter === "bset"
+                      ? "bg-white text-black border-white"
+                      : "border-white/20 hover:bg-white/5"
+                  }`}
+                >
+                  .bset
+                </button>
+                <button
+                  onClick={() => setTypeFilter("bmod")}
+                  className={`px-3 py-1.5 text-sm rounded-lg border transition-colors ${
+                    typeFilter === "bmod"
+                      ? "bg-white text-black border-white"
+                      : "border-white/20 hover:bg-white/5"
+                  }`}
+                >
+                  .bmod
+                </button>
+                <button
+                  onClick={() => setTypeFilter("tbank")}
+                  className={`px-3 py-1.5 text-sm rounded-lg border transition-colors ${
+                    typeFilter === "tbank"
+                      ? "bg-white text-black border-white"
+                      : "border-white/20 hover:bg-white/5"
+                  }`}
+                >
+                  .tbank
+                </button>
+              </div>
+
+              {/* Subject Preferences - Right */}
+              {currentUserId && (
+                <div className="flex-shrink-0">
+                  <SubjectPreferences
+                    userId={currentUserId}
+                    userSchool={schoolName}
+                    onUpdate={() => window.location.reload()}
+                  />
+                </div>
+              )}
+            </div>
+
+            {/* Search Bar - Full Width Below */}
+            <div>
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search artifacts by title, description, or username..."
+                className="w-full px-4 py-2 rounded-lg bg-[#1e1e1e] border border-white/20 focus:border-white/40 focus:outline-none text-sm"
+              />
+            </div>
+
+            {/* Artifacts Grid */}
+            <div className="space-y-3">
+              {filteredArtifacts.length === 0 ? (
+                <div className="border border-white/10 bg-[#1e1e1e] rounded-xl p-6 text-center text-sm text-white/60">
+                  No artifacts found
+                </div>
+              ) : (
+                filteredArtifacts.map((artifact) => (
+                  <div
+                    key={artifact.id}
+                    className="border border-white/10 bg-[#1e1e1e] rounded-xl p-3 hover:bg-white/5 transition-colors"
+                  >
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <span className="px-2 py-0.5 text-xs rounded bg-white/10 border border-white/10">
+                          {badge(artifact.type)}
+                        </span>
+                        <span className="text-xs text-white/60">
+                          {new Date(artifact.created_at).toLocaleDateString()}
+                        </span>
+                      </div>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          router.push(`/u/${artifact.owner_username}`);
+                        }}
+                        className="text-xs text-white/70 hover:text-white hover:underline"
+                      >
+                        @{artifact.owner_username}
+                      </button>
+                    </div>
+
+                    <button
+                      onClick={() => router.push(`/a/${artifact.id}`)}
+                      className="text-left w-full mb-2"
+                    >
+                      <div className="font-medium text-sm mb-1">{artifact.title}</div>
+                      {artifact.description && (
+                        <div className="text-xs text-white/70 line-clamp-2">
+                          {artifact.description}
+                        </div>
+                      )}
+                    </button>
+
+                    <div className="flex items-center gap-3 text-xs text-white/60">
+                      <span className="flex items-center gap-1">
+                        <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                        </svg>
+                        {artifact.like_count || 0}
+                      </span>
+                      <button
+                        onClick={() => handleDownload(artifact.id, artifact.storage_key, `${artifact.title}.${artifact.type}`)}
+                        className="flex items-center gap-1 hover:text-white transition-colors"
+                      >
+                        <svg
+                          className="w-3.5 h-3.5"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"
+                          />
+                        </svg>
+                        <span>{artifact.download_count || 0}</span>
+                      </button>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+
+            {/* Large Chat Widget */}
+            {currentUserId && currentUsername && (
+              <LiveChat
+                currentUserId={currentUserId}
+                username={currentUsername}
+                userSchool={schoolName}
+                large={true}
+              />
+            )}
           </div>
 
-          {/* Right Column - Compact Collapsible Widgets */}
+          {/* Right Column - Compact Widgets */}
           <div className="space-y-3">
             {/* Top Users */}
             <div className="border border-white/10 bg-[#1e1e1e] rounded-xl overflow-hidden">
               <button
                 onClick={() => setTopUsersExpanded(!topUsersExpanded)}
-                className="w-full flex items-center justify-between p-3 hover:bg-white/5 transition-colors"
+                className="w-full flex items-center justify-between p-2.5 hover:bg-white/5 transition-colors"
               >
-                <h2 className="text-sm font-bold">Top Users</h2>
+                <h2 className="text-xs font-bold">Top Users</h2>
                 <svg
-                  className={`w-4 h-4 transition-transform ${topUsersExpanded ? 'rotate-180' : ''}`}
+                  className={`w-3.5 h-3.5 transition-transform ${topUsersExpanded ? 'rotate-180' : ''}`}
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -472,20 +627,20 @@ export default function SchoolDirectoryPage() {
                 </svg>
               </button>
               {topUsersExpanded && (
-                <div className="px-3 pb-3">
+                <div className="px-2.5 pb-2.5">
                   {topUsers.length === 0 ? (
                     <p className="text-xs text-white/60">No likes yet</p>
                   ) : (
-                    <div className="space-y-2">
+                    <div className="space-y-1.5">
                       {topUsers.slice(0, 5).map((user, index) => (
                         <button
                           key={user.user_id}
                           onClick={() => router.push(`/u/${user.username}`)}
-                          className="w-full text-left flex items-center gap-2 p-2 rounded-lg hover:bg-white/5 transition-colors"
+                          className="w-full text-left flex items-center gap-1.5 p-1.5 rounded-lg hover:bg-white/5 transition-colors"
                         >
-                          <span className="text-white/40 text-xs font-bold w-4">#{index + 1}</span>
+                          <span className="text-white/40 text-xs font-bold w-3">#{index + 1}</span>
                           <div
-                            className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white border border-white flex-shrink-0"
+                            className="w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold text-white border border-white flex-shrink-0"
                             style={{ backgroundColor: '#66b2ff' }}
                           >
                             {user.username.charAt(0).toUpperCase()}
@@ -493,7 +648,7 @@ export default function SchoolDirectoryPage() {
                           <div className="flex-1 min-w-0">
                             <div className="text-xs font-medium truncate">@{user.username}</div>
                             <div className="text-xs text-white/60 flex items-center gap-0.5">
-                              <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
+                              <svg className="w-2.5 h-2.5" fill="currentColor" viewBox="0 0 24 24">
                                 <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                               </svg>
                               {user.total_likes}
@@ -511,11 +666,11 @@ export default function SchoolDirectoryPage() {
             <div className="border border-white/10 bg-[#1e1e1e] rounded-xl overflow-hidden">
               <button
                 onClick={() => setTopRatedExpanded(!topRatedExpanded)}
-                className="w-full flex items-center justify-between p-3 hover:bg-white/5 transition-colors"
+                className="w-full flex items-center justify-between p-2.5 hover:bg-white/5 transition-colors"
               >
-                <h2 className="text-sm font-bold">Top Rated</h2>
+                <h2 className="text-xs font-bold">Top Rated</h2>
                 <svg
-                  className={`w-4 h-4 transition-transform ${topRatedExpanded ? 'rotate-180' : ''}`}
+                  className={`w-3.5 h-3.5 transition-transform ${topRatedExpanded ? 'rotate-180' : ''}`}
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -524,30 +679,30 @@ export default function SchoolDirectoryPage() {
                 </svg>
               </button>
               {topRatedExpanded && (
-                <div className="px-3 pb-3">
+                <div className="px-2.5 pb-2.5">
                   {topRated.length === 0 ? (
                     <p className="text-xs text-white/60">No artifacts yet</p>
                   ) : (
-                    <div className="space-y-2">
+                    <div className="space-y-1.5">
                       {topRated.slice(0, 5).map((artifact, index) => (
                         <button
                           key={artifact.id}
                           onClick={() => router.push(`/a/${artifact.id}`)}
-                          className="w-full text-left p-2 rounded-lg hover:bg-white/5 transition-colors"
+                          className="w-full text-left p-1.5 rounded-lg hover:bg-white/5 transition-colors"
                         >
-                          <div className="flex items-start gap-2">
+                          <div className="flex items-start gap-1.5">
                             <span className="text-white/40 text-xs font-bold">#{index + 1}</span>
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-1 mb-0.5">
-                                <span className="text-xs px-1.5 py-0.5 rounded bg-white/10 border border-white/10">
+                                <span className="text-xs px-1 py-0.5 rounded bg-white/10 border border-white/10">
                                   {badge(artifact.type)}
                                 </span>
                               </div>
                               <div className="text-xs font-medium line-clamp-1">{artifact.title}</div>
-                              <div className="text-xs text-white/60 flex items-center gap-2">
-                                <span>@{artifact.owner_username}</span>
-                                <span className="flex items-center gap-0.5">
-                                  <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
+                              <div className="text-xs text-white/60 flex items-center gap-1.5">
+                                <span className="truncate">@{artifact.owner_username}</span>
+                                <span className="flex items-center gap-0.5 flex-shrink-0">
+                                  <svg className="w-2.5 h-2.5" fill="currentColor" viewBox="0 0 24 24">
                                     <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                                   </svg>
                                   {artifact.like_count || 0}
@@ -567,11 +722,11 @@ export default function SchoolDirectoryPage() {
             <div className="border border-white/10 bg-[#1e1e1e] rounded-xl overflow-hidden">
               <button
                 onClick={() => setMostDownloadedExpanded(!mostDownloadedExpanded)}
-                className="w-full flex items-center justify-between p-3 hover:bg-white/5 transition-colors"
+                className="w-full flex items-center justify-between p-2.5 hover:bg-white/5 transition-colors"
               >
-                <h2 className="text-sm font-bold">Most Downloaded</h2>
+                <h2 className="text-xs font-bold">Most Downloaded</h2>
                 <svg
-                  className={`w-4 h-4 transition-transform ${mostDownloadedExpanded ? 'rotate-180' : ''}`}
+                  className={`w-3.5 h-3.5 transition-transform ${mostDownloadedExpanded ? 'rotate-180' : ''}`}
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -580,30 +735,30 @@ export default function SchoolDirectoryPage() {
                 </svg>
               </button>
               {mostDownloadedExpanded && (
-                <div className="px-3 pb-3">
+                <div className="px-2.5 pb-2.5">
                   {mostDownloaded.length === 0 ? (
                     <p className="text-xs text-white/60">No downloads yet</p>
                   ) : (
-                    <div className="space-y-2">
+                    <div className="space-y-1.5">
                       {mostDownloaded.slice(0, 5).map((artifact, index) => (
                         <button
                           key={artifact.id}
                           onClick={() => router.push(`/a/${artifact.id}`)}
-                          className="w-full text-left p-2 rounded-lg hover:bg-white/5 transition-colors"
+                          className="w-full text-left p-1.5 rounded-lg hover:bg-white/5 transition-colors"
                         >
-                          <div className="flex items-start gap-2">
+                          <div className="flex items-start gap-1.5">
                             <span className="text-white/40 text-xs font-bold">#{index + 1}</span>
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-1 mb-0.5">
-                                <span className="text-xs px-1.5 py-0.5 rounded bg-white/10 border border-white/10">
+                                <span className="text-xs px-1 py-0.5 rounded bg-white/10 border border-white/10">
                                   {badge(artifact.type)}
                                 </span>
                               </div>
                               <div className="text-xs font-medium line-clamp-1">{artifact.title}</div>
-                              <div className="text-xs text-white/60 flex items-center gap-2">
-                                <span>@{artifact.owner_username}</span>
-                                <span className="flex items-center gap-0.5">
-                                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <div className="text-xs text-white/60 flex items-center gap-1.5">
+                                <span className="truncate">@{artifact.owner_username}</span>
+                                <span className="flex items-center gap-0.5 flex-shrink-0">
+                                  <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
                                   </svg>
                                   {artifact.download_count || 0}
@@ -620,166 +775,6 @@ export default function SchoolDirectoryPage() {
             </div>
           </div>
         </div>
-
-{/* Search & Filter Section with Subject Preferences */}
-<div className="mb-4">
-  <h2 className="text-xl font-bold mb-3">All Artifacts</h2>
-  
-  {/* Search Bar - Full Width Row */}
-  <div className="mb-3">
-    <input
-      type="text"
-      value={searchQuery}
-      onChange={(e) => setSearchQuery(e.target.value)}
-      placeholder="Search artifacts by title, description, or username..."
-      className="w-full px-4 py-2 rounded-lg bg-[#1e1e1e] border border-white/20 focus:border-white/40 focus:outline-none text-sm"
-    />
-  </div>
-
-  {/* Filters and Subject Preferences - Same Row */}
-  <div className="flex items-start justify-between gap-4">
-    {/* Filter Buttons - Left Side */}
-    <div className="flex gap-2">
-      <button
-        onClick={() => setTypeFilter("all")}
-        className={`px-3 py-1.5 text-sm rounded-lg border transition-colors ${
-          typeFilter === "all"
-            ? "bg-white text-black border-white"
-            : "border-white/20 hover:bg-white/5"
-        }`}
-      >
-        All
-      </button>
-      <button
-        onClick={() => setTypeFilter("bset")}
-        className={`px-3 py-1.5 text-sm rounded-lg border transition-colors ${
-          typeFilter === "bset"
-            ? "bg-white text-black border-white"
-            : "border-white/20 hover:bg-white/5"
-        }`}
-      >
-        .bset
-      </button>
-      <button
-        onClick={() => setTypeFilter("bmod")}
-        className={`px-3 py-1.5 text-sm rounded-lg border transition-colors ${
-          typeFilter === "bmod"
-            ? "bg-white text-black border-white"
-            : "border-white/20 hover:bg-white/5"
-        }`}
-      >
-        .bmod
-      </button>
-      <button
-        onClick={() => setTypeFilter("tbank")}
-        className={`px-3 py-1.5 text-sm rounded-lg border transition-colors ${
-          typeFilter === "tbank"
-            ? "bg-white text-black border-white"
-            : "border-white/20 hover:bg-white/5"
-        }`}
-      >
-        .tbank
-      </button>
-    </div>
-
-    {/* Subject Preferences - Right Side */}
-    {currentUserId && (
-      <div className="w-80 flex-shrink-0">
-        <SubjectPreferences
-          userId={currentUserId}
-          userSchool={schoolName}
-          onUpdate={() => window.location.reload()}
-        />
-      </div>
-    )}
-  </div>
-</div>
-
-        {/* Artifacts Grid */}
-        <div className="space-y-3 mb-6">
-          {filteredArtifacts.length === 0 ? (
-            <div className="border border-white/10 bg-[#1e1e1e] rounded-xl p-6 text-center text-sm text-white/60">
-              No artifacts found
-            </div>
-          ) : (
-            filteredArtifacts.map((artifact) => (
-              <div
-                key={artifact.id}
-                className="border border-white/10 bg-[#1e1e1e] rounded-xl p-3 hover:bg-white/5 transition-colors"
-              >
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2">
-                    <span className="px-2 py-0.5 text-xs rounded bg-white/10 border border-white/10">
-                      {badge(artifact.type)}
-                    </span>
-                    <span className="text-xs text-white/60">
-                      {new Date(artifact.created_at).toLocaleDateString()}
-                    </span>
-                  </div>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      router.push(`/u/${artifact.owner_username}`);
-                    }}
-                    className="text-xs text-white/70 hover:text-white hover:underline"
-                  >
-                    @{artifact.owner_username}
-                  </button>
-                </div>
-
-                <button
-                  onClick={() => router.push(`/a/${artifact.id}`)}
-                  className="text-left w-full mb-2"
-                >
-                  <div className="font-medium text-sm mb-1">{artifact.title}</div>
-                  {artifact.description && (
-                    <div className="text-xs text-white/70 line-clamp-2">
-                      {artifact.description}
-                    </div>
-                  )}
-                </button>
-
-                <div className="flex items-center gap-3 text-xs text-white/60">
-                  <span className="flex items-center gap-1">
-                    <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                    </svg>
-                    {artifact.like_count || 0}
-                  </span>
-                  <button
-                    onClick={() => handleDownload(artifact.id, artifact.storage_key, `${artifact.title}.${artifact.type}`)}
-                    className="flex items-center gap-1 hover:text-white transition-colors"
-                  >
-                    <svg
-                      className="w-3.5 h-3.5"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"
-                      />
-                    </svg>
-                    <span>{artifact.download_count || 0}</span>
-                  </button>
-                </div>
-              </div>
-            ))
-          )}
-        </div>
-
-        {/* Large Chat Widget */}
-        {currentUserId && currentUsername && (
-          <LiveChat
-            currentUserId={currentUserId}
-            username={currentUsername}
-            userSchool={schoolName}
-            large={true}
-          />
-        )}
       </div>
     </main>
   );
