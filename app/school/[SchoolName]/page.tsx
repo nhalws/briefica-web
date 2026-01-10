@@ -621,75 +621,79 @@ export default function SchoolDirectoryPage() {
           </div>
         </div>
 
-        {/* Search & Filter Section with Subject Preferences */}
-        <div className="mb-4">
-          <h2 className="text-xl font-bold mb-3">All Artifacts</h2>
-          
-          {/* Search Bar and Filters with Subject Preferences */}
-          <div className="flex flex-col lg:flex-row gap-3 mb-3">
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search artifacts by title, description, or username..."
-              className="flex-1 px-4 py-2 rounded-lg bg-[#1e1e1e] border border-white/20 focus:border-white/40 focus:outline-none text-sm"
-            />
+{/* Search & Filter Section with Subject Preferences */}
+<div className="mb-4">
+  <h2 className="text-xl font-bold mb-3">All Artifacts</h2>
+  
+  {/* Search Bar - Full Width Row */}
+  <div className="mb-3">
+    <input
+      type="text"
+      value={searchQuery}
+      onChange={(e) => setSearchQuery(e.target.value)}
+      placeholder="Search artifacts by title, description, or username..."
+      className="w-full px-4 py-2 rounded-lg bg-[#1e1e1e] border border-white/20 focus:border-white/40 focus:outline-none text-sm"
+    />
+  </div>
 
-            <div className="flex gap-2">
-              <button
-                onClick={() => setTypeFilter("all")}
-                className={`px-3 py-1.5 text-sm rounded-lg border transition-colors ${
-                  typeFilter === "all"
-                    ? "bg-white text-black border-white"
-                    : "border-white/20 hover:bg-white/5"
-                }`}
-              >
-                All
-              </button>
-              <button
-                onClick={() => setTypeFilter("bset")}
-                className={`px-3 py-1.5 text-sm rounded-lg border transition-colors ${
-                  typeFilter === "bset"
-                    ? "bg-white text-black border-white"
-                    : "border-white/20 hover:bg-white/5"
-                }`}
-              >
-                .bset
-              </button>
-              <button
-                onClick={() => setTypeFilter("bmod")}
-                className={`px-3 py-1.5 text-sm rounded-lg border transition-colors ${
-                  typeFilter === "bmod"
-                    ? "bg-white text-black border-white"
-                    : "border-white/20 hover:bg-white/5"
-                }`}
-              >
-                .bmod
-              </button>
-              <button
-                onClick={() => setTypeFilter("tbank")}
-                className={`px-3 py-1.5 text-sm rounded-lg border transition-colors ${
-                  typeFilter === "tbank"
-                    ? "bg-white text-black border-white"
-                    : "border-white/20 hover:bg-white/5"
-                }`}
-              >
-                .tbank
-              </button>
-            </div>
+  {/* Filters and Subject Preferences - Same Row */}
+  <div className="flex items-start justify-between gap-4">
+    {/* Filter Buttons - Left Side */}
+    <div className="flex gap-2">
+      <button
+        onClick={() => setTypeFilter("all")}
+        className={`px-3 py-1.5 text-sm rounded-lg border transition-colors ${
+          typeFilter === "all"
+            ? "bg-white text-black border-white"
+            : "border-white/20 hover:bg-white/5"
+        }`}
+      >
+        All
+      </button>
+      <button
+        onClick={() => setTypeFilter("bset")}
+        className={`px-3 py-1.5 text-sm rounded-lg border transition-colors ${
+          typeFilter === "bset"
+            ? "bg-white text-black border-white"
+            : "border-white/20 hover:bg-white/5"
+        }`}
+      >
+        .bset
+      </button>
+      <button
+        onClick={() => setTypeFilter("bmod")}
+        className={`px-3 py-1.5 text-sm rounded-lg border transition-colors ${
+          typeFilter === "bmod"
+            ? "bg-white text-black border-white"
+            : "border-white/20 hover:bg-white/5"
+        }`}
+      >
+        .bmod
+      </button>
+      <button
+        onClick={() => setTypeFilter("tbank")}
+        className={`px-3 py-1.5 text-sm rounded-lg border transition-colors ${
+          typeFilter === "tbank"
+            ? "bg-white text-black border-white"
+            : "border-white/20 hover:bg-white/5"
+        }`}
+      >
+        .tbank
+      </button>
+    </div>
 
-            {/* Subject Preferences on right side */}
-            {currentUserId && (
-              <div className="lg:w-64">
-                <SubjectPreferences
-                  userId={currentUserId}
-                  userSchool={schoolName}
-                  onUpdate={() => window.location.reload()}
-                />
-              </div>
-            )}
-          </div>
-        </div>
+    {/* Subject Preferences - Right Side */}
+    {currentUserId && (
+      <div className="w-80 flex-shrink-0">
+        <SubjectPreferences
+          userId={currentUserId}
+          userSchool={schoolName}
+          onUpdate={() => window.location.reload()}
+        />
+      </div>
+    )}
+  </div>
+</div>
 
         {/* Artifacts Grid */}
         <div className="space-y-3 mb-6">
