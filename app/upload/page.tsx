@@ -181,20 +181,15 @@ export default function UploadPage() {
         type,
         title: title.trim(),
         description: description.trim() || null,
-        visibility, // must match enum values in DB (public/private/unlisted)
-        // RECOMMENDED: store both
-        file_path: path, // <-- add this column if you don’t have it yet
-        file_url: publicUrl, // may be null if bucket is private; that’s okay if your app uses file_path
+        visibility,
+        file_url: publicUrl,
         school: school || null,
         tags: tags.trim() || null,
       };
 
-      // If you DO NOT have a `file_path` column yet, remove it to avoid insert errors:
-      // delete (insertPayload as any).file_path;
-
       const { data: artifact, error: artifactError } = await supabase
         .from("artifacts")
-        .insert(insertPayload as any)
+        .insert(insertPayload)
         .select()
         .single();
 
