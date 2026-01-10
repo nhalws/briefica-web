@@ -128,21 +128,25 @@ export default function UploadPage() {
         data: { publicUrl },
       } = supabase.storage.from("artifacts").getPublicUrl(filePath);
 
-      // Create artifact record
-      const { data: artifact, error: artifactError } = await supabase
-        .from("artifacts")
-        .insert({
-          owner_id: currentUserId,
-          type,
-          title: title.trim(),
-          description: description.trim() || null,
-          visibility,
-          file_url: publicUrl,
-          school: school || null,
-          tags: tags.trim() || null,
-        })
-        .select()
-        .single();
+// Create artifact record
+const { data: artifact, error: artifactError } = await supabase
+  .from("artifacts")
+  .insert({
+    owner_id: currentUserId,
+    type,
+    title: title.trim(),
+    description: description.trim() || null,
+    visibility,
+    storage_key: filePath, // IMPORTANT
+    school: school || null,
+    tags: tags.trim() || null,
+  })
+  .select()
+  .single();
+
+console.log("ARTIFACT INSERT ERROR:", artifactError);
+if (artifactError) throw artifactError;
+
 
       if (artifactError) throw artifactError;
 
@@ -153,14 +157,13 @@ export default function UploadPage() {
           subject_id: subjectId,
         }));
 
-        const { error: subjectsError } = await supabase
-          .from("artifact_subjects")
-          .insert(subjectLinks);
+const { error: subjectsError } = await supabase
+  .from("artifact_subjects")
+  .insert(subjectLinks);
 
-        if (subjectsError) {
-          console.error("Error linking subjects:", subjectsError);
-          // Don't fail the upload if subject linking fails
-        }
+console.log("ARTIFACT_SUBJECTS INSERT ERROR:", subjectsError);
+if (subjectsError) throw subjectsError;
+
       }
 
       // Success! Redirect to dashboard
