@@ -7,6 +7,7 @@ import { supabase } from "../lib/supabaseClient";
 import ProfilePicture from "../components/ProfilePicture";
 import SchoolCommunity from "../components/SchoolCommunity";
 import LiveChat from "../components/LiveChat";
+import Footer from "../components/Footer";
 
 type ArtifactRow = {
   id: string;
@@ -481,7 +482,7 @@ export default function DashboardPage() {
                >
                 FAQ
                </button>
-               
+
             <button
               onClick={handleLogout}
               className="border border-white/20 rounded-lg py-2 px-4 font-medium hover:bg-white/5 transition-colors"
@@ -745,6 +746,8 @@ export default function DashboardPage() {
             </div>
           </div>
         </div>
+        {/* Footer */}
+        <Footer />
       </div>
     </main>
   );
