@@ -122,9 +122,9 @@ export default function HomePage() {
       {/* Hero Section */}
       <div className="max-w-6xl mx-auto px-6 py-20 text-center">
         <h1 className="text-5xl md:text-6xl font-bold mb-6">
-          STUDY SMARTER,
+          A NEW WAY TO OUTLINE?
           <br />
-          NOT HARDER.
+          TIME TO MAKE A B-LINE.
         </h1>
         <p className="text-xl text-white/80 mb-8 max-w-3xl mx-auto">
           briefica is the all-in-one platform for law students. Create structured briefs with our native desktop app, 
@@ -231,7 +231,7 @@ export default function HomePage() {
 
       {/* How It Works */}
       <div className="max-w-6xl mx-auto px-6 py-20">
-        <h2 className="text-3xl font-bold text-center mb-12">How It Works</h2>
+        <h2 className="text-3xl font-bold text-center mb-12">How it works.</h2>
 
         <div className="grid md:grid-cols-2 gap-12 items-center">
           <div className="space-y-6">
@@ -240,7 +240,7 @@ export default function HomePage() {
                 1
               </div>
               <div>
-                <h4 className="font-semibold mb-1 text-lg">Download briefica</h4>
+                <h4 className="font-semibold mb-1 text-lg">download briefica</h4>
                 <p className="text-white/70">
                   Get the native macOS desktop app. Free for all law students. Windows coming soon.
                 </p>
@@ -265,9 +265,9 @@ export default function HomePage() {
                 3
               </div>
               <div>
-                <h4 className="font-semibold mb-1 text-lg">Join Your School</h4>
+                <h4 className="font-semibold mb-1 text-lg">join briefica online (b-web)</h4>
                 <p className="text-white/70">
-                  Set your law school in your profile and instantly connect with classmates. 
+                  Register an account here, set your law school in your profile and instantly connect with classmates. 
                   Access school-specific chats and subject channels.
                 </p>
               </div>
@@ -278,10 +278,10 @@ export default function HomePage() {
                 4
               </div>
               <div>
-                <h4 className="font-semibold mb-1 text-lg">Share & Discover</h4>
+                <h4 className="font-semibold mb-1 text-lg">share & discover</h4>
                 <p className="text-white/70">
-                  Upload your work to share with the community. Browse and download materials 
-                  from thousands of law students across the country.
+                  Browse and download materials from thousands of law students across the country. 
+                  Upload your work to share with the community.
                 </p>
               </div>
             </div>
@@ -396,7 +396,7 @@ export default function HomePage() {
         <div className="border border-white/10 bg-[#1e1e1e] rounded-2xl p-12 text-center">
           <h2 className="text-3xl font-bold mb-4">Ready to Get Started?</h2>
           <p className="text-xl text-white/70 mb-8">
-            Join thousands of law students already using briefica.
+            let's make a b-line.
           </p>
           <div className="flex gap-4 justify-center">
             <button
