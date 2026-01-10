@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "../lib/supabaseClient";
+import SubjectPreferences from "../components/SubjectPreferences";
 
 interface SchoolMember {
   user_id: string;

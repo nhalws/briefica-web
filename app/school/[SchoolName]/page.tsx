@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Image from "next/image";
 import { supabase } from "../../lib/supabaseClient";
+import SubjectPreferences from "../../components/SubjectPreferences";
+import LiveChat from "../../components/LiveChat";
 
 interface SchoolMember {
   user_id: string;
@@ -16,8 +18,7 @@ export default function SchoolDirectoryPage() {
   const router = useRouter();
   const params = useParams();
   
-  // Extract schoolName from params (handle possible casing differences)
-  const rawSchoolName = (params as Record<string, string | string[] | undefined>)?.schoolName ?? (params as Record<string, string | string[] | undefined>)?.SchoolName;
+  const rawSchoolName = params?.schoolName;
   const schoolName = typeof rawSchoolName === 'string' 
     ? decodeURIComponent(rawSchoolName) 
     : Array.isArray(rawSchoolName) 
@@ -26,6 +27,7 @@ export default function SchoolDirectoryPage() {
 
   const [members, setMembers] = useState<SchoolMember[]>([]);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [currentUsername, setCurrentUsername] = useState<string>("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -36,21 +38,43 @@ export default function SchoolDirectoryPage() {
   }, [schoolName]);
 
   useEffect(() => {
+    let mounted = true;
+
     async function loadSchoolDirectory() {
       try {
-        console.log("School name from params:", schoolName);
-        
         if (!schoolName) {
-          setError("No school name provided");
-          setLoading(false);
+          if (mounted) {
+            setError("No school name provided");
+            setLoading(false);
+          }
           return;
         }
 
         // Get current user
-        const { data: userData } = await supabase.auth.getUser();
-        setCurrentUserId(userData.user?.id || null);
-
-        console.log("Searching for school:", schoolName);
+        const { data: userData, error: userError } = await supabase.auth.getUser();
+        
+        if (userError) {
+          if (mounted) {
+            setError(userError.message);
+            setLoading(false);
+          }
+          return;
+        }
+        
+        if (mounted && userData.user) {
+          setCurrentUserId(userData.user.id);
+          
+          // Get current user's username
+          const { data: profile } = await supabase
+            .from("profiles")
+            .select("username")
+            .eq("user_id", userData.user.id)
+            .single();
+          
+          if (profile) {
+            setCurrentUsername(profile.username);
+          }
+        }
 
         // Load all members from this school
         const { data: profilesData, error: profilesError } = await supabase
@@ -59,17 +83,19 @@ export default function SchoolDirectoryPage() {
           .eq("law_school", schoolName)
           .order("username", { ascending: true });
 
-        console.log("Query result:", profilesData, profilesError);
-
         if (profilesError) {
-          setError(profilesError.message);
-          setLoading(false);
+          if (mounted) {
+            setError(profilesError.message);
+            setLoading(false);
+          }
           return;
         }
 
         if (!profilesData || profilesData.length === 0) {
-          setMembers([]);
-          setLoading(false);
+          if (mounted) {
+            setMembers([]);
+            setLoading(false);
+          }
           return;
         }
 
@@ -91,19 +117,29 @@ export default function SchoolDirectoryPage() {
           })
         );
 
-        setMembers(membersWithCounts);
-        setLoading(false);
+        if (mounted) {
+          setMembers(membersWithCounts);
+          setLoading(false);
+        }
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : "Unknown error occurred";
-        console.error("Error:", errorMessage);
-        setError(errorMessage);
-        setLoading(false);
+        if (mounted) {
+          setError(errorMessage);
+          setLoading(false);
+        }
       }
     }
 
     if (schoolName) {
       loadSchoolDirectory();
+    } else {
+      setError("No school name in URL");
+      setLoading(false);
     }
+
+    return () => {
+      mounted = false;
+    };
   }, [schoolName]);
 
   if (loading) {
@@ -130,8 +166,6 @@ export default function SchoolDirectoryPage() {
             Back to dashboard
           </button>
           <p className="text-red-400">Error: {error}</p>
-          <p className="text-white/60 mt-2">School name from URL: &quot;{schoolName}&quot;</p>
-          <p className="text-white/60 mt-2">Raw params: {JSON.stringify(params)}</p>
         </div>
       </main>
     );
@@ -167,13 +201,26 @@ export default function SchoolDirectoryPage() {
           <p className="text-white/70">{members.length} member{members.length !== 1 ? 's' : ''}</p>
         </div>
 
+        {/* Subject Preferences Section */}
+        {currentUserId && (
+          <div className="mb-8">
+            <SubjectPreferences
+              userId={currentUserId}
+              userSchool={schoolName}
+              onUpdate={() => {
+                window.location.reload();
+              }}
+            />
+          </div>
+        )}
+
         {/* Members Grid */}
         {members.length === 0 ? (
           <div className="border border-white/10 bg-[#1e1e1e] rounded-2xl p-8 text-center text-white/60">
             No members found at this school yet.
           </div>
         ) : (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
             {members.map((member) => (
               <div
                 key={member.user_id}
@@ -209,6 +256,18 @@ export default function SchoolDirectoryPage() {
                 )}
               </div>
             ))}
+          </div>
+        )}
+
+        {/* Large Chat Widget */}
+        {currentUserId && currentUsername && (
+          <div className="mt-8">
+            <LiveChat
+              currentUserId={currentUserId}
+              username={currentUsername}
+              userSchool={schoolName}
+              large={true}
+            />
           </div>
         )}
       </div>

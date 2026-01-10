@@ -7,7 +7,6 @@ import { supabase } from "../lib/supabaseClient";
 import ProfilePicture from "../components/ProfilePicture";
 import SchoolCommunity from "../components/SchoolCommunity";
 import LiveChat from "../components/LiveChat";
-import SubjectPreferences from "../components/SubjectPreferences";
 
 type ArtifactRow = {
   id: string;
@@ -526,14 +525,6 @@ export default function DashboardPage() {
               <SchoolCommunity
                 userSchool={userProfile.law_school}
                 currentUserId={currentUserId}
-              />
-            )}
-            
-            {/* SUBJECT PREFERENCES WIDGET */}
-            {userProfile && currentUserId && (
-              <SubjectPreferences
-                userId={currentUserId}
-                userSchool={userProfile.law_school}
               />
             )}
 

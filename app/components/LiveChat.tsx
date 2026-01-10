@@ -10,21 +10,58 @@ interface Message {
   created_at: string;
 }
 
+interface Subject {
+  id: string;
+  name: string;
+  school_name: string;
+}
+
 interface LiveChatProps {
   currentUserId: string;
   username: string;
   userSchool: string | null;
+  large?: boolean; // Optional prop for larger version on school page
 }
 
-export default function LiveChat({ currentUserId, username, userSchool }: LiveChatProps) {
+export default function LiveChat({ currentUserId, username, userSchool, large = false }: LiveChatProps) {
   const [isJoined, setIsJoined] = useState(false);
-  const [activeTab, setActiveTab] = useState<"main" | "school">("main");
+  const [activeTab, setActiveTab] = useState<string>("main");
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [onlineCount, setOnlineCount] = useState(0);
+  const [userSubjects, setUserSubjects] = useState<Subject[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const currentChannel = activeTab === "main" ? "main" : userSchool || "main";
+  // Load user's subject preferences
+  useEffect(() => {
+    async function loadUserSubjects() {
+      const { data: preferences } = await supabase
+        .from("user_subject_preferences")
+        .select("subject_id, subjects(*)")
+        .eq("user_id", currentUserId);
+
+      if (preferences) {
+        const subjects = preferences
+          .map((p: any) => p.subjects)
+          .filter(Boolean);
+        setUserSubjects(subjects);
+      }
+    }
+
+    loadUserSubjects();
+  }, [currentUserId]);
+
+  // Generate channel list: main, school, + up to 3 subjects
+  const channels = [
+    { id: "main", label: "#main" },
+    ...(userSchool ? [{ id: userSchool, label: `#${userSchool.toLowerCase().replace(/\s+/g, '-')}` }] : []),
+    ...userSubjects.map((subject) => ({
+      id: `${userSchool}-${subject.name}`,
+      label: `#${userSchool?.toLowerCase().replace(/\s+/g, '-')}-${subject.name.toLowerCase().replace(/\s+/g, '-')}`,
+    })),
+  ];
+
+  const currentChannel = activeTab;
 
   // Auto-scroll to bottom
   useEffect(() => {
@@ -86,7 +123,7 @@ export default function LiveChat({ currentUserId, username, userSchool }: LiveCh
       const { count } = await supabase
         .from("online_users")
         .select("user_id", { count: "exact", head: true })
-        .gte("last_seen", new Date(Date.now() - 60000).toISOString()); // Active in last 60s
+        .gte("last_seen", new Date(Date.now() - 60000).toISOString());
 
       setOnlineCount(count ?? 0);
     }
@@ -94,15 +131,12 @@ export default function LiveChat({ currentUserId, username, userSchool }: LiveCh
     joinChat();
     updateOnlineCount();
 
-    // Update presence every 30 seconds
     const presenceInterval = setInterval(joinChat, 30000);
     const countInterval = setInterval(updateOnlineCount, 10000);
 
     return () => {
       clearInterval(presenceInterval);
       clearInterval(countInterval);
-
-      // Remove from online users
       supabase.from("online_users").delete().eq("user_id", currentUserId);
     };
   }, [isJoined, currentUserId, username]);
@@ -127,6 +161,8 @@ export default function LiveChat({ currentUserId, username, userSchool }: LiveCh
     }
   }
 
+  const chatHeight = large ? "500px" : "400px";
+
   if (!isJoined) {
     return (
       <div className="border border-white/10 bg-[#1e1e1e] rounded-2xl p-4">
@@ -149,7 +185,7 @@ export default function LiveChat({ currentUserId, username, userSchool }: LiveCh
   }
 
   return (
-    <div className="border border-white/10 bg-[#1e1e1e] rounded-2xl overflow-hidden flex flex-col" style={{ height: '400px' }}>
+    <div className="border border-white/10 bg-[#1e1e1e] rounded-2xl overflow-hidden flex flex-col" style={{ height: chatHeight }}>
       {/* Header */}
       <div className="p-3 border-b border-white/10 flex items-center justify-between">
         <h2 className="font-semibold">Live Chat</h2>
@@ -186,7 +222,7 @@ export default function LiveChat({ currentUserId, username, userSchool }: LiveCh
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
             onKeyPress={handleKeyPress}
-            placeholder={`Message #${currentChannel}...`}
+            placeholder={`Message ${channels.find(c => c.id === activeTab)?.label || '#main'}...`}
             className="flex-1 px-3 py-2 rounded-lg bg-[#2b2b2b] border border-white/20 focus:border-white/40 focus:outline-none text-sm"
           />
           <button
@@ -199,32 +235,22 @@ export default function LiveChat({ currentUserId, username, userSchool }: LiveCh
           </button>
         </div>
 
-        {/* Tabs */}
-        <div className="flex gap-2">
-          <button
-            onClick={() => setActiveTab("main")}
-            className={`px-3 py-1 rounded text-xs transition-colors ${
-              activeTab === "main"
-                ? "text-white"
-                : "text-white/60 hover:text-white/80"
-            }`}
-            style={activeTab === "main" ? { backgroundColor: '#66b2ff' } : {}}
-          >
-            #main
-          </button>
-          {userSchool && (
+        {/* Channel Tabs */}
+        <div className="flex gap-2 flex-wrap">
+          {channels.map((channel) => (
             <button
-              onClick={() => setActiveTab("school")}
+              key={channel.id}
+              onClick={() => setActiveTab(channel.id)}
               className={`px-3 py-1 rounded text-xs transition-colors ${
-                activeTab === "school"
+                activeTab === channel.id
                   ? "text-white"
                   : "text-white/60 hover:text-white/80"
               }`}
-              style={activeTab === "school" ? { backgroundColor: '#66b2ff' } : {}}
+              style={activeTab === channel.id ? { backgroundColor: '#66b2ff' } : {}}
             >
-              #{userSchool.toLowerCase().replace(/\s+/g, '-')}
+              {channel.label}
             </button>
-          )}
+          ))}
         </div>
       </div>
     </div>
