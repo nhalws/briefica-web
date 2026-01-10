@@ -121,7 +121,7 @@ export default function HomePage() {
 
       {/* Hero Section */}
       <div className="max-w-6xl mx-auto px-6 py-20 text-center">
-        <h1 className="text-5xl md:text-6xl font-bold mb-6">
+        <h1 className="text-4xl md:text-5xl font-bold mb-6">
           A NEW WAY TO OUTLINE?
           <br />
           TIME TO MAKE A B-LINE.
@@ -137,7 +137,7 @@ export default function HomePage() {
             className="text-white rounded-lg py-3 px-6 font-medium text-lg transition-colors hover:opacity-90"
             style={{ backgroundColor: '#66b2ff' }}
           >
-            download briefica
+            download briefica 6
           </button>
 
           {!isLoggedIn && (
@@ -145,7 +145,7 @@ export default function HomePage() {
               onClick={() => router.push("/auth")}
               className="border border-white/20 rounded-lg py-3 px-6 font-medium text-lg hover:bg-white/5 transition-colors"
             >
-              get started free
+              join b-web
             </button>
           )}
         </div>
