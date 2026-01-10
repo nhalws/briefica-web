@@ -153,7 +153,7 @@ export default function HomePage() {
 
       {/* Features Grid */}
       <div className="max-w-6xl mx-auto px-6 py-20">
-        <h2 className="text-3xl font-bold text-center mb-12">Everything You Need to Succeed</h2>
+        <h2 className="text-3xl font-bold text-center mb-12">A true law school workspace.</h2>
         <div className="grid md:grid-cols-3 gap-8">
           {/* Native Editor */}
           <div className="border border-white/10 bg-[#1e1e1e] rounded-2xl p-8">
@@ -174,8 +174,8 @@ export default function HomePage() {
             </div>
             <h3 className="text-xl font-semibold mb-2">Native Desktop App</h3>
             <p className="text-white/70">
-              Powerful macOS editor built specifically for case briefs, outlines, and test banks. 
-              Create .bset, .bmod, and .tbank files with speed and precision.
+              Powerful macOS editor built specifically for day-to-day law school organization. 
+              Create dynamic law school files (.bset, .bmod, and .tbank) with speed and precision.
             </p>
           </div>
 
@@ -222,8 +222,8 @@ export default function HomePage() {
             </div>
             <h3 className="text-xl font-semibold mb-2">Discover & Download</h3>
             <p className="text-white/70">
-              Browse thousands of briefs, outlines, and test banks from students at top law schools. 
-              Download materials and open them directly in the app.
+              Browse thousands of briefsets, mods and other b-files from students at top law schools. 
+              Download study materials and open them directly in the desktop app.
             </p>
           </div>
         </div>
@@ -252,10 +252,10 @@ export default function HomePage() {
                 2
               </div>
               <div>
-                <h4 className="font-semibold mb-1 text-lg">Create Your Briefs</h4>
+                <h4 className="font-semibold mb-1 text-lg">create your briefsets</h4>
                 <p className="text-white/70">
-                  Use the powerful editor to create case briefs, outlines, and test banks. 
-                  Structured templates make organization effortless.
+                  Use briefica 6 to create case briefsets, outlines, and other b-files. 
+                  The native desktop tool makes organization effortless.
                 </p>
               </div>
             </div>
@@ -298,7 +298,7 @@ export default function HomePage() {
               />
             </div>
             <p className="text-center text-sm text-white/60 mt-4">
-              The briefica native desktop editor
+              briefica 6
             </p>
           </div>
         </div>
@@ -316,7 +316,7 @@ export default function HomePage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                 </svg>
               </div>
-              <h3 className="text-xl font-semibold">Live IRC-Style Chat</h3>
+              <h3 className="text-xl font-semibold">Live Chat</h3>
             </div>
             <p className="text-white/70">
               Join the main chat or connect with your school community in dedicated channels. 
@@ -404,14 +404,14 @@ export default function HomePage() {
               className="text-white rounded-lg py-3 px-8 font-medium text-lg transition-colors hover:opacity-90"
               style={{ backgroundColor: '#66b2ff' }}
             >
-              Download Now
+              download
             </button>
             {!isLoggedIn && (
               <button
                 onClick={() => router.push("/auth")}
                 className="border border-white/20 rounded-lg py-3 px-8 font-medium text-lg hover:bg-white/5 transition-colors"
               >
-                Sign Up Free
+                sign up
               </button>
             )}
           </div>
