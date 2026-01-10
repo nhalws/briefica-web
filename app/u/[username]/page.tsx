@@ -5,6 +5,7 @@ import { useRouter, useParams } from "next/navigation";
 import Image from "next/image";
 import { supabase } from "../../lib/supabaseClient";
 import ProfilePicture from "../../components/ProfilePicture";
+import { ABA_LAW_SCHOOLS } from "../../lib/lawschools";
 
 interface UserProfile {
   user_id: string;
@@ -51,7 +52,6 @@ export default function UserProfilePage() {
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [editBio, setEditBio] = useState("");
   const [editSchool, setEditSchool] = useState("");
-  const [availableSchools, setAvailableSchools] = useState<string[]>([]);
 
   // Edit artifact state
   const [editingArtifact, setEditingArtifact] = useState<Artifact | null>(null);
@@ -132,17 +132,6 @@ export default function UserProfilePage() {
 
         const { data: artifactsData } = await artifactsQuery;
         setArtifacts(artifactsData ?? []);
-
-        // Load available schools
-        const { data: schoolsData } = await supabase
-          .from("profiles")
-          .select("law_school")
-          .not("law_school", "is", null);
-
-        if (schoolsData) {
-          const uniqueSchools = Array.from(new Set(schoolsData.map(s => s.law_school).filter(Boolean))) as string[];
-          setAvailableSchools(uniqueSchools.sort());
-        }
 
         document.title = `@${username} - briefica`;
         setLoading(false);
@@ -451,7 +440,7 @@ export default function UserProfilePage() {
                   className="w-full px-3 py-2 rounded-lg bg-[#2b2b2b] border border-white/20 focus:border-white/40 focus:outline-none"
                 >
                   <option value="">Select a school</option>
-                  {availableSchools.map((school) => (
+                  {ABA_LAW_SCHOOLS.map((school) => (
                     <option key={school} value={school}>
                       {school}
                     </option>
