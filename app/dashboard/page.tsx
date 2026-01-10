@@ -30,6 +30,7 @@ type UserProfile = {
   friend_count: number;
   pending_requests: number;
   profile_picture_url: string | null;
+  total_likes: number;
 };
 
 export default function DashboardPage() {
@@ -43,8 +44,10 @@ export default function DashboardPage() {
   const [likeCounts, setLikeCounts] = useState<Record<string, number>>({});
   const [downloadCounts, setDownloadCounts] = useState<Record<string, number>>({});
   const [userLikes, setUserLikes] = useState<Set<string>>(new Set());
+  const [commentPreviews, setCommentPreviews] = useState<Record<string, { id: string; content: string; username: string; created_at: string }[]>>({});
   const [searchQuery, setSearchQuery] = useState("");
   const [typeFilter, setTypeFilter] = useState<"all" | "bset" | "bmod" | "tbank">("all");
+  const [viewMode, setViewMode] = useState<"list" | "grid">("list");
   const [msg, setMsg] = useState<string | null>(null);
 
   // SET PAGE TITLE
@@ -77,10 +80,21 @@ export default function DashboardPage() {
   }, [router]);
 
   async function loadUserProfile(userId: string, username: string, lawSchool: string | null, profilePictureUrl: string | null) {
-    const { count: uploadCount } = await supabase
+    const { data: userArtifacts, count: uploadCount } = await supabase
       .from("artifacts")
-      .select("id", { count: "exact", head: true })
+      .select("id", { count: "exact" })
       .eq("owner_id", userId);
+
+    const artifactIds = (userArtifacts ?? []).map((a: any) => a.id);
+
+    let totalLikes = 0;
+    if (artifactIds.length > 0) {
+      const { count: likesCount } = await supabase
+        .from("artifact_likes")
+        .select("id", { count: "exact", head: true })
+        .in("artifact_id", artifactIds);
+      totalLikes = likesCount ?? 0;
+    }
 
     const { count: friendCount } = await supabase
       .from("friend_requests")
@@ -101,6 +115,7 @@ export default function DashboardPage() {
       friend_count: friendCount ?? 0,
       pending_requests: pendingCount ?? 0,
       profile_picture_url: profilePictureUrl,
+      total_likes: totalLikes,
     });
   }
 
@@ -177,6 +192,7 @@ export default function DashboardPage() {
       const artifactIds = (data ?? []).map((r) => r.id);
       if (artifactIds.length > 0) {
         await loadLikesAndDownloads(artifactIds);
+        await loadCommentPreviews(artifactIds);
       }
     }
 
@@ -331,6 +347,37 @@ export default function DashboardPage() {
     return t === "bset" ? ".bset" : t === "bmod" ? ".bmod" : ".tbank";
   }
 
+  async function loadCommentPreviews(artifactIds: string[]) {
+    const { data } = await supabase
+      .from("artifact_comments")
+      .select(`
+        id,
+        artifact_id,
+        content,
+        created_at,
+        profiles!artifact_comments_user_id_fkey(username)
+      `)
+      .in("artifact_id", artifactIds)
+      .order("created_at", { ascending: false });
+
+    if (!data) return;
+
+    const grouped: Record<string, { id: string; content: string; username: string; created_at: string }[]> = {};
+    data.forEach((c: any) => {
+      const arr = grouped[c.artifact_id] || [];
+      if (arr.length < 3) {
+        arr.push({
+          id: c.id,
+          content: c.content,
+          username: c.profiles?.username ?? "unknown",
+          created_at: c.created_at,
+        });
+        grouped[c.artifact_id] = arr;
+      }
+    });
+    setCommentPreviews(grouped);
+  }
+
   return (
     <main className="min-h-screen bg-[#2b2b2b] text-white p-6">
       <div className="max-w-6xl mx-auto">
@@ -457,13 +504,17 @@ export default function DashboardPage() {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-4 text-sm">
-                  <div>
-                    <span className="text-white/60">Uploads: </span>
+                <div className="flex flex-col gap-1 text-sm">
+                  <div className="flex items-center gap-1">
+                    <span className="text-white/60">Uploads:</span>
                     <span className="font-medium">{userProfile.upload_count}</span>
                   </div>
-                  <div>
-                    <span className="text-white/60">Friends: </span>
+                  <div className="flex items-center gap-1">
+                    <span className="text-white/60">Hearts:</span>
+                    <span className="font-medium">{userProfile.total_likes}</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <span className="text-white/60">Friends:</span>
                     <span className="font-medium">{userProfile.friend_count}</span>
                   </div>
                 </div>
@@ -482,29 +533,6 @@ export default function DashboardPage() {
                 )}
               </div>
             )}
-
-            {/* FRIENDS LIST */}
-            <div className="border border-white/10 bg-[#1e1e1e] rounded-2xl p-4">
-              <h2 className="font-semibold mb-4">Friends</h2>
-              
-              {friends.length === 0 ? (
-                <p className="text-sm text-white/60">
-                  You don't have any friends yet.
-                </p>
-              ) : (
-                <div className="flex flex-col gap-2">
-                  {friends.map((friend) => (
-                    <button
-                      key={friend.user_id}
-                      onClick={() => router.push(`/u/${friend.username}`)}
-                      className="text-left px-3 py-2 rounded-lg hover:bg-white/5 transition-colors text-sm"
-                    >
-                      @{friend.username}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
 
             {/* SCHOOL COMMUNITY WIDGET */}
             {userProfile && currentUserId && (
@@ -525,7 +553,7 @@ export default function DashboardPage() {
           </aside>
 
           {/* MAIN CONTENT */}
-          <div className="flex-1 max-w-3xl">
+          <div className="flex-1 max-w-4xl">
 
             {/* Search and Filter */}
             <div className="mt-4 flex flex-col sm:flex-row gap-3">
@@ -537,7 +565,7 @@ export default function DashboardPage() {
                 className="flex-1 px-4 py-2 rounded-lg bg-[#1e1e1e] border border-white/20 focus:border-white/40 focus:outline-none"
               />
 
-              <div className="flex gap-2">
+              <div className="flex gap-2 flex-wrap justify-end">
                 <button
                   onClick={() => setTypeFilter("all")}
                   className={`px-4 py-2 rounded-lg border transition-colors ${
@@ -578,16 +606,23 @@ export default function DashboardPage() {
                 >
                   .tbank
                 </button>
+
+                <button
+                  onClick={() => setViewMode((prev) => (prev === "list" ? "grid" : "list"))}
+                  className="px-4 py-2 rounded-lg border border-white/20 bg-white/10 hover:bg-white/15 transition-colors"
+                >
+                  {viewMode === "list" ? "Grid view" : "List view"}
+                </button>
               </div>
             </div>
 
             {msg && <p className="text-sm text-white/70 mt-3">{msg}</p>}
 
-            <div className="mt-6 flex flex-col gap-3">
+            <div className={`mt-6 ${viewMode === "grid" ? "grid grid-cols-2 md:grid-cols-3 gap-3" : "flex flex-col gap-3"}`}>
               {filteredRows.map((r) => (
                 <div
                   key={r.id}
-                  className="border border-white/10 bg-[#1e1e1e] rounded-2xl p-4"
+                  className="border border-white/10 bg-[#1e1e1e] rounded-2xl p-4 flex flex-col"
                 >
                   <div className="flex items-center justify-between gap-3">
                     <div className="text-xs text-white/60">
@@ -609,9 +644,9 @@ export default function DashboardPage() {
 
                   <button
                     onClick={() => router.push(`/a/${r.id}`)}
-                    className="text-left w-full"
+                    className="text-left w-full flex-1"
                   >
-                    <div className="mt-2 font-medium hover:text-white/80 transition-colors">
+                    <div className="mt-2 font-medium hover:text-white/80 transition-colors line-clamp-2">
                       {r.title}
                     </div>
                     {r.description && (
@@ -620,6 +655,17 @@ export default function DashboardPage() {
                       </div>
                     )}
                   </button>
+
+                  {/* Comments preview */}
+                  {commentPreviews[r.id]?.length > 0 && (
+                    <div className="mt-3 space-y-2 text-xs text-white/70">
+                      {commentPreviews[r.id].map((c) => (
+                        <div key={c.id} className="border border-white/10 rounded-lg p-2 bg-[#2b2b2b] line-clamp-2">
+                          <span className="text-white">@{c.username}</span>: {c.content}
+                        </div>
+                      ))}
+                    </div>
+                  )}
 
                   {/* Like and Download buttons */}
                   <div className="mt-3 flex items-center gap-4 text-sm">
