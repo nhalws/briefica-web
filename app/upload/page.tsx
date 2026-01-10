@@ -115,7 +115,7 @@ export default function UploadPage() {
       // Upload file to Supabase Storage
       const fileExt = file.name.split(".").pop();
       const fileName = `${currentUserId}-${Date.now()}.${fileExt}`;
-      const filePath = `artifacts/${fileName}`;
+      const filePath = `artifacts/${currentUserId}/${fileName}`;
 
       const { error: uploadError } = await supabase.storage
         .from("artifacts")
