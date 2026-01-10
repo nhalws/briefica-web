@@ -380,10 +380,6 @@ export default function HomePage() {
               <div className="text-white/70">ABA Law Schools</div>
             </div>
             <div>
-              <div className="text-4xl font-bold mb-2" style={{ color: '#66b2ff' }}>3</div>
-              <div className="text-white/70">File Types</div>
-            </div>
-            <div>
               <div className="text-4xl font-bold mb-2" style={{ color: '#66b2ff' }}>Free</div>
               <div className="text-white/70">For All Students</div>
             </div>
@@ -394,7 +390,7 @@ export default function HomePage() {
       {/* CTA Section */}
       <div className="max-w-6xl mx-auto px-6 py-20">
         <div className="border border-white/10 bg-[#1e1e1e] rounded-2xl p-12 text-center">
-          <h2 className="text-3xl font-bold mb-4">Ready to Get Started?</h2>
+          <h2 className="text-3xl font-bold mb-4">Ready to begin?</h2>
           <p className="text-xl text-white/70 mb-8">
             let's make a b-line.
           </p>
