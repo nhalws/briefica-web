@@ -15,7 +15,7 @@ type ArtifactRow = {
   title: string;
   description: string | null;
   created_at: string;
-  file_url: string;
+  storage_key: string;  // ← Change from file_url to storage_key
 };
 
 type Friend = {
@@ -147,12 +147,12 @@ export default function DashboardPage() {
     async function load() {
       setMsg(null);
 
-      const { data, error } = await supabase
-        .from("artifacts")
-        .select("id, owner_id, type, title, description, created_at, file_url")
-        .eq("visibility", "public")
-        .order("created_at", { ascending: false })
-        .limit(100);
+  const { data, error } = await supabase
+      .from("artifacts")
+      .select("id, owner_id, type, title, description, created_at, storage_key")  // ← Use storage_key instead
+      .eq("visibility", "public")
+      .order("created_at", { ascending: false })
+      .limit(100);
 
       if (error) {
         setMsg(error.message);
@@ -277,27 +277,46 @@ export default function DashboardPage() {
     }
   }
 
-  async function handleDownload(artifactId: string, fileUrl: string, fileName: string) {
-    if (!currentUserId) return;
+  async function handleDownload(artifactId: string, storageKey: string, fileName: string) {
+  if (!currentUserId) return;
 
-    // Record download in database
-    await supabase.from("artifact_downloads").insert({
-      artifact_id: artifactId,
-      user_id: currentUserId,
-    });
+  // Record download in database
+  await supabase.from("artifact_downloads").insert({
+    artifact_id: artifactId,
+    user_id: currentUserId,
+  });
 
-    // Update local count
-    setDownloadCounts((prev) => ({
-      ...prev,
-      [artifactId]: (prev[artifactId] || 0) + 1,
-    }));
+  // Update local count
+  setDownloadCounts((prev) => ({
+    ...prev,
+    [artifactId]: (prev[artifactId] || 0) + 1,
+  }));
 
-    // Trigger download
-    const link = document.createElement('a');
-    link.href = fileUrl;
-    link.download = fileName;
-    link.click();
+  // Get signed URL and download
+  try {
+    const { data, error } = await supabase.storage
+      .from("artifacts")
+      .createSignedUrl(storageKey, 300);
+
+    if (error || !data?.signedUrl) {
+      console.error("Failed to generate download link");
+      return;
+    }
+
+    const response = await fetch(data.signedUrl);
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+  } catch (e) {
+    console.error("Download failed:", e);
   }
+}
 
   async function handleLogout() {
     await supabase.auth.signOut();
@@ -629,9 +648,9 @@ export default function DashboardPage() {
                     </button>
 
                     <button
-                      onClick={() => handleDownload(r.id, r.file_url, `${r.title}.${r.type}`)}
-                      className="flex items-center gap-1.5 transition-colors text-white/60 hover:text-white/80"
-                    >
+                    onClick={() => handleDownload(r.id, r.storage_key, `${r.title}.${r.type}`)}
+                    className="flex items-center gap-1.5 transition-colors text-white/60 hover:text-white/80"
+>
                       <svg
                         className="w-5 h-5"
                         fill="none"
