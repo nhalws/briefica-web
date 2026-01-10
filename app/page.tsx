@@ -373,7 +373,7 @@ export default function HomePage() {
 
       {/* Stats Section */}
       <div className="max-w-6xl mx-auto px-6 py-20">
-        <div className="border border-white/10 bg-[#1e1e1e] rounded-2xl p-12">
+        <div className="border border-white/10 bg-[#1e1e1e] rounded-2xl p-12 text-center">
           <div className="grid md:grid-cols-3 gap-8 text-center">
             <div>
               <div className="text-4xl font-bold mb-2" style={{ color: '#66b2ff' }}>200+</div>

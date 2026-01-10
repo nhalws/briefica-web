@@ -147,6 +147,15 @@ function AuthPageContent() {
 
   return (
     <main className="min-h-screen flex items-center justify-center bg-[#2b2b2b] text-white">
+      <button
+        onClick={() => router.push("/")}
+        className="absolute top-6 left-6 text-white/70 hover:text-white flex items-center gap-2 text-sm"
+      >
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        </svg>
+        Back to Homepage
+      </button>
       <div className="w-full max-w-sm rounded-xl border border-white/10 bg-[#1e1e1e] p-6">
         <div className="flex items-center justify-between mb-5">
           <div className="flex items-center">
