@@ -18,7 +18,7 @@ export default function UploadPage() {
   const [userSchool, setUserSchool] = useState<string | null>(null);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [visibility, setVisibility] = useState<"public" | "private">("public");
+  const [visibility, setVisibility] = useState<"public" | "private" | "friends">("public");
   const [type, setType] = useState<"bset" | "bmod" | "tbank">("bset");
   const [file, setFile] = useState<File | null>(null);
   const [school, setSchool] = useState<string>("");
@@ -171,14 +171,9 @@ export default function UploadPage() {
     }
   }
 
-  async function handleLogout() {
-    await supabase.auth.signOut();
-    router.push("/");
-  }
-
   return (
     <main className="min-h-screen bg-[#2b2b2b] text-white p-6">
-      <div className="max-w-2xl mx-auto">
+      <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <button
@@ -198,18 +193,11 @@ export default function UploadPage() {
             height={42}
             className="object-contain"
           />
-
-          <button
-            onClick={handleLogout}
-            className="border border-white/20 rounded-lg py-2 px-4 font-medium hover:bg-white/5 transition-colors"
-          >
-            Logout
-          </button>
         </div>
 
         {/* Upload Form */}
         <div className="border border-white/10 bg-[#1e1e1e] rounded-2xl p-8">
-          <h1 className="text-3xl font-bold mb-6">Upload Artifact</h1>
+          <h1 className="text-3xl font-bold mb-6">upload to briefica</h1>
 
           {error && (
             <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-lg text-red-400">
@@ -372,6 +360,16 @@ export default function UploadPage() {
                 }`}
               >
                 Public
+              </button>
+              <button
+                onClick={() => setVisibility("friends")}
+                className={`px-4 py-2 rounded-lg border transition-colors ${
+                  visibility === "friends"
+                    ? "bg-white text-black border-white"
+                    : "border-white/20 hover:bg-white/5"
+                }`}
+              >
+                Friends only
               </button>
               <button
                 onClick={() => setVisibility("private")}
