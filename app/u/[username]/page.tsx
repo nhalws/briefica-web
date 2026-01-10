@@ -15,6 +15,8 @@ interface UserProfile {
   profile_picture_url: string | null;
   upload_count: number;
   friend_count: number;
+  total_likes: number;
+  total_downloads: number;
 }
 
 interface Artifact {
@@ -24,6 +26,8 @@ interface Artifact {
   description: string | null;
   created_at: string;
   visibility: "private" | "unlisted" | "public";
+  like_count?: number;
+  download_count?: number;
 }
 
 // School logo mapping - add your images here
@@ -45,6 +49,7 @@ export default function UserProfilePage() {
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [isOwnProfile, setIsOwnProfile] = useState(false);
   const [pendingRequestCount, setPendingRequestCount] = useState(0);
+  const [sortBy, setSortBy] = useState<"likes" | "downloads" | "name">("likes");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -98,10 +103,33 @@ export default function UserProfilePage() {
           .or(`requester_id.eq.${profileData.user_id},recipient_id.eq.${profileData.user_id}`)
           .eq("status", "accepted");
 
+        // Get all user's artifacts for total stats
+        const { data: userArtifacts } = await supabase
+          .from("artifacts")
+          .select("id")
+          .eq("owner_id", profileData.user_id)
+          .eq("visibility", "public");
+
+        const userArtifactIds = (userArtifacts ?? []).map(a => a.id);
+
+        // Get total likes across all artifacts
+        const { count: totalLikes } = await supabase
+          .from("artifact_likes")
+          .select("id", { count: "exact", head: true })
+          .in("artifact_id", userArtifactIds);
+
+        // Get total downloads across all artifacts
+        const { count: totalDownloads } = await supabase
+          .from("artifact_downloads")
+          .select("id", { count: "exact", head: true })
+          .in("artifact_id", userArtifactIds);
+
         setProfile({
           ...profileData,
           upload_count: uploadCount ?? 0,
           friend_count: friendCount ?? 0,
+          total_likes: totalLikes ?? 0,
+          total_downloads: totalDownloads ?? 0,
         });
 
         setEditBio(profileData.bio || "");
@@ -131,7 +159,42 @@ export default function UserProfilePage() {
         }
 
         const { data: artifactsData } = await artifactsQuery;
-        setArtifacts(artifactsData ?? []);
+        
+        if (artifactsData && artifactsData.length > 0) {
+          const artifactIds = artifactsData.map(a => a.id);
+
+          // Get likes for each artifact
+          const { data: likes } = await supabase
+            .from("artifact_likes")
+            .select("artifact_id")
+            .in("artifact_id", artifactIds);
+
+          const likeCounts: Record<string, number> = {};
+          (likes ?? []).forEach((like) => {
+            likeCounts[like.artifact_id] = (likeCounts[like.artifact_id] || 0) + 1;
+          });
+
+          // Get downloads for each artifact
+          const { data: downloads } = await supabase
+            .from("artifact_downloads")
+            .select("artifact_id")
+            .in("artifact_id", artifactIds);
+
+          const downloadCounts: Record<string, number> = {};
+          (downloads ?? []).forEach((download) => {
+            downloadCounts[download.artifact_id] = (downloadCounts[download.artifact_id] || 0) + 1;
+          });
+
+          const artifactsWithCounts = artifactsData.map(artifact => ({
+            ...artifact,
+            like_count: likeCounts[artifact.id] || 0,
+            download_count: downloadCounts[artifact.id] || 0,
+          }));
+
+          setArtifacts(artifactsWithCounts);
+        } else {
+          setArtifacts(artifactsData ?? []);
+        }
 
         document.title = `@${username} - briefica`;
         setLoading(false);
@@ -217,7 +280,34 @@ export default function UserProfilePage() {
   }
 
   function visibilityBadge(visibility: Artifact["visibility"]) {
-    return visibility === "private" ? "🔒 Private" : visibility === "unlisted" ? "🔗 Unlisted" : "🌐 Public";
+    if (visibility === "private") {
+      return (
+        <span className="flex items-center gap-1">
+          <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/>
+          </svg>
+          Private
+        </span>
+      );
+    }
+    if (visibility === "unlisted") {
+      return (
+        <span className="flex items-center gap-1">
+          <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"/>
+          </svg>
+          Unlisted
+        </span>
+      );
+    }
+    return (
+      <span className="flex items-center gap-1">
+        <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
+        </svg>
+        Public
+      </span>
+    );
   }
 
   if (loading) {
@@ -307,6 +397,8 @@ export default function UserProfilePage() {
                   )}
                   <div className="flex items-center gap-4 text-sm text-white/70 mt-2">
                     <span>Uploads: {profile.upload_count}</span>
+                    <span>Likes: {profile.total_likes}</span>
+                    <span>Downloads: {profile.total_downloads}</span>
                     <button
                       onClick={() => router.push("/friends")}
                       className="hover:text-white hover:underline"
@@ -353,62 +445,103 @@ export default function UserProfilePage() {
 
         {/* Uploads Section */}
         <div>
-          <h2 className="text-2xl font-bold mb-4">Uploads</h2>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-2xl font-bold">Uploads</h2>
+            {artifacts.length > 0 && (
+              <div className="flex items-center gap-2">
+                <label className="text-sm text-white/70">Sort by:</label>
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value as "likes" | "downloads" | "name")}
+                  className="px-3 py-1 rounded-lg bg-[#1e1e1e] border border-white/20 focus:border-white/40 focus:outline-none text-sm"
+                >
+                  <option value="likes">Likes</option>
+                  <option value="downloads">Downloads</option>
+                  <option value="name">Name</option>
+                </select>
+              </div>
+            )}
+          </div>
+
           {artifacts.length === 0 ? (
             <div className="border border-white/10 bg-[#1e1e1e] rounded-2xl p-8 text-center text-white/60">
               {isOwnProfile ? "You haven't uploaded any artifacts yet." : "No public uploads yet."}
             </div>
           ) : (
             <div className="space-y-3">
-              {artifacts.map((artifact) => (
-                <div
-                  key={artifact.id}
-                  className="border border-white/10 bg-[#1e1e1e] rounded-2xl p-4"
-                >
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-3">
-                      <span className="px-2 py-1 rounded bg-white/10 border border-white/10 text-xs">
-                        {badge(artifact.type)}
-                      </span>
-                      {isOwnProfile && (
-                        <span className="text-xs text-white/60">
-                          {visibilityBadge(artifact.visibility)}
+              {[...artifacts]
+                .sort((a, b) => {
+                  if (sortBy === "likes") {
+                    return (b.like_count ?? 0) - (a.like_count ?? 0);
+                  }
+                  if (sortBy === "downloads") {
+                    return (b.download_count ?? 0) - (a.download_count ?? 0);
+                  }
+                  return a.title.localeCompare(b.title);
+                })
+                .map((artifact) => (
+                  <div
+                    key={artifact.id}
+                    className="border border-white/10 bg-[#1e1e1e] rounded-2xl p-4"
+                  >
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-3">
+                        <span className="px-2 py-1 rounded bg-white/10 border border-white/10 text-xs">
+                          {badge(artifact.type)}
                         </span>
+                        {isOwnProfile && (
+                          <span className="text-xs text-white/60">
+                            {visibilityBadge(artifact.visibility)}
+                          </span>
+                        )}
+                        <span className="text-xs text-white/60">
+                          {new Date(artifact.created_at).toLocaleString()}
+                        </span>
+                      </div>
+                      {isOwnProfile && (
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => openEditModal(artifact)}
+                            className="text-blue-400 hover:text-blue-300 text-sm"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => handleDeleteArtifact(artifact.id)}
+                            className="text-red-400 hover:text-red-300 text-sm"
+                          >
+                            Delete
+                          </button>
+                        </div>
                       )}
-                      <span className="text-xs text-white/60">
-                        {new Date(artifact.created_at).toLocaleString()}
+                    </div>
+                    <button
+                      onClick={() => router.push(`/a/${artifact.id}`)}
+                      className="text-left w-full mb-2"
+                    >
+                      <div className="font-medium mb-1">{artifact.title}</div>
+                      {artifact.description && (
+                        <div className="text-sm text-white/70 line-clamp-2">
+                          {artifact.description}
+                        </div>
+                      )}
+                    </button>
+                    <div className="flex items-center gap-4 text-xs text-white/60">
+                      <span className="flex items-center gap-1">
+                        <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                        </svg>
+                        {artifact.like_count || 0}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
+                        </svg>
+                        {artifact.download_count || 0}
                       </span>
                     </div>
-                    {isOwnProfile && (
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => openEditModal(artifact)}
-                          className="text-blue-400 hover:text-blue-300 text-sm"
-                        >
-                          Edit
-                        </button>
-                        <button
-                          onClick={() => handleDeleteArtifact(artifact.id)}
-                          className="text-red-400 hover:text-red-300 text-sm"
-                        >
-                          Delete
-                        </button>
-                      </div>
-                    )}
                   </div>
-                  <button
-                    onClick={() => router.push(`/a/${artifact.id}`)}
-                    className="text-left w-full"
-                  >
-                    <div className="font-medium mb-1">{artifact.title}</div>
-                    {artifact.description && (
-                      <div className="text-sm text-white/70 line-clamp-2">
-                        {artifact.description}
-                      </div>
-                    )}
-                  </button>
-                </div>
-              ))}
+                ))}
             </div>
           )}
         </div>
@@ -483,8 +616,13 @@ export default function UserProfilePage() {
                     : "border-white/20 hover:bg-white/5"
                 }`}
               >
-                <div className="font-medium">🌐 Public</div>
-                <div className="text-xs text-white/60">Anyone can see this artifact</div>
+                <div className="font-medium flex items-center gap-2">
+                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
+                  </svg>
+                  Public
+                </div>
+                <div className="text-xs text-white/60 ml-6">Anyone can see this artifact</div>
               </button>
               
               <button
@@ -495,8 +633,13 @@ export default function UserProfilePage() {
                     : "border-white/20 hover:bg-white/5"
                 }`}
               >
-                <div className="font-medium">🔗 Unlisted</div>
-                <div className="text-xs text-white/60">Only people with the link can see this</div>
+                <div className="font-medium flex items-center gap-2">
+                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"/>
+                  </svg>
+                  Unlisted
+                </div>
+                <div className="text-xs text-white/60 ml-6">Only people with the link can see this</div>
               </button>
               
               <button
@@ -507,8 +650,13 @@ export default function UserProfilePage() {
                     : "border-white/20 hover:bg-white/5"
                 }`}
               >
-                <div className="font-medium">🔒 Private</div>
-                <div className="text-xs text-white/60">Only you can see this artifact</div>
+                <div className="font-medium flex items-center gap-2">
+                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/>
+                  </svg>
+                  Private
+                </div>
+                <div className="text-xs text-white/60 ml-6">Only you can see this artifact</div>
               </button>
             </div>
 
