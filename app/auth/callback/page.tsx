@@ -6,6 +6,8 @@ import { Suspense, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { supabase } from "@/app/lib/supabaseClient"; // adjust path
 
+//force build 01/10/2025 #1//
+
 function CallbackInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
