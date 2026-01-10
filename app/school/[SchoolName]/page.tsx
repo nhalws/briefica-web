@@ -1,4 +1,5 @@
 "use client";
+// Force rebuild - Jan 9 2026
 
 import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
