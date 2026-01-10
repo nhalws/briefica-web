@@ -528,72 +528,74 @@ export default function SchoolDirectoryPage() {
                   No artifacts found
                 </div>
               ) : (
-                filteredArtifacts.map((artifact) => (
-                  <div
-                    key={artifact.id}
-                    className="border border-white/10 bg-[#1e1e1e] rounded-xl p-3 hover:bg-white/5 transition-colors"
-                  >
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-2">
-                        <span className="px-2 py-0.5 text-xs rounded bg-white/10 border border-white/10">
-                          {badge(artifact.type)}
-                        </span>
-                        <span className="text-xs text-white/60">
-                          {new Date(artifact.created_at).toLocaleDateString()}
-                        </span>
-                      </div>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          router.push(`/u/${artifact.owner_username}`);
-                        }}
-                        className="text-xs text-white/70 hover:text-white hover:underline"
-                      >
-                        @{artifact.owner_username}
-                      </button>
-                    </div>
-
-                    <button
-                      onClick={() => router.push(`/a/${artifact.id}`)}
-                      className="text-left w-full mb-2"
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+                  {filteredArtifacts.map((artifact) => (
+                    <div
+                      key={artifact.id}
+                      className="border border-white/10 bg-[#1e1e1e] rounded-xl p-3 hover:bg-white/5 transition-colors aspect-square flex flex-col"
                     >
-                      <div className="font-medium text-sm mb-1">{artifact.title}</div>
-                      {artifact.description && (
-                        <div className="text-xs text-white/70 line-clamp-2">
-                          {artifact.description}
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                          <span className="px-2 py-0.5 text-xs rounded bg-white/10 border border-white/10">
+                            {badge(artifact.type)}
+                          </span>
+                          <span className="text-xs text-white/60">
+                            {new Date(artifact.created_at).toLocaleDateString()}
+                          </span>
                         </div>
-                      )}
-                    </button>
-
-                    <div className="flex items-center gap-3 text-xs text-white/60">
-                      <span className="flex items-center gap-1">
-                        <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
-                          <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                        </svg>
-                        {artifact.like_count || 0}
-                      </span>
-                      <button
-                        onClick={() => handleDownload(artifact.id, artifact.storage_key, `${artifact.title}.${artifact.type}`)}
-                        className="flex items-center gap-1 hover:text-white transition-colors"
-                      >
-                        <svg
-                          className="w-3.5 h-3.5"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            router.push(`/u/${artifact.owner_username}`);
+                          }}
+                          className="text-xs text-white/70 hover:text-white hover:underline"
                         >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"
-                          />
-                        </svg>
-                        <span>{artifact.download_count || 0}</span>
+                          @{artifact.owner_username}
+                        </button>
+                      </div>
+
+                      <button
+                        onClick={() => router.push(`/a/${artifact.id}`)}
+                        className="text-left w-full flex-1 mb-2"
+                      >
+                        <div className="font-medium text-sm mb-1 line-clamp-2">{artifact.title}</div>
+                        {artifact.description && (
+                          <div className="text-xs text-white/70 line-clamp-3">
+                            {artifact.description}
+                          </div>
+                        )}
                       </button>
+
+                      <div className="flex items-center gap-3 text-xs text-white/60">
+                        <span className="flex items-center gap-1">
+                          <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                          </svg>
+                          {artifact.like_count || 0}
+                        </span>
+                        <button
+                          onClick={() => handleDownload(artifact.id, artifact.storage_key, `${artifact.title}.${artifact.type}`)}
+                          className="flex items-center gap-1 hover:text-white transition-colors"
+                        >
+                          <svg
+                            className="w-3.5 h-3.5"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"
+                            />
+                          </svg>
+                          <span>{artifact.download_count || 0}</span>
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                ))
+                  ))}
+                </div>
               )}
             </div>
 
