@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter, useParams } from "next/navigation";
+import { useRouter, useParams, usePathname } from "next/navigation";
 import Image from "next/image";
 import { supabase } from "../../lib/supabaseClient";
 import SubjectPreferences from "../../components/SubjectPreferences";
@@ -36,16 +36,24 @@ interface Artifact {
 
 export default function SchoolDirectoryPage() {
   const router = useRouter();
-  const params = useParams();
+  const params = useParams<{ schoolName?: string; SchoolName?: string }>();
+  const pathname = usePathname();
   
-  // FIXED: Robust school name extraction
-  const schoolName = params?.schoolName 
-    ? (typeof params.schoolName === 'string' 
-        ? decodeURIComponent(params.schoolName) 
-        : Array.isArray(params.schoolName) && params.schoolName.length > 0
-        ? decodeURIComponent(params.schoolName[0])
-        : "")
-    : "";
+  // Robust school name extraction with pathname fallback
+  const rawSchoolName =
+    (params?.schoolName as string | string[] | undefined) ??
+    (params?.SchoolName as string | string[] | undefined) ??
+    (() => {
+      const segments = pathname?.split("/").filter(Boolean) ?? [];
+      return segments[segments.length - 1];
+    })();
+
+  const schoolName =
+    typeof rawSchoolName === "string"
+      ? decodeURIComponent(rawSchoolName)
+      : Array.isArray(rawSchoolName) && rawSchoolName.length > 0
+      ? decodeURIComponent(rawSchoolName[0])
+      : "";
 
   const [members, setMembers] = useState<SchoolMember[]>([]);
   const [topSets, setTopSets] = useState<Artifact[]>([]);
