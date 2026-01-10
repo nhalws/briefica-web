@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { supabase } from "../lib/supabaseClient";
@@ -12,52 +12,91 @@ type Subject = {
   school_name: string;
 };
 
+type Visibility = "public" | "private" | "unlisted";
+type ArtifactType = "bset" | "bmod" | "tbank";
+
+// If your Storage policy requires the *first folder* to be auth.uid(),
+// this MUST be true. We also include /{type}/ as a second folder.
+function buildObjectPath(userId: string, type: ArtifactType, file: File) {
+  const ext = (file.name.split(".").pop() || "").toLowerCase();
+  const safeExt = ext || (type === "bset" ? "bset" : type === "bmod" ? "bmod" : "tbank");
+  return `${userId}/${type}/${Date.now()}.${safeExt}`;
+}
+
 export default function UploadPage() {
   const router = useRouter();
+
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [userSchool, setUserSchool] = useState<string | null>(null);
+
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [visibility, setVisibility] = useState<"public" | "private" | "unlisted">("public");
-  const [type, setType] = useState<"bset" | "bmod" | "tbank">("bset");
+
+  // NOTE: this must match your DB enum values (you currently have public/private/unlisted)
+  const [visibility, setVisibility] = useState<Visibility>("public");
+
+  const [type, setType] = useState<ArtifactType>("bset");
   const [file, setFile] = useState<File | null>(null);
+
   const [school, setSchool] = useState<string>("");
   const [selectedSubjects, setSelectedSubjects] = useState<string[]>([]);
   const [availableSubjects, setAvailableSubjects] = useState<Subject[]>([]);
+
   const [tags, setTags] = useState("");
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Set page title
+  // Derive objectPath so you can see/log exactly what key is used.
+  const objectPath = useMemo(() => {
+    if (!currentUserId || !file) return null;
+    return buildObjectPath(currentUserId, type, file);
+  }, [currentUserId, type, file]);
+
   useEffect(() => {
-    document.title = 'Upload - briefica';
+    document.title = "Upload - briefica";
   }, []);
 
   useEffect(() => {
+    let mounted = true;
+
     async function init() {
-      const { data: userData } = await supabase.auth.getUser();
+      const { data: userData, error: userErr } = await supabase.auth.getUser();
+      if (userErr) {
+        console.error("auth.getUser error:", userErr);
+      }
+
       if (!userData.user) {
         router.push("/auth");
         return;
       }
 
+      if (!mounted) return;
       setCurrentUserId(userData.user.id);
 
-      // Get user's school from profile
-      const { data: profile } = await supabase
+      const { data: profile, error: profileErr } = await supabase
         .from("profiles")
         .select("law_school")
         .eq("user_id", userData.user.id)
         .single();
 
+      if (profileErr) {
+        console.error("profiles select error:", profileErr);
+      }
+
+      if (!mounted) return;
+
       if (profile?.law_school) {
         setUserSchool(profile.law_school);
         setSchool(profile.law_school);
-        // Load subjects for user's school
         await loadSubjects(profile.law_school);
       }
     }
+
     init();
+
+    return () => {
+      mounted = false;
+    };
   }, [router]);
 
   async function loadSubjects(schoolName: string) {
@@ -75,13 +114,14 @@ export default function UploadPage() {
     if (!error && data) {
       setAvailableSubjects(data);
     } else {
+      console.error("subjects select error:", error);
       setAvailableSubjects([]);
     }
   }
 
   async function handleSchoolChange(newSchool: string) {
     setSchool(newSchool);
-    setSelectedSubjects([]); // Clear subjects when school changes
+    setSelectedSubjects([]);
     if (newSchool) {
       await loadSubjects(newSchool);
     } else {
@@ -91,14 +131,13 @@ export default function UploadPage() {
 
   function handleSubjectToggle(subjectId: string) {
     setSelectedSubjects((prev) =>
-      prev.includes(subjectId)
-        ? prev.filter((id) => id !== subjectId)
-        : [...prev, subjectId]
+      prev.includes(subjectId) ? prev.filter((id) => id !== subjectId) : [...prev, subjectId]
     );
   }
 
   async function handleUpload() {
     if (!currentUserId) return;
+
     if (!title.trim()) {
       setError("Title is required");
       return;
@@ -111,36 +150,51 @@ export default function UploadPage() {
     setUploading(true);
     setError(null);
 
-    try {
-      // Upload file to Supabase Storage
-      const fileExt = file.name.split(".").pop();
-      const fileName = `${currentUserId}-${Date.now()}.${fileExt}`;
-      const filePath = `${currentUserId}/${fileName}`;
+    // IMPORTANT: This must match your Storage RLS policy expectation
+    const path = buildObjectPath(currentUserId, type, file);
 
+    // Helpful when debugging Storage RLS:
+    console.log("Uploading object key:", path);
+
+    try {
+      // 1) Upload to Storage
       const { error: uploadError } = await supabase.storage
         .from("artifacts")
-        .upload(filePath, file);
+        .upload(path, file, {
+          upsert: false,
+          contentType: file.type || "application/octet-stream",
+        });
 
-      if (uploadError) throw uploadError;
+      if (uploadError) {
+        console.error("STORAGE UPLOAD ERROR:", uploadError);
+        throw uploadError;
+      }
 
-      // Get public URL
-      const {
-        data: { publicUrl },
-      } = supabase.storage.from("artifacts").getPublicUrl(filePath);
+      // 2) Use a stable URL. Prefer getPublicUrl only if bucket is public.
+      // If your bucket is private, you should store the path and generate signed URLs at read-time.
+      const { data: publicData } = supabase.storage.from("artifacts").getPublicUrl(path);
+      const publicUrl = publicData?.publicUrl ?? null;
 
-      // Create artifact record - FIXED VERSION
+      // 3) Insert DB row
+      const insertPayload = {
+        owner_id: currentUserId,
+        type,
+        title: title.trim(),
+        description: description.trim() || null,
+        visibility, // must match enum values in DB (public/private/unlisted)
+        // RECOMMENDED: store both
+        file_path: path, // <-- add this column if you don’t have it yet
+        file_url: publicUrl, // may be null if bucket is private; that’s okay if your app uses file_path
+        school: school || null,
+        tags: tags.trim() || null,
+      };
+
+      // If you DO NOT have a `file_path` column yet, remove it to avoid insert errors:
+      // delete (insertPayload as any).file_path;
+
       const { data: artifact, error: artifactError } = await supabase
         .from("artifacts")
-        .insert({
-          owner_id: currentUserId,
-          type,
-          title: title.trim(),
-          description: description.trim() || null,
-          visibility,
-          file_url: publicUrl,
-          school: school || null,
-          tags: tags.trim() || null,
-        })
+        .insert(insertPayload as any)
         .select()
         .single();
 
@@ -149,7 +203,7 @@ export default function UploadPage() {
         throw artifactError;
       }
 
-      // Link subjects to artifact
+      // 4) Link subjects
       if (selectedSubjects.length > 0 && artifact) {
         const subjectLinks = selectedSubjects.map((subjectId) => ({
           artifact_id: artifact.id,
@@ -166,11 +220,18 @@ export default function UploadPage() {
         }
       }
 
-      // Success! Redirect to dashboard
       router.push("/dashboard");
     } catch (err: any) {
       console.error("Upload error:", err);
-      setError(err.message || "Upload failed");
+
+      // Make Storage RLS failures obvious to you:
+      const msg =
+        err?.message ||
+        err?.error_description ||
+        (typeof err === "string" ? err : null) ||
+        "Upload failed";
+
+      setError(msg);
       setUploading(false);
     }
   }
@@ -185,18 +246,17 @@ export default function UploadPage() {
             className="text-white/70 hover:text-white flex items-center gap-2"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M10 19l-7-7m0 0l7-7m-7 7h18"
+              />
             </svg>
             Back to dashboard
           </button>
 
-          <Image
-            src="/logo_6.png"
-            alt="briefica"
-            width={140}
-            height={42}
-            className="object-contain"
-          />
+          <Image src="/logo_6.png" alt="briefica" width={140} height={42} className="object-contain" />
         </div>
 
         {/* Upload Form */}
@@ -209,36 +269,40 @@ export default function UploadPage() {
             </div>
           )}
 
+          {/* Debug hint (safe to remove later) */}
+          {objectPath && (
+            <p className="text-xs text-white/40 mb-6 break-all">
+              Upload key: <span className="text-white/60">{objectPath}</span>
+            </p>
+          )}
+
           {/* Type Selection */}
           <div className="mb-6">
             <label className="block text-sm font-medium mb-2">Type *</label>
             <div className="flex gap-3">
               <button
+                type="button"
                 onClick={() => setType("bset")}
                 className={`px-4 py-2 rounded-lg border transition-colors ${
-                  type === "bset"
-                    ? "bg-white text-black border-white"
-                    : "border-white/20 hover:bg-white/5"
+                  type === "bset" ? "bg-white text-black border-white" : "border-white/20 hover:bg-white/5"
                 }`}
               >
                 .bset
               </button>
               <button
+                type="button"
                 onClick={() => setType("bmod")}
                 className={`px-4 py-2 rounded-lg border transition-colors ${
-                  type === "bmod"
-                    ? "bg-white text-black border-white"
-                    : "border-white/20 hover:bg-white/5"
+                  type === "bmod" ? "bg-white text-black border-white" : "border-white/20 hover:bg-white/5"
                 }`}
               >
                 .bmod
               </button>
               <button
+                type="button"
                 onClick={() => setType("tbank")}
                 className={`px-4 py-2 rounded-lg border transition-colors ${
-                  type === "tbank"
-                    ? "bg-white text-black border-white"
-                    : "border-white/20 hover:bg-white/5"
+                  type === "tbank" ? "bg-white text-black border-white" : "border-white/20 hover:bg-white/5"
                 }`}
               >
                 .tbank
@@ -295,12 +359,11 @@ export default function UploadPage() {
           {/* Subject Selection */}
           {school && availableSubjects.length > 0 && (
             <div className="mb-6">
-              <label className="block text-sm font-medium mb-2">
-                Subjects (optional)
-              </label>
+              <label className="block text-sm font-medium mb-2">Subjects (optional)</label>
               <div className="flex flex-wrap gap-2">
                 {availableSubjects.map((subject) => (
                   <button
+                    type="button"
                     key={subject.id}
                     onClick={() => handleSubjectToggle(subject.id)}
                     className={`px-3 py-1 rounded-lg text-sm transition-colors ${
@@ -308,27 +371,19 @@ export default function UploadPage() {
                         ? "text-white"
                         : "border border-white/20 hover:bg-white/5"
                     }`}
-                    style={
-                      selectedSubjects.includes(subject.id)
-                        ? { backgroundColor: "#66b2ff" }
-                        : {}
-                    }
+                    style={selectedSubjects.includes(subject.id) ? { backgroundColor: "#66b2ff" } : {}}
                   >
                     {subject.name}
                   </button>
                 ))}
               </div>
-              <p className="text-xs text-white/50 mt-1">
-                Select all relevant subjects for this artifact
-              </p>
+              <p className="text-xs text-white/50 mt-1">Select all relevant subjects for this artifact</p>
             </div>
           )}
 
           {/* Tags */}
           <div className="mb-6">
-            <label className="block text-sm font-medium mb-2">
-              Tags (optional)
-            </label>
+            <label className="block text-sm font-medium mb-2">Tags (optional)</label>
             <input
               type="text"
               value={tags}
@@ -336,9 +391,7 @@ export default function UploadPage() {
               placeholder="e.g., fall 2025, langer, final exam"
               className="w-full px-4 py-2 rounded-lg bg-[#2b2b2b] border border-white/20 focus:border-white/40 focus:outline-none"
             />
-            <p className="text-xs text-white/50 mt-1">
-              Comma-separated tags to help others find your artifact
-            </p>
+            <p className="text-xs text-white/50 mt-1">Comma-separated tags to help others find your artifact</p>
           </div>
 
           {/* File Upload */}
@@ -350,9 +403,7 @@ export default function UploadPage() {
               accept=".bset,.bmod,.tbank"
               className="w-full px-4 py-2 rounded-lg bg-[#2b2b2b] border border-white/20 focus:border-white/40 focus:outline-none"
             />
-            <p className="text-xs text-white/50 mt-1">
-              Accepted formats: .bset, .bmod, .tbank
-            </p>
+            <p className="text-xs text-white/50 mt-1">Accepted formats: .bset, .bmod, .tbank</p>
           </div>
 
           {/* Visibility */}
@@ -360,6 +411,7 @@ export default function UploadPage() {
             <label className="block text-sm font-medium mb-2">Visibility *</label>
             <div className="flex gap-3">
               <button
+                type="button"
                 onClick={() => setVisibility("public")}
                 className={`px-4 py-2 rounded-lg border transition-colors ${
                   visibility === "public"
@@ -370,6 +422,7 @@ export default function UploadPage() {
                 Public
               </button>
               <button
+                type="button"
                 onClick={() => setVisibility("unlisted")}
                 className={`px-4 py-2 rounded-lg border transition-colors ${
                   visibility === "unlisted"
@@ -380,6 +433,7 @@ export default function UploadPage() {
                 Unlisted
               </button>
               <button
+                type="button"
                 onClick={() => setVisibility("private")}
                 className={`px-4 py-2 rounded-lg border transition-colors ${
                   visibility === "private"
@@ -397,8 +451,9 @@ export default function UploadPage() {
 
           {/* Upload Button */}
           <button
+            type="button"
             onClick={handleUpload}
-            disabled={uploading || !title.trim() || !file}
+            disabled={uploading || !title.trim() || !file || !currentUserId}
             className="w-full py-3 rounded-lg text-white font-medium hover:opacity-90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             style={{ backgroundColor: "#66b2ff" }}
           >
