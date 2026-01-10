@@ -37,9 +37,7 @@ export default function ArtifactPage() {
   const [uploader, setUploader] = useState<Profile | null>(null);
   const [downloadCount, setDownloadCount] = useState<number>(0);
   const [likeCount, setLikeCount] = useState<number>(0);
-  const [shareCount, setShareCount] = useState<number>(0);
   const [isLiked, setIsLiked] = useState(false);
-  const [isShared, setIsShared] = useState(false);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState("");
@@ -103,14 +101,6 @@ export default function ArtifactPage() {
 
       setLikeCount(likeC ?? 0);
 
-      // Load share count
-      const { count: shareC } = await supabase
-        .from("artifact_shares")
-        .select("id", { count: "exact", head: true })
-        .eq("artifact_id", a.id);
-
-      setShareCount(shareC ?? 0);
-
       // Load comments
       await loadComments(a.id);
     }
@@ -131,16 +121,6 @@ export default function ArtifactPage() {
         .single();
 
       setIsLiked(!!likeData);
-
-      // Check if user shared
-      const { data: shareData } = await supabase
-        .from("artifact_shares")
-        .select("id")
-        .eq("artifact_id", artifactId)
-        .eq("user_id", currentUserId)
-        .single();
-
-      setIsShared(!!shareData);
     }
 
     checkUserInteractions();
@@ -193,31 +173,6 @@ export default function ArtifactPage() {
 
       setIsLiked(true);
       setLikeCount((prev) => prev + 1);
-    }
-  }
-
-  async function toggleShare() {
-    if (!currentUserId || !artifactId) return;
-
-    if (isShared) {
-      // Unshare
-      await supabase
-        .from("artifact_shares")
-        .delete()
-        .eq("artifact_id", artifactId)
-        .eq("user_id", currentUserId);
-
-      setIsShared(false);
-      setShareCount((prev) => Math.max(0, prev - 1));
-    } else {
-      // Share
-      await supabase.from("artifact_shares").insert({
-        artifact_id: artifactId,
-        user_id: currentUserId,
-      });
-
-      setIsShared(true);
-      setShareCount((prev) => prev + 1);
     }
   }
 
@@ -320,6 +275,27 @@ export default function ArtifactPage() {
     }
   }
 
+  async function deleteArtifact() {
+    if (!artifact || !currentUserId || artifact.owner_id !== currentUserId) return;
+    if (!confirm("Delete this artifact? This cannot be undone.")) return;
+    setBusy(true);
+    setMsg(null);
+    try {
+      const { error } = await supabase
+        .from("artifacts")
+        .delete()
+        .eq("id", artifact.id)
+        .eq("owner_id", currentUserId);
+
+      if (error) throw error;
+      router.push("/dashboard");
+    } catch (e: any) {
+      setMsg(e?.message ?? "Failed to delete artifact.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
   if (!artifactId) {
     return (
       <main className="min-h-screen bg-[#2b2b2b] text-white p-6">
@@ -344,7 +320,7 @@ export default function ArtifactPage() {
 
   return (
     <main className="min-h-screen bg-[#2b2b2b] text-white p-6">
-      <div className="max-w-2xl mx-auto">
+      <div className="max-w-5xl mx-auto">
         <div className="border border-white/10 bg-[#1e1e1e] rounded-2xl p-6">
           <div className="flex items-center justify-between gap-3">
             <div className="text-xs text-white/60">
@@ -437,6 +413,16 @@ export default function ArtifactPage() {
               {busy ? "Preparing..." : "Download"}
             </button>
 
+            {artifact.owner_id === currentUserId && (
+              <button
+                onClick={deleteArtifact}
+                disabled={busy}
+                className="bg-red-500 text-white rounded-lg py-2 px-4 font-medium hover:bg-red-400 transition-colors disabled:opacity-50"
+              >
+                {busy ? "Working..." : "Delete Artifact"}
+              </button>
+            )}
+
             <div className="text-xs text-white/60 border border-white/10 rounded-lg p-3 bg-[#2b2b2b]">
               <div className="font-medium text-white/80 mb-1">Open in Briefica</div>
               <div>
@@ -487,7 +473,7 @@ export default function ArtifactPage() {
           )}
 
           {/* Comments List */}
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-4 max-h-96 overflow-y-auto pr-1">
             {comments.map((comment) => (
               <div
                 key={comment.id}

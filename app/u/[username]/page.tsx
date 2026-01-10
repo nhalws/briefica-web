@@ -142,6 +142,22 @@ export default function UserProfilePage() {
     return t === "bset" ? ".bset" : t === "bmod" ? ".bmod" : ".tbank";
   }
 
+  async function handleDeleteArtifact(artifactId: string) {
+    if (!isOwnProfile || !currentUserId) return;
+    if (!confirm("Delete this artifact? This cannot be undone.")) return;
+    try {
+      const { error } = await supabase
+        .from("artifacts")
+        .delete()
+        .eq("id", artifactId)
+        .eq("owner_id", currentUserId);
+      if (error) throw error;
+      setArtifacts((prev) => prev.filter((a) => a.id !== artifactId));
+    } catch (e) {
+      console.error("Failed to delete artifact", e);
+    }
+  }
+
   if (loading) {
     return (
       <main className="min-h-screen bg-[#2b2b2b] text-white p-6">
@@ -338,8 +354,7 @@ export default function UserProfilePage() {
               {artifacts.map((artifact) => (
                 <div
                   key={artifact.id}
-                  className="border border-white/10 bg-[#1e1e1e] rounded-2xl p-4 hover:bg-white/5 transition-colors cursor-pointer"
-                  onClick={() => router.push(`/a/${artifact.id}`)}
+                  className="border border-white/10 bg-[#1e1e1e] rounded-2xl p-4 hover:bg-white/5 transition-colors"
                 >
                   <div className="flex items-center justify-between gap-3 mb-2">
                     <span className="inline-block px-2 py-1 rounded bg-white/10 border border-white/10 text-xs">
@@ -350,10 +365,26 @@ export default function UserProfilePage() {
                     </span>
                   </div>
 
-                  <div className="font-medium">{artifact.title}</div>
-                  {artifact.description && (
-                    <div className="text-sm text-white/70 mt-1 line-clamp-2">
-                      {artifact.description}
+                  <button
+                    className="w-full text-left"
+                    onClick={() => router.push(`/a/${artifact.id}`)}
+                  >
+                    <div className="font-medium">{artifact.title}</div>
+                    {artifact.description && (
+                      <div className="text-sm text-white/70 mt-1 line-clamp-2">
+                        {artifact.description}
+                      </div>
+                    )}
+                  </button>
+
+                  {isOwnProfile && (
+                    <div className="mt-3 flex justify-end">
+                      <button
+                        onClick={() => handleDeleteArtifact(artifact.id)}
+                        className="text-xs text-red-400 hover:text-red-300 border border-red-500/30 rounded px-3 py-1"
+                      >
+                        Delete
+                      </button>
                     </div>
                   )}
                 </div>
