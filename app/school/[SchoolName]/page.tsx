@@ -38,7 +38,7 @@ export default function SchoolDirectoryPage() {
   const router = useRouter();
   const params = useParams();
   
-  const rawSchoolName = params?.schoolName;
+  const rawSchoolName = (params as Record<string, string | string[] | undefined>)?.schoolName ?? (params as Record<string, string | string[] | undefined>)?.SchoolName;
   const schoolName = typeof rawSchoolName === 'string' 
     ? decodeURIComponent(rawSchoolName) 
     : Array.isArray(rawSchoolName) 
