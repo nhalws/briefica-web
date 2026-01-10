@@ -28,7 +28,7 @@ interface Artifact {
   title: string;
   description: string | null;
   created_at: string;
-  file_url: string;
+  storage_key: string;
   owner_username?: string;
   like_count?: number;
   download_count?: number;
@@ -295,7 +295,7 @@ export default function SchoolDirectoryPage() {
     setFilteredArtifacts(filtered);
   }, [searchQuery, typeFilter, artifacts]);
 
-  async function handleDownload(artifactId: string, fileUrl: string, fileName: string) {
+  async function handleDownload(artifactId: string, storageKey: string, fileName: string) {
     if (!currentUserId) return;
 
     // Record download in database
@@ -304,14 +304,33 @@ export default function SchoolDirectoryPage() {
       user_id: currentUserId,
     });
 
-    // Trigger download
-    const link = document.createElement('a');
-    link.href = fileUrl;
-    link.download = fileName;
-    link.click();
+    // Get signed URL and download
+    try {
+      const { data, error } = await supabase.storage
+        .from("artifacts")
+        .createSignedUrl(storageKey, 300);
 
-    // Refresh page to update counts
-    window.location.reload();
+      if (error || !data?.signedUrl) {
+        console.error("Failed to generate download link");
+        return;
+      }
+
+      const response = await fetch(data.signedUrl);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+
+      // Refresh page to update counts
+      window.location.reload();
+    } catch (e) {
+      console.error("Download failed:", e);
+    }
   }
 
   function badge(type: Artifact["type"]) {
@@ -456,7 +475,15 @@ export default function SchoolDirectoryPage() {
                             <span className="text-white/40 text-xs font-bold">#{index + 1}</span>
                             <div className="flex-1 min-w-0">
                               <div className="text-xs font-medium line-clamp-1">{artifact.title}</div>
-                              <div className="text-xs text-white/60">@{artifact.owner_username} · ❤️ {artifact.like_count || 0}</div>
+                              <div className="text-xs text-white/60 flex items-center gap-2">
+                                <span>@{artifact.owner_username}</span>
+                                <span className="flex items-center gap-0.5">
+                                  <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                                  </svg>
+                                  {artifact.like_count || 0}
+                                </span>
+                              </div>
                             </div>
                           </div>
                         </button>
@@ -504,7 +531,12 @@ export default function SchoolDirectoryPage() {
                           </div>
                           <div className="flex-1 min-w-0">
                             <div className="text-xs font-medium truncate">@{user.username}</div>
-                            <div className="text-xs text-white/60">❤️ {user.total_likes} likes</div>
+                            <div className="text-xs text-white/60 flex items-center gap-0.5">
+                              <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                              </svg>
+                              {user.total_likes} likes
+                            </div>
                           </div>
                         </button>
                       ))}
@@ -551,7 +583,15 @@ export default function SchoolDirectoryPage() {
                                 </span>
                               </div>
                               <div className="text-xs font-medium line-clamp-1">{artifact.title}</div>
-                              <div className="text-xs text-white/60">@{artifact.owner_username} · ⬇️ {artifact.download_count || 0}</div>
+                              <div className="text-xs text-white/60 flex items-center gap-2">
+                                <span>@{artifact.owner_username}</span>
+                                <span className="flex items-center gap-0.5">
+                                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
+                                  </svg>
+                                  {artifact.download_count || 0}
+                                </span>
+                              </div>
                             </div>
                           </div>
                         </button>
@@ -669,9 +709,14 @@ export default function SchoolDirectoryPage() {
                 </button>
 
                 <div className="flex items-center gap-3 text-xs text-white/60">
-                  <span>❤️ {artifact.like_count || 0}</span>
+                  <span className="flex items-center gap-1">
+                    <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                    </svg>
+                    {artifact.like_count || 0}
+                  </span>
                   <button
-                    onClick={() => handleDownload(artifact.id, artifact.file_url, `${artifact.title}.${artifact.type}`)}
+                    onClick={() => handleDownload(artifact.id, artifact.storage_key, `${artifact.title}.${artifact.type}`)}
                     className="flex items-center gap-1 hover:text-white transition-colors"
                   >
                     <svg
