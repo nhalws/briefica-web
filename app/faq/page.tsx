@@ -98,41 +98,13 @@ export default function FAQPage() {
 
                   {openSubsection === "briefica-offline" && (
                     <div className="px-3 pb-3 space-y-2">
-                      {/* Question 1: How to create an account */}
-                      <div className="border border-white/10 rounded-lg overflow-hidden">
-                        <button
-                          onClick={() => toggleQuestion("create-account")}
-                          className="w-full flex items-center justify-between p-3 text-left hover:bg-white/5 transition-colors"
-                        >
-                          <span className="text-sm font-medium">1. How to create an account</span>
-                          <svg
-                            className={`w-4 h-4 flex-shrink-0 transition-transform ${openQuestion === "create-account" ? 'rotate-180' : ''}`}
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                          </svg>
-                        </button>
-                        {openQuestion === "create-account" && (
-                          <div className="px-3 pb-3 text-sm text-white/70 space-y-2">
-                            <p><strong>Step 1:</strong> Visit briefica.com and click "Create Account"</p>
-                            <p><strong>Step 2:</strong> Enter your email address and create a strong password</p>
-                            <p><strong>Step 3:</strong> Choose a unique username (this will be your public identifier)</p>
-                            <p><strong>Step 4:</strong> Check your email for verification (if required)</p>
-                            <p><strong>Step 5:</strong> Sign in to your new account and complete your profile</p>
-                            <p className="pt-2">You can then use the same login credentials for both the desktop app and web platform.</p>
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Question 2: How to download briefica 6 */}
+                      {/* Question 1: How to download briefica 6 */}
                       <div className="border border-white/10 rounded-lg overflow-hidden">
                         <button
                           onClick={() => toggleQuestion("download-b6")}
                           className="w-full flex items-center justify-between p-3 text-left hover:bg-white/5 transition-colors"
                         >
-                          <span className="text-sm font-medium">2. How to download briefica 6</span>
+                          <span className="text-sm font-medium">1. How to download briefica 6</span>
                           <svg
                             className={`w-4 h-4 flex-shrink-0 transition-transform ${openQuestion === "download-b6" ? 'rotate-180' : ''}`}
                             fill="none"
@@ -154,13 +126,13 @@ export default function FAQPage() {
                         )}
                       </div>
 
-                      {/* Question 3: How to create a .bset file */}
+                      {/* Question 2: How to create a .bset file */}
                       <div className="border border-white/10 rounded-lg overflow-hidden">
                         <button
                           onClick={() => toggleQuestion("create-bset")}
                           className="w-full flex items-center justify-between p-3 text-left hover:bg-white/5 transition-colors"
                         >
-                          <span className="text-sm font-medium">3. How to create a .bset file</span>
+                          <span className="text-sm font-medium">2. How to create a .bset file</span>
                           <svg
                             className={`w-4 h-4 flex-shrink-0 transition-transform ${openQuestion === "create-bset" ? 'rotate-180' : ''}`}
                             fill="none"
@@ -192,13 +164,13 @@ export default function FAQPage() {
                         )}
                       </div>
 
-                      {/* Question 4: How to create a .bmod file */}
+                      {/* Question 3: How to create a .bmod file */}
                       <div className="border border-white/10 rounded-lg overflow-hidden">
                         <button
                           onClick={() => toggleQuestion("create-bmod")}
                           className="w-full flex items-center justify-between p-3 text-left hover:bg-white/5 transition-colors"
                         >
-                          <span className="text-sm font-medium">4. How to create a .bmod file</span>
+                          <span className="text-sm font-medium">3. How to create a .bmod file</span>
                           <svg
                             className={`w-4 h-4 flex-shrink-0 transition-transform ${openQuestion === "create-bmod" ? 'rotate-180' : ''}`}
                             fill="none"
@@ -227,13 +199,13 @@ export default function FAQPage() {
                         )}
                       </div>
 
-                      {/* Question 5: How to create a .tbank file */}
+                      {/* Question 4: How to create a .tbank file */}
                       <div className="border border-white/10 rounded-lg overflow-hidden">
                         <button
                           onClick={() => toggleQuestion("create-tbank")}
                           className="w-full flex items-center justify-between p-3 text-left hover:bg-white/5 transition-colors"
                         >
-                          <span className="text-sm font-medium">5. How to create a .tbank file</span>
+                          <span className="text-sm font-medium">4. How to create a .tbank file</span>
                           <svg
                             className={`w-4 h-4 flex-shrink-0 transition-transform ${openQuestion === "create-tbank" ? 'rotate-180' : ''}`}
                             fill="none"
@@ -263,13 +235,13 @@ export default function FAQPage() {
                         )}
                       </div>
 
-                      {/* Question 6: How to export/save my work */}
+                      {/* Question 5: How to export/save my work */}
                       <div className="border border-white/10 rounded-lg overflow-hidden">
                         <button
                           onClick={() => toggleQuestion("export-work")}
                           className="w-full flex items-center justify-between p-3 text-left hover:bg-white/5 transition-colors"
                         >
-                          <span className="text-sm font-medium">6. How to export/save my work</span>
+                          <span className="text-sm font-medium">5. How to export/save my work</span>
                           <svg
                             className={`w-4 h-4 flex-shrink-0 transition-transform ${openQuestion === "export-work" ? 'rotate-180' : ''}`}
                             fill="none"
