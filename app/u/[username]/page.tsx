@@ -25,6 +25,15 @@ interface Artifact {
   visibility: "private" | "unlisted" | "public";
 }
 
+// School logo mapping - add your images here
+const SCHOOL_LOGOS: Record<string, string> = {
+  "UCLA": '', // Add UCLA logo path
+  "Harvard University": '', // Add Harvard logo path
+  "Yale University": '', // Add Yale logo path
+  "Stanford University": '', // Add Stanford logo path
+  "Columbia University": '', // Add Columbia logo path
+};
+
 export default function UserProfilePage() {
   const router = useRouter();
   const params = useParams();
@@ -38,7 +47,13 @@ export default function UserProfilePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Edit modal state
+  // Edit profile state
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [editBio, setEditBio] = useState("");
+  const [editSchool, setEditSchool] = useState("");
+  const [availableSchools, setAvailableSchools] = useState<string[]>([]);
+
+  // Edit artifact state
   const [editingArtifact, setEditingArtifact] = useState<Artifact | null>(null);
   const [editVisibility, setEditVisibility] = useState<"private" | "unlisted" | "public">("public");
 
@@ -89,6 +104,9 @@ export default function UserProfilePage() {
           friend_count: friendCount ?? 0,
         });
 
+        setEditBio(profileData.bio || "");
+        setEditSchool(profileData.law_school || "");
+
         // Get pending friend requests count (only for own profile)
         if (ownProfile && userId) {
           const { count: pendingCount } = await supabase
@@ -115,6 +133,17 @@ export default function UserProfilePage() {
         const { data: artifactsData } = await artifactsQuery;
         setArtifacts(artifactsData ?? []);
 
+        // Load available schools
+        const { data: schoolsData } = await supabase
+          .from("profiles")
+          .select("law_school")
+          .not("law_school", "is", null);
+
+        if (schoolsData) {
+          const uniqueSchools = Array.from(new Set(schoolsData.map(s => s.law_school).filter(Boolean))) as string[];
+          setAvailableSchools(uniqueSchools.sort());
+        }
+
         document.title = `@${username} - briefica`;
         setLoading(false);
       } catch (err) {
@@ -130,20 +159,38 @@ export default function UserProfilePage() {
     setProfile(prev => prev ? { ...prev, profile_picture_url: newUrl } : null);
   }
 
+  async function saveProfile() {
+    if (!currentUserId || !profile) return;
+
+    await supabase
+      .from("profiles")
+      .update({
+        bio: editBio.trim() || null,
+        law_school: editSchool || null,
+      })
+      .eq("user_id", currentUserId);
+
+    setProfile({
+      ...profile,
+      bio: editBio.trim() || null,
+      law_school: editSchool || null,
+    });
+
+    setIsEditingProfile(false);
+  }
+
   async function handleDeleteArtifact(artifactId: string) {
     if (!currentUserId) return;
 
     const confirmed = window.confirm("Are you sure you want to delete this artifact?");
     if (!confirmed) return;
 
-    // Delete from database
     await supabase
       .from("artifacts")
       .delete()
       .eq("id", artifactId)
       .eq("owner_id", currentUserId);
 
-    // Refresh artifacts
     setArtifacts(prev => prev.filter(a => a.id !== artifactId));
   }
 
@@ -165,7 +212,6 @@ export default function UserProfilePage() {
       .eq("id", editingArtifact.id)
       .eq("owner_id", currentUserId);
 
-    // Update local state
     setArtifacts(prev => 
       prev.map(a => 
         a.id === editingArtifact.id 
@@ -214,6 +260,8 @@ export default function UserProfilePage() {
     );
   }
 
+  const schoolLogo = profile.law_school ? SCHOOL_LOGOS[profile.law_school] : null;
+
   return (
     <main className="min-h-screen bg-[#2b2b2b] text-white p-6">
       <div className="max-w-4xl mx-auto">
@@ -255,12 +303,18 @@ export default function UserProfilePage() {
                 <div className="flex-1">
                   <h1 className="text-3xl font-bold mb-1">@{profile.username}</h1>
                   {profile.law_school && (
-                    <button
-                      onClick={() => router.push(`/school/${encodeURIComponent(profile.law_school!)}`)}
-                      className="text-blue-400 hover:underline mb-2"
-                    >
-                      {profile.law_school}
-                    </button>
+                    <div className="flex items-center gap-2 mb-2">
+                      {schoolLogo && (
+                        <Image
+                          src={schoolLogo}
+                          alt={profile.law_school}
+                          width={24}
+                          height={24}
+                          className="rounded object-cover"
+                        />
+                      )}
+                      <span className="text-blue-400">{profile.law_school}</span>
+                    </div>
                   )}
                   <div className="flex items-center gap-4 text-sm text-white/70 mt-2">
                     <span>Uploads: {profile.upload_count}</span>
@@ -278,7 +332,7 @@ export default function UserProfilePage() {
               {isOwnProfile && (
                 <div className="flex gap-2">
                   <button
-                    onClick={() => router.push("/edit-profile")}
+                    onClick={() => setIsEditingProfile(true)}
                     className="border border-white/20 rounded-lg py-2 px-4 font-medium hover:bg-white/5 transition-colors"
                   >
                     Edit Profile
@@ -371,7 +425,60 @@ export default function UserProfilePage() {
         </div>
       </div>
 
-      {/* Edit Visibility Modal */}
+      {/* Edit Profile Modal */}
+      {isEditingProfile && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-[#1e1e1e] rounded-2xl p-6 max-w-md w-full border border-white/10">
+            <h2 className="text-xl font-bold mb-4">Edit Profile</h2>
+            
+            <div className="space-y-4 mb-6">
+              <div>
+                <label className="block text-sm font-medium mb-2">Bio</label>
+                <textarea
+                  value={editBio}
+                  onChange={(e) => setEditBio(e.target.value)}
+                  placeholder="Tell us about yourself..."
+                  rows={4}
+                  className="w-full px-3 py-2 rounded-lg bg-[#2b2b2b] border border-white/20 focus:border-white/40 focus:outline-none resize-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-2">Law School</label>
+                <select
+                  value={editSchool}
+                  onChange={(e) => setEditSchool(e.target.value)}
+                  className="w-full px-3 py-2 rounded-lg bg-[#2b2b2b] border border-white/20 focus:border-white/40 focus:outline-none"
+                >
+                  <option value="">Select a school</option>
+                  {availableSchools.map((school) => (
+                    <option key={school} value={school}>
+                      {school}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={saveProfile}
+                className="flex-1 bg-white text-black rounded-lg py-2 px-4 font-medium hover:bg-white/90 transition-colors"
+              >
+                Save Changes
+              </button>
+              <button
+                onClick={() => setIsEditingProfile(false)}
+                className="flex-1 border border-white/20 rounded-lg py-2 px-4 font-medium hover:bg-white/5 transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Artifact Visibility Modal */}
       {editingArtifact && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-[#1e1e1e] rounded-2xl p-6 max-w-md w-full border border-white/10">
