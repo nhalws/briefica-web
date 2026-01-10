@@ -78,9 +78,9 @@ export default function SchoolDirectoryPage() {
   const [error, setError] = useState<string | null>(null);
 
   // Collapsible widget states
-  const [topUsersExpanded, setTopUsersExpanded] = useState(true);
-  const [topRatedExpanded, setTopRatedExpanded] = useState(true);
-  const [mostDownloadedExpanded, setMostDownloadedExpanded] = useState(true);
+const [topUsersExpanded, setTopUsersExpanded] = useState(false);
+const [topRatedExpanded, setTopRatedExpanded] = useState(false);
+const [mostDownloadedExpanded, setMostDownloadedExpanded] = useState(false);
 
   useEffect(() => {
     if (schoolName) {
@@ -452,13 +452,30 @@ export default function SchoolDirectoryPage() {
               )}
             </div>
 
-            {/* Filters and Subject Preferences Row */}
-            <div className="flex items-start justify-between gap-4">
-              {/* Filter Buttons - Left */}
-              <div className="flex gap-2">
+            {/* Subject Preferences */}
+            {currentUserId && (
+              <div className="flex-shrink-0 mb-4 w-full">
+                <SubjectPreferences
+                  userId={currentUserId}
+                  userSchool={schoolName}
+                  onUpdate={() => window.location.reload()}
+                />
+              </div>
+            )}
+
+            {/* Search + Filters Row */}
+            <div className="flex flex-col sm:flex-row items-stretch gap-3 mb-4">
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search artifacts by title, description, or username..."
+                className="flex-1 px-4 py-2 rounded-lg bg-[#1e1e1e] border border-white/20 focus:border-white/40 focus:outline-none text-sm"
+              />
+              <div className="flex gap-2 justify-end">
                 <button
                   onClick={() => setTypeFilter("all")}
-                  className={`px-3 py-1.5 text-sm rounded-lg border transition-colors ${
+                  className={`px-3 py-2 text-sm rounded-lg border transition-colors ${
                     typeFilter === "all"
                       ? "bg-white text-black border-white"
                       : "border-white/20 hover:bg-white/5"
@@ -468,7 +485,7 @@ export default function SchoolDirectoryPage() {
                 </button>
                 <button
                   onClick={() => setTypeFilter("bset")}
-                  className={`px-3 py-1.5 text-sm rounded-lg border transition-colors ${
+                  className={`px-3 py-2 text-sm rounded-lg border transition-colors ${
                     typeFilter === "bset"
                       ? "bg-white text-black border-white"
                       : "border-white/20 hover:bg-white/5"
@@ -478,7 +495,7 @@ export default function SchoolDirectoryPage() {
                 </button>
                 <button
                   onClick={() => setTypeFilter("bmod")}
-                  className={`px-3 py-1.5 text-sm rounded-lg border transition-colors ${
+                  className={`px-3 py-2 text-sm rounded-lg border transition-colors ${
                     typeFilter === "bmod"
                       ? "bg-white text-black border-white"
                       : "border-white/20 hover:bg-white/5"
@@ -488,7 +505,7 @@ export default function SchoolDirectoryPage() {
                 </button>
                 <button
                   onClick={() => setTypeFilter("tbank")}
-                  className={`px-3 py-1.5 text-sm rounded-lg border transition-colors ${
+                  className={`px-3 py-2 text-sm rounded-lg border transition-colors ${
                     typeFilter === "tbank"
                       ? "bg-white text-black border-white"
                       : "border-white/20 hover:bg-white/5"
@@ -497,28 +514,6 @@ export default function SchoolDirectoryPage() {
                   .tbank
                 </button>
               </div>
-
-              {/* Subject Preferences - Right */}
-              {currentUserId && (
-                <div className="flex-shrink-0">
-                  <SubjectPreferences
-                    userId={currentUserId}
-                    userSchool={schoolName}
-                    onUpdate={() => window.location.reload()}
-                  />
-                </div>
-              )}
-            </div>
-
-            {/* Search Bar - Full Width Below */}
-            <div>
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search artifacts by title, description, or username..."
-                className="w-full px-4 py-2 rounded-lg bg-[#1e1e1e] border border-white/20 focus:border-white/40 focus:outline-none text-sm"
-              />
             </div>
 
             {/* Artifacts Grid */}
@@ -612,6 +607,7 @@ export default function SchoolDirectoryPage() {
 
           {/* Right Column - Compact Widgets */}
           <div className="space-y-3">
+            <div className="text-xs text-white/60 font-semibold px-1">Leaderboard</div>
             {/* Top Users */}
             <div className="border border-white/10 bg-[#1e1e1e] rounded-xl overflow-hidden">
               <button
