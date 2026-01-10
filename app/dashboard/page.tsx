@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import Image from "next/image";
 import { supabase } from "../lib/supabaseClient";
 import ProfilePicture from "../components/ProfilePicture";
@@ -50,6 +50,10 @@ export default function DashboardPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [typeFilter, setTypeFilter] = useState<"all" | "bset" | "bmod" | "tbank">("all");
   const [msg, setMsg] = useState<string | null>(null);
+  const [showConfirmedBanner, setShowConfirmedBanner] = useState(false);
+
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
 
   // SET PAGE TITLE
   useEffect(() => {
@@ -79,6 +83,19 @@ export default function DashboardPage() {
     }
     guard();
   }, [router]);
+
+  useEffect(() => {
+    const confirmed = searchParams.get("confirmed");
+    if (confirmed === "1") {
+      setShowConfirmedBanner(true);
+      const params = new URLSearchParams(searchParams.toString());
+      params.delete("confirmed");
+      const qs = params.toString();
+      router.replace(qs ? `${pathname}?${qs}` : pathname);
+      const timer = setTimeout(() => setShowConfirmedBanner(false), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [searchParams, router, pathname]);
 
   async function loadUserProfile(userId: string, username: string, lawSchool: string | null, profilePictureUrl: string | null) {
     const { data: userArtifacts, count: uploadCount } = await supabase
@@ -390,6 +407,11 @@ export default function DashboardPage() {
   return (
     <main className="min-h-screen bg-[#2b2b2b] text-white p-6">
       <div className="max-w-6xl mx-auto">
+        {showConfirmedBanner && (
+          <div className="mb-4 rounded-lg px-4 py-3 font-bold text-white" style={{ backgroundColor: "#66b2ff" }}>
+            Account has been activated.
+          </div>
+        )}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
             <Image

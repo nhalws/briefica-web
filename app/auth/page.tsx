@@ -115,13 +115,14 @@ function AuthPageContent() {
         return;
       }
 
-      const { data, error: signUpError } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: { username: u },
-        },
-      });
+const { data, error: signUpError } = await supabase.auth.signUp({
+  email,
+  password,
+  options: {
+    data: { username: u },
+    emailRedirectTo: "https://briefica.com/auth/callback",
+  },
+});
 
       if (signUpError) {
         setMessage(signUpError.message);
@@ -137,7 +138,6 @@ function AuthPageContent() {
       }
 
       setMessage("Account created. Check your email to confirm.");
-      router.push("/dashboard");
     } catch (e: any) {
       setMessage(e?.message ?? "Something went wrong.");
     } finally {
