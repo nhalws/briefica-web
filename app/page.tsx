@@ -127,8 +127,8 @@ export default function HomePage() {
           TIME TO MAKE A B-LINE.
         </h1>
         <p className="text-xl text-white/80 mb-8 max-w-3xl mx-auto">
-          briefica is the all-in-one platform for law students. Create structured briefs with our native desktop app, 
-          share with your school community, and access a growing library of study materials—all in one place.
+          briefica is the all-in-one platform for law students. Create briefsets with our native desktop app, 
+          share with your school community, and access a growing library of study materials, all in one place.
         </p>
 
         <div className="flex gap-4 justify-center">

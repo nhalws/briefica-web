@@ -193,7 +193,7 @@ function AuthPageContent() {
           <>
             <label className="text-xs text-white/60">Username</label>
             <input
-              placeholder="e.g., vanhuxt"
+              placeholder="e.g., max"
               className="w-full mb-3 mt-1 px-3 py-2 rounded bg-[#2b2b2b] border border-white/20 focus:border-white/40 focus:outline-none"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
