@@ -1,10 +1,12 @@
 "use client";
 
-import { useEffect } from "react";
+export const dynamic = "force-dynamic";
+
+import { Suspense, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { supabase } from "@/app/lib/supabaseClient"; // adjust path
 
-export default function AuthCallbackPage() {
+function CallbackInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -12,7 +14,6 @@ export default function AuthCallbackPage() {
     (async () => {
       const code = searchParams.get("code");
 
-      // If there is no code, bounce somewhere safe
       if (!code) {
         router.replace("/auth?mode=signin");
         return;
@@ -21,15 +22,31 @@ export default function AuthCallbackPage() {
       const { error } = await supabase.auth.exchangeCodeForSession(code);
 
       if (error) {
-        // Optionally send them back with an error flag
         router.replace(`/auth?mode=signin&error=${encodeURIComponent(error.message)}`);
         return;
       }
 
-      // Success: send to dashboard with banner flag
       router.replace("/dashboard?confirmed=1");
     })();
   }, [router, searchParams]);
 
-  return null;
+  return (
+    <main className="min-h-screen flex items-center justify-center bg-[#2b2b2b] text-white">
+      <div className="text-white/70">Confirming your account…</div>
+    </main>
+  );
+}
+
+export default function AuthCallbackPage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="min-h-screen flex items-center justify-center bg-[#2b2b2b] text-white">
+          <div className="text-white/70">Loading…</div>
+        </main>
+      }
+    >
+      <CallbackInner />
+    </Suspense>
+  );
 }
