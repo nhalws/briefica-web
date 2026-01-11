@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "../lib/supabaseClient";
-import SubjectPreferences from "../components/SubjectPreferences";
+import ProfilePicture from "./ProfilePicture";
 
 interface SchoolMember {
   user_id: string;
@@ -91,12 +91,13 @@ export default function SchoolCommunity({ userSchool, currentUserId }: SchoolCom
                 onClick={() => router.push(`/u/${member.username}`)}
                 className="flex items-center gap-2 text-left px-2 py-1 rounded-lg hover:bg-white/5 transition-colors text-sm"
               >
-                <div
-                  className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white border border-white"
-                  style={{ backgroundColor: '#66b2ff' }}
-                >
-                  {member.username.charAt(0).toUpperCase()}
-                </div>
+                <ProfilePicture
+                  userId={member.user_id}
+                  currentPictureUrl={member.profile_picture_url}
+                  username={member.username}
+                  size={24}
+                  editable={false}
+                />
                 <span>@{member.username}</span>
               </button>
             ))}
