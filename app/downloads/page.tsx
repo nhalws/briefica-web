@@ -33,7 +33,7 @@ export default function DownloadsPage() {
       {/* Main Content */}
       <div className="max-w-4xl mx-auto px-6 py-16">
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold mb-4">download briefica</h1>
+          <h1 className="text-4xl font-bold mb-4">download briefica 6</h1>
           <p className="text-xl text-white/70">
             native desktop editor for legal logic files
           </p>
@@ -55,7 +55,7 @@ export default function DownloadsPage() {
 
             <h2 className="text-2xl font-semibold text-center mb-2">macOS</h2>
             <p className="text-center text-white/60 mb-6">
-              version 1.0.0 - sunrise
+              version 6 (1.0.0) - sunrise
             </p>
 
             <div className="space-y-3 mb-6">
