@@ -6,6 +6,7 @@ import Image from "next/image";
 import { supabase } from "../../lib/supabaseClient";
 import SubjectPreferences from "../../components/SubjectPreferences";
 import LiveChat from "../../components/LiveChat";
+import ProfilePicture from "../../components/ProfilePicture";
 
 interface SchoolMember {
   user_id: string;
@@ -420,7 +421,7 @@ const [mostDownloadedExpanded, setMostDownloadedExpanded] = useState(false);
         <div className="grid lg:grid-cols-4 gap-4">
           {/* Left Column - Main Content */}
           <div className="lg:col-span-3 space-y-4">
-            {/* Member Directory */}
+            {/* Member Directory - FIXED WITH PROFILEPICTURE */}
             <div className="border border-white/10 bg-[#1e1e1e] rounded-xl p-4">
               <h2 className="text-lg font-bold mb-3">Members</h2>
               <div className="grid md:grid-cols-3 gap-2">
@@ -430,12 +431,13 @@ const [mostDownloadedExpanded, setMostDownloadedExpanded] = useState(false);
                     onClick={() => router.push(`/u/${member.username}`)}
                     className="flex items-center gap-2 p-2 rounded-lg hover:bg-white/5 transition-colors text-left"
                   >
-                    <div
-                      className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold text-white border border-white flex-shrink-0"
-                      style={{ backgroundColor: '#66b2ff' }}
-                    >
-                      {member.username.charAt(0).toUpperCase()}
-                    </div>
+                    <ProfilePicture
+                      userId={member.user_id}
+                      currentPictureUrl={member.profile_picture_url}
+                      username={member.username}
+                      size={32}
+                      editable={false}
+                    />
                     <div className="flex-1 min-w-0">
                       <div className="text-sm font-semibold truncate">@{member.username}</div>
                       <div className="text-xs text-white/60">
@@ -608,7 +610,7 @@ const [mostDownloadedExpanded, setMostDownloadedExpanded] = useState(false);
           {/* Right Column - Compact Widgets */}
           <div className="space-y-3">
             <div className="text-xs text-white/60 font-semibold px-1">Leaderboard</div>
-            {/* Top Users */}
+            {/* Top Users - FIXED WITH PROFILEPICTURE */}
             <div className="border border-white/10 bg-[#1e1e1e] rounded-xl overflow-hidden">
               <button
                 onClick={() => setTopUsersExpanded(!topUsersExpanded)}
@@ -637,12 +639,13 @@ const [mostDownloadedExpanded, setMostDownloadedExpanded] = useState(false);
                           className="w-full text-left flex items-center gap-1.5 p-1.5 rounded-lg hover:bg-white/5 transition-colors"
                         >
                           <span className="text-white/40 text-xs font-bold w-3">#{index + 1}</span>
-                          <div
-                            className="w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold text-white border border-white flex-shrink-0"
-                            style={{ backgroundColor: '#66b2ff' }}
-                          >
-                            {user.username.charAt(0).toUpperCase()}
-                          </div>
+                          <ProfilePicture
+                            userId={user.user_id}
+                            currentPictureUrl={user.profile_picture_url}
+                            username={user.username}
+                            size={20}
+                            editable={false}
+                          />
                           <div className="flex-1 min-w-0">
                             <div className="text-xs font-medium truncate">@{user.username}</div>
                             <div className="text-xs text-white/60 flex items-center gap-0.5">
