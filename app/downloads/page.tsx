@@ -35,7 +35,7 @@ export default function DownloadsPage() {
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold mb-4">download briefica 6</h1>
           <p className="text-xl text-white/70">
-            native desktop editor for legal logic files
+            download our native software.
           </p>
         </div>
 
@@ -94,7 +94,7 @@ export default function DownloadsPage() {
             </a>
 
             <p className="text-xs text-white/50 text-center mt-4">
-              ~45 MB • DMG installer
+              ~65 MB • DMG installer
             </p>
           </div>
 
