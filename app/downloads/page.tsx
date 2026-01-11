@@ -201,15 +201,15 @@ export default function DownloadsPage() {
           <div className="grid grid-cols-3 gap-4">
             <div className="text-center p-4 bg-white/5 rounded-lg">
               <div className="text-2xl font-bold mb-1">.bset</div>
-              <div className="text-sm text-white/60">brief sets</div>
+              <div className="text-sm text-white/60">briefsets</div>
             </div>
             <div className="text-center p-4 bg-white/5 rounded-lg">
               <div className="text-2xl font-bold mb-1">.bmod</div>
-              <div className="text-sm text-white/60">brief modules</div>
+              <div className="text-sm text-white/60">b-modifications</div>
             </div>
             <div className="text-center p-4 bg-white/5 rounded-lg">
               <div className="text-2xl font-bold mb-1">.tbank</div>
-              <div className="text-sm text-white/60">term banks</div>
+              <div className="text-sm text-white/60">typobanks</div>
             </div>
           </div>
         </div>
