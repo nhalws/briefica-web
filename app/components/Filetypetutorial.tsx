@@ -14,7 +14,7 @@ export default function FileTypeTutorial({ fileType }: FileTypeTutorialProps) {
       case "bset":
         return {
           title: "first time downloading a .bset?",
-          description: "Imagine an entire law school semester, in a single file. Briefsets are omprehensive collections of legal authorities, organized in a structured format with a complete table of contents, case library, and outline builder.",
+          description: "Imagine an entire law school semester, in a single file. Briefsets are omprehensive collections of legal authorities, organized in a structured format with a complete authority library, table of contents, and a unique outline build.",
           steps: [
             {
               number: 1,
