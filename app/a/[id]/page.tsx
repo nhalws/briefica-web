@@ -358,18 +358,10 @@ export default function ArtifactPage() {
           Back to dashboard
         </button>
         <div className="border border-white/10 bg-[#1e1e1e] rounded-2xl p-6">
-          <div className="flex items-center justify-between gap-3">
-            <div className="text-xs text-white/60">
-              <span className="inline-block px-2 py-1 rounded bg-white/10 border border-white/10">
-                {badge}
-              </span>
-              <span className="ml-3">
-                {new Date(artifact.created_at).toLocaleString()}
-              </span>
-            </div>
-
+          {/* Header with author info on left */}
+          <div className="flex items-center gap-3 mb-4">
             {uploader?.username ? (
-              <div className="flex flex-col items-end gap-1">
+              <>
                 <ProfilePicture
                   userId={artifact.owner_id}
                   currentPictureUrl={uploader.profile_picture_url}
@@ -377,13 +369,21 @@ export default function ArtifactPage() {
                   size={48}
                   editable={false}
                 />
-                <button
-                  className="text-sm text-white/80 hover:text-white underline"
-                  onClick={() => router.push(`/u/${uploader.username}`)}
-                >
-                  @{uploader.username}
-                </button>
-              </div>
+                <div className="flex flex-col">
+                  <button
+                    className="text-sm text-white/80 hover:text-white underline text-left"
+                    onClick={() => router.push(`/u/${uploader.username}`)}
+                  >
+                    @{uploader.username}
+                  </button>
+                  <div className="text-xs text-white/60 flex items-center gap-2">
+                    <span className="inline-block px-2 py-1 rounded bg-white/10 border border-white/10">
+                      {badge}
+                    </span>
+                    <span>{new Date(artifact.created_at).toLocaleString()}</span>
+                  </div>
+                </div>
+              </>
             ) : (
               <span className="text-sm text-white/50">Unknown uploader</span>
             )}
@@ -465,7 +465,8 @@ export default function ArtifactPage() {
                 <button
                   onClick={deleteArtifact}
                   disabled={busy}
-                  className="bg-red-500 text-white rounded-lg py-2 px-4 font-medium hover:bg-red-400 transition-colors disabled:opacity-50"
+                  className="text-white rounded-lg py-2 px-4 font-medium hover:opacity-90 transition-colors disabled:opacity-50"
+                  style={{ backgroundColor: "#66b2ff" }}
                 >
                   {busy ? "Working..." : "Delete"}
                 </button>
