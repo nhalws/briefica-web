@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import { supabase } from "../../lib/supabaseClient";
+import FileTypeTutorial from "../../components/Filetypetutorial";
 
 type Artifact = {
   id: string;
@@ -248,8 +249,8 @@ export default function ArtifactPage() {
         throw new Error("No download URL generated");
       }
 
-      // Download with original filename
-      const filename = artifact.original_filename || `artifact.${artifact.type}`;
+      // Download with original filename (preserved from upload)
+      const filename = artifact.original_filename || `${artifact.title}.${artifact.type}`;
       
       try {
         const response = await fetch(data.signedUrl);
@@ -481,7 +482,7 @@ export default function ArtifactPage() {
                 className="px-3 py-2 rounded-lg bg-[#2b2b2b] border border-white/20 focus:border-white/40 focus:outline-none"
               >
                 <option value="public">Public</option>
-                <option value="friends">Friends only</option>
+                <option value="unlisted">Unlisted</option>
                 <option value="private">Private</option>
               </select>
               <button
@@ -507,8 +508,13 @@ export default function ArtifactPage() {
           {msg && <p className="text-sm text-red-400 mt-4">{msg}</p>}
         </div>
 
+        {/* FILE TYPE TUTORIAL - NEW SECTION */}
+        <div className="mt-6">
+          <FileTypeTutorial fileType={artifact.type} />
+        </div>
+
         {/* COMMENTS SECTION */}
-        <div className="mt-6 border border-white/10 bg-[#1e1e1e] rounded-2xl p-6">
+        <div className="border border-white/10 bg-[#1e1e1e] rounded-2xl p-6">
           <h2 className="text-lg font-semibold mb-4">
             Comments ({comments.length})
           </h2>

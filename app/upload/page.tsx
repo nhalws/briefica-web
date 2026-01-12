@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { supabase } from "../lib/supabaseClient";
@@ -12,39 +12,25 @@ type Subject = {
   school_name: string;
 };
 
-type ArtifactVisibility = "public" | "private" | "unlisted";
-type ArtifactType = "bset" | "bmod" | "tbank";
-
 export default function UploadPage() {
   const router = useRouter();
-
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [userSchool, setUserSchool] = useState<string | null>(null);
-
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-
-  // Must match your enum artifact_visibility_v2 labels
-  const [visibility, setVisibility] = useState<ArtifactVisibility>("public");
-
-  // Must match your enum artifact_type labels
-  const [type, setType] = useState<ArtifactType>("bset");
-
+  const [visibility, setVisibility] = useState<"public" | "private" | "unlisted">("public");
+  const [type, setType] = useState<"bset" | "bmod" | "tbank">("bset");
   const [file, setFile] = useState<File | null>(null);
-
-  // These UI fields stay, but we will NOT insert them unless the table has columns for them
   const [school, setSchool] = useState<string>("");
   const [selectedSubjects, setSelectedSubjects] = useState<string[]>([]);
   const [availableSubjects, setAvailableSubjects] = useState<Subject[]>([]);
   const [tags, setTags] = useState("");
-
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const [uploadKey, setUploadKey] = useState<string | null>(null);
-
+  // Set page title
   useEffect(() => {
-    document.title = "Upload - briefica";
+    document.title = 'Upload - briefica';
   }, []);
 
   useEffect(() => {
@@ -57,20 +43,20 @@ export default function UploadPage() {
 
       setCurrentUserId(userData.user.id);
 
-      // Get user's school from profile (this is fine even if artifacts table has no school column)
-      const { data: profile, error: profileErr } = await supabase
+      // Get user's school from profile
+      const { data: profile } = await supabase
         .from("profiles")
         .select("law_school")
         .eq("user_id", userData.user.id)
         .single();
 
-      if (!profileErr && profile?.law_school) {
+      if (profile?.law_school) {
         setUserSchool(profile.law_school);
         setSchool(profile.law_school);
+        // Load subjects for user's school
         await loadSubjects(profile.law_school);
       }
     }
-
     init();
   }, [router]);
 
@@ -86,78 +72,87 @@ export default function UploadPage() {
       .eq("school_name", schoolName)
       .order("name", { ascending: true });
 
-    setAvailableSubjects(!error && data ? data : []);
+    if (!error && data) {
+      setAvailableSubjects(data);
+    } else {
+      setAvailableSubjects([]);
+    }
   }
 
   async function handleSchoolChange(newSchool: string) {
     setSchool(newSchool);
-    setSelectedSubjects([]);
-    if (newSchool) await loadSubjects(newSchool);
-    else setAvailableSubjects([]);
+    setSelectedSubjects([]); // Clear subjects when school changes
+    if (newSchool) {
+      await loadSubjects(newSchool);
+    } else {
+      setAvailableSubjects([]);
+    }
   }
 
   function handleSubjectToggle(subjectId: string) {
     setSelectedSubjects((prev) =>
-      prev.includes(subjectId) ? prev.filter((id) => id !== subjectId) : [...prev, subjectId]
+      prev.includes(subjectId)
+        ? prev.filter((id) => id !== subjectId)
+        : [...prev, subjectId]
     );
   }
 
-  const acceptString = useMemo(() => ".bset,.bmod,.tbank", []);
-
   async function handleUpload() {
     if (!currentUserId) return;
-
-    if (!title.trim()) return setError("Title is required");
-    if (!file) return setError("Please select a file");
+    if (!title.trim()) {
+      setError("Title is required");
+      return;
+    }
+    if (!file) {
+      setError("Please select a file");
+      return;
+    }
 
     setUploading(true);
     setError(null);
-    setUploadKey(null);
 
     try {
-      // Validate extension (users can rename files, so enforce)
-      const fileExt = (file.name.split(".").pop() || "").toLowerCase();
-      if (!["bset", "bmod", "tbank"].includes(fileExt)) {
-        throw new Error("Invalid file type. Must be .bset, .bmod, or .tbank");
-      }
+      // Upload file to Supabase Storage
+      const fileExt = file.name.split(".").pop();
+      const fileName = `${currentUserId}-${Date.now()}.${fileExt}`;
+      const filePath = `artifacts/${fileName}`;
 
-      // Storage key MUST match your storage RLS policy expectations:
-      // <uid>/<type>/<timestamp>.<ext>
-      const ts = Date.now();
-      const objectName = `${ts}.${fileExt}`;
-      const storageKey = `${currentUserId}/${type}/${objectName}`;
-
-      setUploadKey(storageKey);
-
-      // Upload to bucket "artifacts"
       const { error: uploadError } = await supabase.storage
         .from("artifacts")
-        .upload(storageKey, file, {
-          upsert: false,
-          contentType: "application/octet-stream",
-        });
+        .upload(filePath, file);
 
       if (uploadError) throw uploadError;
 
-      // IMPORTANT: Insert into artifacts table using ONLY columns that exist.
-      // Your table has: owner_id, type, title, description, storage_key, visibility
+      // Get public URL
+      const {
+        data: { publicUrl },
+      } = supabase.storage.from("artifacts").getPublicUrl(filePath);
+
+      // Create artifact record with preserved filename
       const { data: artifact, error: artifactError } = await supabase
         .from("artifacts")
         .insert({
           owner_id: currentUserId,
-          type, // enum artifact_type
+          type,
           title: title.trim(),
           description: description.trim() || null,
-          visibility, // enum artifact_visibility_v2
-          storage_key: storageKey,
+          visibility,
+          file_url: publicUrl,
+          storage_key: filePath,
+          original_filename: file.name, // PRESERVE ORIGINAL FILENAME
+          school: school || null,
+          tags: tags.trim() || null,
         })
         .select()
         .single();
 
-      if (artifactError) throw artifactError;
+      if (artifactError) {
+        console.error("ARTIFACT INSERT ERROR:", artifactError);
+        throw artifactError;
+      }
 
-      // Subject linking (only if you have artifact_subjects table + policies configured)
-      if (selectedSubjects.length > 0 && artifact?.id) {
+      // Link subjects to artifact
+      if (selectedSubjects.length > 0 && artifact) {
         const subjectLinks = selectedSubjects.map((subjectId) => ({
           artifact_id: artifact.id,
           subject_id: subjectId,
@@ -167,16 +162,17 @@ export default function UploadPage() {
           .from("artifact_subjects")
           .insert(subjectLinks);
 
-        // Don't hard-fail the whole upload if subject linking fails
         if (subjectsError) {
           console.error("ARTIFACT_SUBJECTS INSERT ERROR:", subjectsError);
+          throw subjectsError;
         }
       }
 
+      // Success! Redirect to dashboard
       router.push("/dashboard");
     } catch (err: any) {
       console.error("Upload error:", err);
-      setError(err?.message || "Upload failed");
+      setError(err.message || "Upload failed");
       setUploading(false);
     }
   }
@@ -184,6 +180,7 @@ export default function UploadPage() {
   return (
     <main className="min-h-screen bg-[#2b2b2b] text-white p-6">
       <div className="max-w-4xl mx-auto">
+        {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <button
             onClick={() => router.push("/dashboard")}
@@ -195,39 +192,59 @@ export default function UploadPage() {
             Back to dashboard
           </button>
 
-          <Image src="/logo_6.png" alt="briefica" width={140} height={42} className="object-contain" />
+          <Image
+            src="/logo_6.png"
+            alt="briefica"
+            width={140}
+            height={42}
+            className="object-contain"
+          />
         </div>
 
+        {/* Upload Form */}
         <div className="border border-white/10 bg-[#1e1e1e] rounded-2xl p-8">
           <h1 className="text-3xl font-bold mb-6">upload to briefica</h1>
 
           {error && (
-            <div className="mb-4 p-4 bg-red-500/10 border border-red-500/20 rounded-lg text-red-400">
+            <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-lg text-red-400">
               {error}
             </div>
           )}
 
-          {uploadKey && (
-            <div className="mb-6 p-3 bg-white/5 border border-white/10 rounded-lg text-white/70 text-sm">
-              Upload key: <span className="text-white">{uploadKey}</span>
-            </div>
-          )}
-
-          {/* Type */}
+          {/* Type Selection */}
           <div className="mb-6">
             <label className="block text-sm font-medium mb-2">Type *</label>
             <div className="flex gap-3">
-              {(["bset", "bmod", "tbank"] as ArtifactType[]).map((t) => (
-                <button
-                  key={t}
-                  onClick={() => setType(t)}
-                  className={`px-4 py-2 rounded-lg border transition-colors ${
-                    type === t ? "bg-white text-black border-white" : "border-white/20 hover:bg-white/5"
-                  }`}
-                >
-                  .{t}
-                </button>
-              ))}
+              <button
+                onClick={() => setType("bset")}
+                className={`px-4 py-2 rounded-lg border transition-colors ${
+                  type === "bset"
+                    ? "bg-white text-black border-white"
+                    : "border-white/20 hover:bg-white/5"
+                }`}
+              >
+                .bset
+              </button>
+              <button
+                onClick={() => setType("bmod")}
+                className={`px-4 py-2 rounded-lg border transition-colors ${
+                  type === "bmod"
+                    ? "bg-white text-black border-white"
+                    : "border-white/20 hover:bg-white/5"
+                }`}
+              >
+                .bmod
+              </button>
+              <button
+                onClick={() => setType("tbank")}
+                className={`px-4 py-2 rounded-lg border transition-colors ${
+                  type === "tbank"
+                    ? "bg-white text-black border-white"
+                    : "border-white/20 hover:bg-white/5"
+                }`}
+              >
+                .tbank
+              </button>
             </div>
           </div>
 
@@ -255,7 +272,7 @@ export default function UploadPage() {
             />
           </div>
 
-          {/* School Selection (UI only; not persisted unless you add a column later) */}
+          {/* School Selection */}
           <div className="mb-6">
             <label className="block text-sm font-medium mb-2">
               School {userSchool && "(from your profile)"}
@@ -273,34 +290,47 @@ export default function UploadPage() {
               ))}
             </select>
             <p className="text-xs text-white/50 mt-1">
-              (Not saved to artifacts table unless you add an artifacts.school column)
+              If blank, artifact will only be findable via search or your profile
             </p>
           </div>
 
           {/* Subject Selection */}
           {school && availableSubjects.length > 0 && (
             <div className="mb-6">
-              <label className="block text-sm font-medium mb-2">Subjects (optional)</label>
+              <label className="block text-sm font-medium mb-2">
+                Subjects (optional)
+              </label>
               <div className="flex flex-wrap gap-2">
                 {availableSubjects.map((subject) => (
                   <button
                     key={subject.id}
                     onClick={() => handleSubjectToggle(subject.id)}
                     className={`px-3 py-1 rounded-lg text-sm transition-colors ${
-                      selectedSubjects.includes(subject.id) ? "text-white" : "border border-white/20 hover:bg-white/5"
+                      selectedSubjects.includes(subject.id)
+                        ? "text-white"
+                        : "border border-white/20 hover:bg-white/5"
                     }`}
-                    style={selectedSubjects.includes(subject.id) ? { backgroundColor: "#66b2ff" } : {}}
+                    style={
+                      selectedSubjects.includes(subject.id)
+                        ? { backgroundColor: "#66b2ff" }
+                        : {}
+                    }
                   >
                     {subject.name}
                   </button>
                 ))}
               </div>
+              <p className="text-xs text-white/50 mt-1">
+                Select all relevant subjects for this artifact
+              </p>
             </div>
           )}
 
-          {/* Tags (UI only) */}
+          {/* Tags */}
           <div className="mb-6">
-            <label className="block text-sm font-medium mb-2">Tags (optional)</label>
+            <label className="block text-sm font-medium mb-2">
+              Tags (optional)
+            </label>
             <input
               type="text"
               value={tags}
@@ -309,40 +339,65 @@ export default function UploadPage() {
               className="w-full px-4 py-2 rounded-lg bg-[#2b2b2b] border border-white/20 focus:border-white/40 focus:outline-none"
             />
             <p className="text-xs text-white/50 mt-1">
-              (Not saved to artifacts table unless you add an artifacts.tags column)
+              Comma-separated tags to help others find your artifact
             </p>
           </div>
 
-          {/* File */}
+          {/* File Upload */}
           <div className="mb-6">
             <label className="block text-sm font-medium mb-2">File *</label>
             <input
               type="file"
               onChange={(e) => setFile(e.target.files?.[0] || null)}
-              accept={acceptString}
+              accept=".bset,.bmod,.tbank"
               className="w-full px-4 py-2 rounded-lg bg-[#2b2b2b] border border-white/20 focus:border-white/40 focus:outline-none"
             />
-            <p className="text-xs text-white/50 mt-1">Accepted formats: .bset, .bmod, .tbank</p>
+            <p className="text-xs text-white/50 mt-1">
+              Accepted formats: .bset, .bmod, .tbank
+            </p>
           </div>
 
           {/* Visibility */}
           <div className="mb-6">
             <label className="block text-sm font-medium mb-2">Visibility *</label>
             <div className="flex gap-3">
-              {(["public", "unlisted", "private"] as ArtifactVisibility[]).map((v) => (
-                <button
-                  key={v}
-                  onClick={() => setVisibility(v)}
-                  className={`px-4 py-2 rounded-lg border transition-colors ${
-                    visibility === v ? "bg-white text-black border-white" : "border-white/20 hover:bg-white/5"
-                  }`}
-                >
-                  {v[0].toUpperCase() + v.slice(1)}
-                </button>
-              ))}
+              <button
+                onClick={() => setVisibility("public")}
+                className={`px-4 py-2 rounded-lg border transition-colors ${
+                  visibility === "public"
+                    ? "bg-white text-black border-white"
+                    : "border-white/20 hover:bg-white/5"
+                }`}
+              >
+                Public
+              </button>
+              <button
+                onClick={() => setVisibility("unlisted")}
+                className={`px-4 py-2 rounded-lg border transition-colors ${
+                  visibility === "unlisted"
+                    ? "bg-white text-black border-white"
+                    : "border-white/20 hover:bg-white/5"
+                }`}
+              >
+                Unlisted
+              </button>
+              <button
+                onClick={() => setVisibility("private")}
+                className={`px-4 py-2 rounded-lg border transition-colors ${
+                  visibility === "private"
+                    ? "bg-white text-black border-white"
+                    : "border-white/20 hover:bg-white/5"
+                }`}
+              >
+                Private
+              </button>
             </div>
+            <p className="text-xs text-white/50 mt-1">
+              Public: Anyone can see • Unlisted: Only with link • Private: Only you
+            </p>
           </div>
 
+          {/* Upload Button */}
           <button
             onClick={handleUpload}
             disabled={uploading || !title.trim() || !file}
