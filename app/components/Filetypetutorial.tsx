@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 
 interface FileTypeTutorialProps {
   fileType: "bset" | "bmod" | "tbank";
@@ -13,8 +14,9 @@ export default function FileTypeTutorial({ fileType }: FileTypeTutorialProps) {
     switch (fileType) {
       case "bset":
         return {
+          icon: "/bset.png",
           title: "first time downloading a briefset? (.bset)",
-          description: "Imagine an entire law school semester, in a single file. Briefsets are omprehensive collections of legal authorities, organized in a structured format with a complete authority library, table of contents, and a unique outline build.",
+          description: "Imagine an entire law school semester, in a single file. Briefsets are comprehensive collections of legal authorities, organized in a structured format with a complete authority library, table of contents, and a unique outline build.",
           steps: [
             {
               number: 1,
@@ -36,6 +38,7 @@ export default function FileTypeTutorial({ fileType }: FileTypeTutorialProps) {
 
       case "bmod":
         return {
+          icon: "/bmod.png",
           title: "First time downloading a modification? (.bmod)",
           description: "Brief Modules are structured outlines organized by topic.",
           steps: [
@@ -59,6 +62,7 @@ export default function FileTypeTutorial({ fileType }: FileTypeTutorialProps) {
 
       case "tbank":
         return {
+          icon: "/tbank.png",
           title: "First time downloading a typobank? (.tbank)",
           description: "Test Banks are collections of practice questions for exam preparation.",
           steps: [
@@ -95,10 +99,22 @@ export default function FileTypeTutorial({ fileType }: FileTypeTutorialProps) {
         onClick={() => setIsExpanded(!isExpanded)}
         className="w-full flex items-center justify-between p-4 hover:bg-white/5 transition-colors text-left"
       >
-        <div className="flex-1">
-          <h3 className="font-semibold text-white mb-1">{tutorial.title}</h3>
-          <p className="text-sm text-white/60">{tutorial.description}</p>
+        <div className="flex items-center gap-3 flex-1">
+          {/* Icon */}
+          <Image
+            src={tutorial.icon}
+            alt={`${fileType} icon`}
+            width={40}
+            height={40}
+            className="flex-shrink-0"
+          />
+          {/* Text content */}
+          <div className="flex-1">
+            <h3 className="font-semibold text-white mb-1">{tutorial.title}</h3>
+            <p className="text-sm text-white/60">{tutorial.description}</p>
+          </div>
         </div>
+        {/* Dropdown arrow */}
         <svg
           className={`w-5 h-5 flex-shrink-0 ml-4 transition-transform ${
             isExpanded ? "rotate-180" : ""
