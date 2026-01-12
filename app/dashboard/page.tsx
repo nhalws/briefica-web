@@ -575,7 +575,9 @@ export default function DashboardPage() {
                 <button
                   onClick={() => setTypeFilter("all")}
                   className={`px-4 py-2 rounded-lg border transition-colors ${
-                    typeFilter === "all" ? "bg-white text-black border-white" : "bg-[#1e1e1e] border-white/20 hover:bg-white/5"
+                    typeFilter === "all" 
+                      ? "bg-white/20 text-white border-white/40" 
+                      : "bg-[#1e1e1e] border-white/20 hover:bg-white/5"
                   }`}
                 >
                   All
@@ -583,7 +585,9 @@ export default function DashboardPage() {
                 <button
                   onClick={() => setTypeFilter("bset")}
                   className={`px-4 py-2 rounded-lg border transition-colors flex items-center gap-2 ${
-                    typeFilter === "bset" ? "bg-white text-black border-white" : "bg-[#1e1e1e] border-white/20 hover:bg-white/5"
+                    typeFilter === "bset" 
+                      ? "bg-white/20 text-white border-white/40" 
+                      : "bg-[#1e1e1e] border-white/20 hover:bg-white/5"
                   }`}
                 >
                   <Image src="/bset.png" alt="bset" width={20} height={20} />
@@ -592,7 +596,9 @@ export default function DashboardPage() {
                 <button
                   onClick={() => setTypeFilter("bmod")}
                   className={`px-4 py-2 rounded-lg border transition-colors flex items-center gap-2 ${
-                    typeFilter === "bmod" ? "bg-white text-black border-white" : "bg-[#1e1e1e] border-white/20 hover:bg-white/5"
+                    typeFilter === "bmod" 
+                      ? "bg-white/20 text-white border-white/40" 
+                      : "bg-[#1e1e1e] border-white/20 hover:bg-white/5"
                   }`}
                 >
                   <Image src="/bmod.png" alt="bmod" width={20} height={20} />
@@ -601,10 +607,12 @@ export default function DashboardPage() {
                 <button
                   onClick={() => setTypeFilter("tbank")}
                   className={`px-4 py-2 rounded-lg border transition-colors flex items-center gap-2 ${
-                    typeFilter === "tbank" ? "bg-white text-black border-white" : "bg-[#1e1e1e] border-white/20 hover:bg-white/5"
+                    typeFilter === "tbank" 
+                      ? "bg-white/20 text-white border-white/40" 
+                      : "bg-[#1e1e1e] border-white/20 hover:bg-white/5"
                   }`}
                 >
-                  <Image src="/b_blank.png" alt="tbank" width={20} height={20} />
+                  <Image src="/tbank.png" alt="tbank" width={20} height={20} />
                   .tbank
                 </button>
               </div>
