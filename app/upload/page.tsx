@@ -372,14 +372,14 @@ export default function UploadPage() {
                 Public
               </button>
               <button
-                onClick={() => setVisibility("unlisted")}
+                onClick={() => setVisibility("friends")}
                 className={`px-4 py-2 rounded-lg border transition-colors ${
-                  visibility === "unlisted"
+                  visibility === "friends"
                     ? "bg-white text-black border-white"
                     : "border-white/20 hover:bg-white/5"
                 }`}
               >
-                Unlisted
+                Friends
               </button>
               <button
                 onClick={() => setVisibility("private")}
