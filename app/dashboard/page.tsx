@@ -612,7 +612,7 @@ export default function DashboardPage() {
                       : "bg-[#1e1e1e] border-white/20 hover:bg-white/5"
                   }`}
                 >
-                  <Image src="/tbank.png" alt="tbank" width={20} height={20} />
+                  <Image src="/b_blank.png" alt="tbank" width={20} height={20} />
                   .tbank
                 </button>
               </div>
