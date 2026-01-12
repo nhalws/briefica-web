@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 export default function Footer() {
   const router = useRouter();
@@ -8,8 +9,15 @@ export default function Footer() {
   return (
     <footer className="border-t border-white/10 mt-12 py-6">
       <div className="max-w-7xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-white/60">
-        <div>
-          © 2026 briefica. All rights reserved.
+        <div className="flex items-center gap-2">
+          <span>© 2026 VanHuxt. All rights reserved.</span>
+          <Image
+            src="/transparent.png"
+            alt="VanHuxt"
+            width={60}
+            height={20}
+            className="object-contain opacity-60 hover:opacity-100 transition-opacity"
+          />
         </div>
         <div className="flex gap-6">
           <button
