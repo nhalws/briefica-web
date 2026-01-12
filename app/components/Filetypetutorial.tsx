@@ -62,7 +62,7 @@ export default function FileTypeTutorial({ fileType }: FileTypeTutorialProps) {
 
       case "tbank":
         return {
-          icon: "/tbank.png",
+          icon: "/b_blank.png",
           title: "First time downloading a typobank? (.tbank)",
           description: "Test Banks are collections of practice questions for exam preparation.",
           steps: [
