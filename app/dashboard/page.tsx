@@ -582,26 +582,29 @@ export default function DashboardPage() {
                 </button>
                 <button
                   onClick={() => setTypeFilter("bset")}
-                  className={`px-4 py-2 rounded-lg border transition-colors ${
+                  className={`px-4 py-2 rounded-lg border transition-colors flex items-center gap-2 ${
                     typeFilter === "bset" ? "bg-white text-black border-white" : "bg-[#1e1e1e] border-white/20 hover:bg-white/5"
                   }`}
                 >
+                  <Image src="/bset.png" alt="bset" width={20} height={20} />
                   .bset
                 </button>
                 <button
                   onClick={() => setTypeFilter("bmod")}
-                  className={`px-4 py-2 rounded-lg border transition-colors ${
+                  className={`px-4 py-2 rounded-lg border transition-colors flex items-center gap-2 ${
                     typeFilter === "bmod" ? "bg-white text-black border-white" : "bg-[#1e1e1e] border-white/20 hover:bg-white/5"
                   }`}
                 >
+                  <Image src="/bmod.png" alt="bmod" width={20} height={20} />
                   .bmod
                 </button>
                 <button
                   onClick={() => setTypeFilter("tbank")}
-                  className={`px-4 py-2 rounded-lg border transition-colors ${
+                  className={`px-4 py-2 rounded-lg border transition-colors flex items-center gap-2 ${
                     typeFilter === "tbank" ? "bg-white text-black border-white" : "bg-[#1e1e1e] border-white/20 hover:bg-white/5"
                   }`}
                 >
+                  <Image src="/tbank.png" alt="tbank" width={20} height={20} />
                   .tbank
                 </button>
               </div>
