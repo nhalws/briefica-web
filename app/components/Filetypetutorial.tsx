@@ -13,7 +13,7 @@ export default function FileTypeTutorial({ fileType }: FileTypeTutorialProps) {
     switch (fileType) {
       case "bset":
         return {
-          title: "first time downloading a .bset?",
+          title: "first time downloading a briefset? (.bset)",
           description: "Imagine an entire law school semester, in a single file. Briefsets are omprehensive collections of legal authorities, organized in a structured format with a complete authority library, table of contents, and a unique outline build.",
           steps: [
             {
@@ -36,7 +36,7 @@ export default function FileTypeTutorial({ fileType }: FileTypeTutorialProps) {
 
       case "bmod":
         return {
-          title: "First time downloading a .bmod?",
+          title: "First time downloading a modification? (.bmod)",
           description: "Brief Modules are structured outlines organized by topic.",
           steps: [
             {
@@ -59,7 +59,7 @@ export default function FileTypeTutorial({ fileType }: FileTypeTutorialProps) {
 
       case "tbank":
         return {
-          title: "First time downloading a .tbank?",
+          title: "First time downloading a typobank? (.tbank)",
           description: "Test Banks are collections of practice questions for exam preparation.",
           steps: [
             {
