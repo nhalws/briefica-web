@@ -480,6 +480,7 @@ export default function ArtifactPage() {
                 className="px-3 py-2 rounded-lg bg-[#2b2b2b] border border-white/20 focus:border-white/40 focus:outline-none"
               >
                 <option value="public">Public</option>
+                <option value="friends">Friends only</option>
                 <option value="unlisted">Unlisted</option>
                 <option value="private">Private</option>
               </select>
