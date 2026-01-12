@@ -13,23 +13,23 @@ export default function FileTypeTutorial({ fileType }: FileTypeTutorialProps) {
     switch (fileType) {
       case "bset":
         return {
-          title: "First time downloading a .bset?",
-          description: "Brief Sets are collections of case briefs organized in a structured format.",
+          title: "first time downloading a .bset?",
+          description: "Imagine an entire law school semester, in a single file. Briefsets are omprehensive collections of case briefs, organized in a structured format with a complete table of contents, case library, and outline builder.",
           steps: [
             {
               number: 1,
-              title: "Download the file",
-              content: "Click the download button above to save the .bset file to your computer.",
+              title: "download the .bset",
+              content: "Click the download button above to save the .bset to your computer.",
             },
             {
               number: 2,
-              title: "Open in briefica 6",
-              content: "Launch the briefica desktop app, then open the downloaded .bset file. You can also double-click the file if briefica is set as the default app.",
+              title: "move to your /briefsets/ folder",
+              content: "DO NOT open the .bset directly. Instead, move the downloaded .bset to the /briefsets/ folder that briefica 6 creates on your desktop when you install it. If you've changed that path since installing, simply move the .bset to your custom folder location.",
             },
             {
               number: 3,
-              title: "Explore the briefs",
-              content: "Browse through the case briefs in the table of contents. Each brief includes Facts, Issue, Rule, Analysis, and Conclusion (FIRAC) to help you study.",
+              title: "re-open briefica 6",
+              content: "Either launch briefica 6 (if it's closed) or restart the app if it's already open. The .bset should automatically populate, including all authorities in the library, the complete table of contents, and the outline rendered in the outline builder.",
             },
           ],
         };
