@@ -58,7 +58,7 @@ export default function DashboardPage() {
 
   // SET PAGE TITLE
   useEffect(() => {
-    document.title = "dashboard - b-web";
+    document.title = "briefica web (b-web)";
   }, []);
 
   useEffect(() => {
