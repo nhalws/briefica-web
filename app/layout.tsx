@@ -16,7 +16,29 @@ export const metadata: Metadata = {
   title: "briefica web (b-web)",
   description: "A true law school workspace.",
   icons: {
-    icon: 'favicon.png',
+    icon: "/favicon.png",
+    apple: "/apple-touch-icon.png", // optional but recommended
+  },
+  openGraph: {
+    title: "briefica",
+    description: "A true law school workspace.",
+    url: "https://briefica.com",
+    siteName: "briefica",
+    images: [
+      {
+        url: "https://briefica.com/favicon.png",
+        width: 512,
+        height: 512,
+        alt: "briefica logo",
+      },
+    ],
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+    title: "briefica",
+    description: "A true law school workspace.",
+    images: ["https://briefica.com/favicon.png"],
   },
 };
 
