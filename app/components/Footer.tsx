@@ -14,8 +14,8 @@ export default function Footer() {
           <Image
             src="/transparent.png"
             alt="VanHuxt"
-            width={60}
-            height={20}
+            width={40}
+            height={10}
             className="object-contain opacity-60 hover:opacity-100 transition-opacity"
           />
         </div>
