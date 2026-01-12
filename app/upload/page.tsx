@@ -128,33 +128,38 @@ export default function UploadPage() {
         data: { publicUrl },
       } = supabase.storage.from("artifacts").getPublicUrl(filePath);
 
-      // Create artifact record with preserved filename
-      const { data: artifact, error: artifactError } = await supabase
-        .from("artifacts")
-        .insert({
-          owner_id: currentUserId,
-          type,
-          title: title.trim(),
-          description: description.trim() || null,
-          visibility,
-          file_url: publicUrl,
-          storage_key: filePath,
-          original_filename: file.name, // PRESERVE ORIGINAL FILENAME
-          school: school || null,
-          tags: tags.trim() || null,
-        })
-        .select()
-        .single();
+      // USE RPC FUNCTION to insert artifact with proper enum handling
+      const { data: artifact, error: artifactError } = await supabase.rpc(
+        'insert_artifact',
+        {
+          p_owner_id: currentUserId,
+          p_type: type,
+          p_title: title.trim(),
+          p_description: description.trim() || null,
+          p_visibility: visibility,
+          p_file_url: publicUrl,
+          p_storage_key: filePath,
+          p_original_filename: file.name,
+          p_tags: tags.trim() || null,
+        }
+      );
 
       if (artifactError) {
         console.error("ARTIFACT INSERT ERROR:", artifactError);
         throw artifactError;
       }
 
+      // Get the artifact ID from the RPC result
+      const artifactId = artifact && artifact.length > 0 ? artifact[0].id : null;
+
+      if (!artifactId) {
+        throw new Error("Failed to get artifact ID");
+      }
+
       // Link subjects to artifact
-      if (selectedSubjects.length > 0 && artifact) {
+      if (selectedSubjects.length > 0) {
         const subjectLinks = selectedSubjects.map((subjectId) => ({
-          artifact_id: artifact.id,
+          artifact_id: artifactId,
           subject_id: subjectId,
         }));
 
@@ -393,7 +398,7 @@ export default function UploadPage() {
               </button>
             </div>
             <p className="text-xs text-white/50 mt-1">
-              Public: Anyone can see • Unlisted: Only with link • Private: Only you
+              Public: Anyone can see • Friends: Only your friends • Private: Only you
             </p>
           </div>
 
