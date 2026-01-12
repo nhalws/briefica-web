@@ -18,7 +18,7 @@ export default function UploadPage() {
   const [userSchool, setUserSchool] = useState<string | null>(null);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [visibility, setVisibility] = useState<"public" | "private" | "unlisted">("public");
+  const [visibility, setVisibility] = useState<"public" | "private" | "friends">("public");
   const [type, setType] = useState<"bset" | "bmod" | "tbank">("bset");
   const [file, setFile] = useState<File | null>(null);
   const [school, setSchool] = useState<string>("");
