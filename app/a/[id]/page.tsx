@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import { supabase } from "../../lib/supabaseClient";
 import FileTypeTutorial from "../../components/Filetypetutorial";
+import ProfilePicture from "../../components/ProfilePicture";
 
 type Artifact = {
   id: string;
@@ -369,15 +370,13 @@ export default function ArtifactPage() {
 
             {uploader?.username ? (
               <div className="flex flex-col items-end gap-1">
-                {uploader.profile_picture_url && (
-                  <Image
-                    src={uploader.profile_picture_url}
-                    alt={uploader.username}
-                    width={48}
-                    height={48}
-                    className="rounded-full border border-white/20"
-                  />
-                )}
+                <ProfilePicture
+                  userId={artifact.owner_id}
+                  currentPictureUrl={uploader.profile_picture_url}
+                  username={uploader.username}
+                  size={48}
+                  editable={false}
+                />
                 <button
                   className="text-sm text-white/80 hover:text-white underline"
                   onClick={() => router.push(`/u/${uploader.username}`)}
