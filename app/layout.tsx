@@ -20,10 +20,10 @@ export const metadata: Metadata = {
     apple: "/apple-touch-icon.png", // optional but recommended
   },
   openGraph: {
-    title: "briefica",
+    title: "briefica web (b-web)",
     description: "A true law school workspace.",
     url: "https://briefica.com",
-    siteName: "briefica",
+    siteName: "briefica web (b-web)",
     images: [
       {
         url: "https://briefica.com/favicon.png",
@@ -36,7 +36,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary",
-    title: "briefica",
+    title: "briefica web (b-web)",
     description: "A true law school workspace.",
     images: ["https://briefica.com/favicon.png"],
   },
