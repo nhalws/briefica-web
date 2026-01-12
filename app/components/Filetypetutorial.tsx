@@ -28,7 +28,7 @@ export default function FileTypeTutorial({ fileType }: FileTypeTutorialProps) {
             },
             {
               number: 3,
-              title: "re-open briefica 6",
+              title: "re-open briefica",
               content: "Either launch briefica 6 (if it's closed) or restart the app if it's already open. The .bset should automatically populate, including all authorities in the library, the complete table of contents, and the outline rendered in the outline builder.",
             },
           ],
@@ -46,7 +46,7 @@ export default function FileTypeTutorial({ fileType }: FileTypeTutorialProps) {
             },
             {
               number: 2,
-              title: "Open in briefica 6",
+              title: "Open in briefica",
               content: "Launch the briefica desktop app, then open the downloaded .bmod file. You can also double-click the file if briefica is set as the default app.",
             },
             {
@@ -69,7 +69,7 @@ export default function FileTypeTutorial({ fileType }: FileTypeTutorialProps) {
             },
             {
               number: 2,
-              title: "Open in briefica 6",
+              title: "Open in briefica",
               content: "Launch the briefica desktop app, then open the downloaded .tbank file. You can also double-click the file if briefica is set as the default app.",
             },
             {
@@ -136,7 +136,7 @@ export default function FileTypeTutorial({ fileType }: FileTypeTutorialProps) {
           {/* Additional Help Section */}
           <div className="mt-6 pt-4 border-t border-white/10">
             <p className="text-sm text-white/60 mb-2">
-              <strong>Don't have briefica 6?</strong>
+              <strong>Don't have briefica?</strong>
             </p>
             <button
               onClick={() => window.open("/downloads", "_blank")}
