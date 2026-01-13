@@ -475,7 +475,7 @@ export default function DashboardPage() {
               onClick={() => router.push("/faq")}
               className="inline-flex items-center justify-center rounded-lg border border-white/20 bg-white/10 px-4 py-2 hover:bg-white/15 transition-colors"
             >
-              FAQ
+              help
             </button>
             <button
               onClick={handleLogout}
