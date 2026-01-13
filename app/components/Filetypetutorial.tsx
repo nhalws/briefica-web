@@ -26,7 +26,7 @@ export default function FileTypeTutorial({ fileType }: FileTypeTutorialProps) {
             {
               number: 2,
               title: "move to your /briefsets/ folder",
-              content: "DO NOT open the .bset directly. Instead, move the downloaded .bset to the /briefsets/ folder that briefica 6 creates on your desktop when you install it. If you've changed that path since installing, simply move the .bset to your custom folder location.",
+              content: "DO NOT open the .bset directly. Instead, move the downloaded .bset to the /briefsets/ folder that briefica 6 creates on your desktop when you install it. If you've changed that path since installing, move the .bset to your custom folder location.",
             },
             {
               number: 3,
@@ -39,21 +39,26 @@ export default function FileTypeTutorial({ fileType }: FileTypeTutorialProps) {
       case "bmod":
         return {
           icon: "/bmod.png",
-          title: "First time downloading a modification? (.bmod)",
-          description: "Brief Modules are structured outlines organized by topic.",
+          title: "first time downloading a modification? (.bmod)",
+          description: "With briefica, color palettes are shareable. Modifications are user-friendly color palette accessories that can be mapped onto the outline your building.",
           steps: [
             {
               number: 1,
-              title: "Download the file",
+              title: "download the .bmod",
               content: "Click the download button above to save the .bmod file to your computer.",
             },
             {
               number: 2,
-              title: "Open in briefica",
-              content: "Launch the briefica desktop app, then open the downloaded .bmod file. You can also double-click the file if briefica is set as the default app.",
+              title: "move to your /mods/ folder",
+              content: "DO NOT open the .bset directly. Instead, move the downloaded .bset to the /briefsets/ folder that briefica 6 creates on your desktop when you install it. If you've changed that path since installing, check the /briefsets/ folder on your Desktop.",
             },
             {
               number: 3,
+              title: "move to your /mods/ folder",
+              content: "L",
+            },
+            {
+              number: 4,
               title: "Study the modules",
               content: "Navigate through the hierarchical outline structure. Modules break down complex topics into digestible sections with rules, examples, and practice problems.",
             },
@@ -63,7 +68,7 @@ export default function FileTypeTutorial({ fileType }: FileTypeTutorialProps) {
       case "tbank":
         return {
           icon: "/b_blank.png",
-          title: "First time downloading a typobank? (.tbank)",
+          title: "first time downloading a typobank? (.tbank)",
           description: "Test Banks are collections of practice questions for exam preparation.",
           steps: [
             {

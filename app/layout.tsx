@@ -14,31 +14,32 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "briefica web (b-web)",
-  description: "A true law school workspace.",
+  description: "Legal knowledge, structured & shareable",
   icons: {
-    icon: "/favicon.png",
-    apple: "/apple-touch-icon.png", // optional but recommended
+    icon: "/favicon.ico",
+    shortcut: "/favicon.ico",
+    apple: "/apple-touch-icon.png",
   },
   openGraph: {
     title: "briefica web (b-web)",
-    description: "A true law school workspace.",
+    description: "Legal knowledge, structured & shareable",
     url: "https://briefica.com",
-    siteName: "briefica web (b-web)",
+    siteName: "briefica",
     images: [
       {
-        url: "https://briefica.com/favicon.png",
-        width: 512,
-        height: 512,
-        alt: "briefica logo",
+        url: "https://briefica.com/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "briefica - legal knowledge, structured & shareable",
       },
     ],
     type: "website",
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
     title: "briefica web (b-web)",
-    description: "A true law school workspace.",
-    images: ["https://briefica.com/favicon.png"],
+    description: "Legal knowledge, structured & shareable",
+    images: ["https://briefica.com/og-image.png"],
   },
 };
 
