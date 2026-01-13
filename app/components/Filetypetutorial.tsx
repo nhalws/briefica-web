@@ -64,7 +64,7 @@ export default function FileTypeTutorial({ fileType }: FileTypeTutorialProps) {
         return {
           icon: "/b_blank.png",
           title: "first time downloading a typobank? (.tbank)",
-          description: "Typobanks serve as your own personal spell-check. Commerical spell-checks may not always pick on student's mistakes. With typobanks, you can keep a literal bank of your typos.",
+          description: "Typobanks serve as your own personal spell-check. Commerical spell-checks may not always pick on student's mistakes. With typobanks, students can keep a literal bank of their typos.",
           steps: [
             {
               number: 1,
