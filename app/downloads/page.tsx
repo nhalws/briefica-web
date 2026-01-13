@@ -188,7 +188,7 @@ export default function DownloadsPage() {
               </div>
               <div>
                 <p className="font-medium text-white mb-1">launch briefica</p>
-                <p className="text-sm">open briefica from your Applications folder.</p>
+                <p className="text-sm">double-click briefica to launch the software.</p>
               </div>
             </div>
           </div>
