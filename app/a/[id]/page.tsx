@@ -14,7 +14,7 @@ type Artifact = {
   title: string;
   description: string | null;
   storage_key: string;
-  visibility: "private" | "unlisted" | "public" | "friends";
+  visibility: "private" | "public" | "friends";  // REMOVED "unlisted"
   created_at: string;
   original_filename: string | null;
 };
@@ -136,7 +136,7 @@ export default function ArtifactPage() {
   async function loadComments(artId: string) {
     const { data: commentsData } = await supabase
       .from("artifact_comments")
-      .select(`
+        .select(`
         id,
         user_id,
         content,
@@ -481,7 +481,6 @@ export default function ArtifactPage() {
               >
                 <option value="public">Public</option>
                 <option value="friends">Friends only</option>
-                <option value="unlisted">Unlisted</option>
                 <option value="private">Private</option>
               </select>
               <button
@@ -576,7 +575,7 @@ export default function ArtifactPage() {
               <p className="text-white/60 text-sm">
                 No comments yet. Be the first to comment!
               </p>
-            )}
+              )}
           </div>
         </div>
       </div>

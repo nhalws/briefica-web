@@ -40,7 +40,7 @@ export default function FileTypeTutorial({ fileType }: FileTypeTutorialProps) {
         return {
           icon: "/bmod.png",
           title: "first time downloading a modification? (.bmod)",
-          description: "With briefica, color palettes are shareable. Modifications are user-friendly color palette accessories that can be mapped onto the outline your building.",
+          description: "With briefica, users can share customizable color palettes as functional accessories for their outline builds.",
           steps: [
             {
               number: 1,
@@ -50,17 +50,12 @@ export default function FileTypeTutorial({ fileType }: FileTypeTutorialProps) {
             {
               number: 2,
               title: "move to your /mods/ folder",
-              content: "DO NOT open the .bset directly. Instead, move the downloaded .bset to the /briefsets/ folder that briefica 6 creates on your desktop when you install it. If you've changed that path since installing, check the /briefsets/ folder on your Desktop.",
+              content: "DO NOT open the .bmod directly. Instead, move it to the /briefsets/ folder created on your desktop. If you modified the destination during setup, locate the 'mods' folder within your custom /briefsets/ path.",
             },
             {
               number: 3,
-              title: "move to your /mods/ folder",
-              content: "L",
-            },
-            {
-              number: 4,
-              title: "Study the modules",
-              content: "Navigate through the hierarchical outline structure. Modules break down complex topics into digestible sections with rules, examples, and practice problems.",
+              title: "apply the mod in the app",
+              content: "In briefica, click the 'mods' button. From here, click, 'import preset', and select the mod. NOTE: The caution prompt will read 'Are you sure? All bold/italic/underline formatting will be lost.' This is FALSE. Applying mods should NOT change your formatting.",
             },
           ],
         };
@@ -69,22 +64,22 @@ export default function FileTypeTutorial({ fileType }: FileTypeTutorialProps) {
         return {
           icon: "/b_blank.png",
           title: "first time downloading a typobank? (.tbank)",
-          description: "Test Banks are collections of practice questions for exam preparation.",
+          description: "Typobanks serve as your own personal spell-check. In law, words are spelled funny, and commerical spell-checks may not always pick on student's mistakes. With typobanks, you can keep a literal bank of your typos.",
           steps: [
             {
               number: 1,
-              title: "Download the file",
+              title: "download the .tbank",
               content: "Click the download button above to save the .tbank file to your computer.",
             },
             {
               number: 2,
-              title: "Open in briefica",
-              content: "Launch the briefica desktop app, then open the downloaded .tbank file. You can also double-click the file if briefica is set as the default app.",
+              title: "move to /briefsets/ folder",
+              content: "DO NOT open the .tbank directly. Instead, move it to the /briefsets/ folder created on your desktop. If you modified the destination during setup, locate the 'typobank' folder within your custom /briefsets/ path.",
             },
             {
               number: 3,
-              title: "Practice with questions",
-              content: "Work through the practice questions at your own pace. Each question includes detailed explanations to help you understand the correct answers and improve your exam performance.",
+              title: "import the typobank in the app",
+              content: "In briefica, click the",
             },
           ],
         };
