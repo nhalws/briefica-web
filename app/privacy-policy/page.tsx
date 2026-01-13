@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+/* force rebuild */
 
 export default function PrivacyPolicyPage() {
   const router = useRouter();
@@ -38,7 +39,7 @@ export default function PrivacyPolicyPage() {
             <section>
               <h2 className="text-2xl font-bold mb-4">1. Introduction</h2>
               <p>
-                Welcome to briefica ("we," "our," or "us"). We are committed to protecting your privacy and ensuring the security of your personal information. This Privacy Policy explains how we collect, use, store, and protect your data when you use our platform.
+                Welcome to briefica ("we," "our," or "us"), a product of VanHuxt. We are committed to protecting your privacy and ensuring the security of your personal information. This Privacy Policy explains how we collect, use, store, and protect your data when you use our platform.
               </p>
             </section>
 
@@ -52,7 +53,7 @@ export default function PrivacyPolicyPage() {
                 <li><strong>Password:</strong> Encrypted using bcrypt (never stored in plaintext)</li>
                 <li><strong>Law school:</strong> Optional, used for school community features</li>
                 <li><strong>Bio:</strong> Optional profile information</li>
-                <li><strong>Profile picture:</strong> Optional, stored securely</li>
+                <li><strong>Profile picture:</strong> Optional, stored securely in Supabase Storage</li>
               </ul>
 
               <h3 className="text-xl font-semibold mb-3">2.2 Content You Create</h3>
@@ -98,7 +99,7 @@ export default function PrivacyPolicyPage() {
               <h3 className="text-xl font-semibold mb-3">4.1 Where Your Data is Stored</h3>
               <ul className="list-disc pl-6 space-y-2 mb-4">
                 <li><strong>Supabase (PostgreSQL):</strong> User accounts, profiles, artifact metadata, relationships</li>
-                <li><strong>Supabase Storage:</strong> Uploaded files (.bset, .bmod, .tbank)</li>
+                <li><strong>Supabase Storage:</strong> Uploaded files (.bset, .bmod, .tbank) and profile pictures</li>
                 <li><strong>Vercel:</strong> Application hosting (no user data stored)</li>
               </ul>
 
@@ -109,6 +110,7 @@ export default function PrivacyPolicyPage() {
                 <li><strong>Database security:</strong> Row Level Security (RLS) policies enforce access control</li>
                 <li><strong>Authentication:</strong> Secure session management via Supabase Auth</li>
                 <li><strong>File storage:</strong> Isolated storage with signed URLs for temporary access</li>
+                <li><strong>Profile pictures:</strong> Stored securely with access control policies</li>
               </ul>
 
               <h3 className="text-xl font-semibold mb-3">4.3 Third-Party Security Compliance</h3>
@@ -153,7 +155,7 @@ export default function PrivacyPolicyPage() {
 
               <h3 className="text-xl font-semibold mb-3">5.4 Legal Disclosure</h3>
               <p>
-                We may disclose your information if required by law, subpoena, court order, or to protect the rights, property, or safety of briefica, our users, or others.
+                We may disclose your information if required by law, subpoena, court order, or to protect the rights, property, or safety of VanHuxt, briefica, our users, or others.
               </p>
             </section>
 
@@ -161,8 +163,8 @@ export default function PrivacyPolicyPage() {
               <h2 className="text-2xl font-bold mb-4">6. Your Rights and Choices</h2>
               <ul className="list-disc pl-6 space-y-2">
                 <li><strong>Access:</strong> View your profile and all data we store about you</li>
-                <li><strong>Edit:</strong> Update your profile information, bio, and school at any time</li>
-                <li><strong>Delete content:</strong> Remove any artifacts you've uploaded</li>
+                <li><strong>Edit:</strong> Update your profile information, bio, school, and profile picture at any time</li>
+                <li><strong>Delete content:</strong> Remove any artifacts or profile pictures you've uploaded</li>
                 <li><strong>Control visibility:</strong> Set artifacts to public, unlisted, or private</li>
                 <li><strong>Manage friends:</strong> Accept, reject, or remove friend connections</li>
                 <li><strong>Account deletion:</strong> Contact support to permanently delete your account</li>
@@ -176,7 +178,7 @@ export default function PrivacyPolicyPage() {
                 <li><strong>Active accounts:</strong> We retain your data as long as your account is active</li>
                 <li><strong>Deleted accounts:</strong> All data permanently deleted within 30 days</li>
                 <li><strong>Chat messages:</strong> Retained indefinitely unless the channel is deleted</li>
-                <li><strong>Artifacts:</strong> Deleted immediately when you remove them</li>
+                <li><strong>Artifacts and profile pictures:</strong> Deleted immediately when you remove them</li>
                 <li><strong>Backups:</strong> May persist in backups for up to 90 days</li>
               </ul>
             </section>
@@ -191,7 +193,7 @@ export default function PrivacyPolicyPage() {
             <section>
               <h2 className="text-2xl font-bold mb-4">9. International Users</h2>
               <p>
-                briefica is hosted in the United States. If you access the platform from outside the US, your information will be transferred to, stored, and processed in the United States. By using briefica, you consent to this transfer.
+                briefica is operated by VanHuxt and hosted in the United States. If you access the platform from outside the US, your information will be transferred to, stored, and processed in the United States. By using briefica, you consent to this transfer.
               </p>
             </section>
 
@@ -215,7 +217,8 @@ export default function PrivacyPolicyPage() {
 
             <div className="mt-8 pt-8 border-t border-white/10 text-sm text-white/60">
               <p>Last updated: January 10, 2026</p>
-              <p className="mt-2">© 2026 briefica. All rights reserved.</p>
+              <p className="mt-2">© 2026 VanHuxt. All rights reserved.</p>
+              <p className="mt-1">briefica is a product of VanHuxt.</p>
             </div>
           </div>
         </div>
