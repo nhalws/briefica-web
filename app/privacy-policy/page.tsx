@@ -2,7 +2,6 @@
 
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-/* force rebuild */
 
 export default function PrivacyPolicyPage() {
   const router = useRouter();
