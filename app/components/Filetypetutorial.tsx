@@ -55,7 +55,7 @@ export default function FileTypeTutorial({ fileType }: FileTypeTutorialProps) {
             {
               number: 3,
               title: "apply the mod in the app",
-              content: "In briefica, click the 'mods' button. Select, 'import preset', and select the mod. NOTE: The caution prompt will read 'Are you sure? All bold/italic/underline formatting will be lost.' This is FALSE. Applying mods should NOT change your formatting.",
+              content: "In briefica, click the 'mods' button. Select, 'import preset', and select the mod.",
             },
           ],
         };
