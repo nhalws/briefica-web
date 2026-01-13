@@ -177,7 +177,7 @@ export default function DownloadsPage() {
                 3
               </div>
               <div>
-                <p className="font-medium text-white mb-1">drag to your Desktop</p>
+                <p className="font-medium text-white mb-1">drag briefica to your Desktop</p>
                 <p className="text-sm">drag briefica to your destination folder and update the path.
                   NOTE: that briefica initially creates a /briefsets/ folder on your desktop where all sets must be stored to load.</p>
               </div>
