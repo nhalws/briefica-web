@@ -40,7 +40,7 @@ export default function FileTypeTutorial({ fileType }: FileTypeTutorialProps) {
         return {
           icon: "/bmod.png",
           title: "first time downloading a modification? (.bmod)",
-          description: "With briefica, users can share customizable color palettes as functional accessories for their outline builds.",
+          description: "With briefica, users can share customizable color palettes as accessories for their outline builds.",
           steps: [
             {
               number: 1,
