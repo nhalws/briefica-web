@@ -55,7 +55,7 @@ export default function DownloadsPage() {
 
             <h2 className="text-2xl font-semibold text-center mb-2">macOS</h2>
             <p className="text-center text-white/60 mb-6">
-              version 6 (1.0.0) - sunrise
+              version 6.0.0 - sunrise
             </p>
 
             <div className="space-y-3 mb-6">
