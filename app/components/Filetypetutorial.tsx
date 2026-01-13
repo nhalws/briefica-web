@@ -79,7 +79,7 @@ export default function FileTypeTutorial({ fileType }: FileTypeTutorialProps) {
             {
               number: 3,
               title: "import the typobank in the app",
-              content: "In briefica, click the",
+              content: "In briefica, click the 'typobank' button and select 'import .tbank'. Navigate to where you saved the .tbank, and import.",
             },
           ],
         };
