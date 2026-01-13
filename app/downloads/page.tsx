@@ -177,7 +177,7 @@ export default function DownloadsPage() {
                 3
               </div>
               <div>
-                <p className="font-medium text-white mb-1">drag briefica to your Desktop</p>
+                <p className="font-medium text-white mb-1">drag briefica to your desktop</p>
                 <p className="text-sm">drag briefica to your desktop.</p>
               </div>
             </div>
