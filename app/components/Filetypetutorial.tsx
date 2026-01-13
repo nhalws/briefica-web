@@ -49,8 +49,8 @@ export default function FileTypeTutorial({ fileType }: FileTypeTutorialProps) {
             },
             {
               number: 2,
-              title: "move .bmod to your /mods/ folder",
-              content: "DO NOT open the .bmod directly. Instead, move it to the /briefsets/ folder created on your desktop. If you modified the destination during setup, locate the 'mods' folder within your custom /briefsets/ path.",
+              title: "move .bmod to your /briefsets/ folder",
+              content: "DO NOT open the .bmod directly. Instead, move it to the /briefsets/ folder created on your desktop. If you modified the destination during setup, move the .bmod to your custom folder location.",
             },
             {
               number: 3,
@@ -74,7 +74,7 @@ export default function FileTypeTutorial({ fileType }: FileTypeTutorialProps) {
             {
               number: 2,
               title: "move .tbank to your /briefsets/ folder",
-              content: "DO NOT open the .tbank directly. Instead, move it to the /briefsets/ folder created on your desktop. If you modified the destination during setup, locate the 'typobank' folder within your custom /briefsets/ path.",
+              content: "DO NOT open the .tbank directly. Instead, move it to the /briefsets/ folder created on your desktop. If you modified the destination during setup, move the .tbank to your custom folder location.",
             },
             {
               number: 3,
