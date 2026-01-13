@@ -69,7 +69,7 @@ export default function FileTypeTutorial({ fileType }: FileTypeTutorialProps) {
             {
               number: 1,
               title: "download the .tbank",
-              content: "Click the download button above to save the .tbank file to your computer.",
+              content: "Click the download button above to save the .tbank to your computer.",
             },
             {
               number: 2,
