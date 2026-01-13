@@ -38,10 +38,10 @@ export default function TermsPage() {
             <section>
               <h2 className="text-2xl font-bold mb-4">1. Acceptance of Terms</h2>
               <p>
-                By accessing or using briefica ("the Platform"), you agree to be bound by these Terms and Conditions ("Terms"). If you do not agree to these Terms, do not use the Platform.
+                By accessing or using briefica ("the Platform"), a product of VanHuxt, you agree to be bound by these Terms and Conditions ("Terms"). If you do not agree to these Terms, do not use the Platform.
               </p>
               <p className="mt-4">
-                These Terms constitute a legally binding agreement between you and briefica. We reserve the right to modify these Terms at any time. Continued use of the Platform after changes constitutes acceptance of the modified Terms.
+                These Terms constitute a legally binding agreement between you and VanHuxt ("we," "our," or "us"). We reserve the right to modify these Terms at any time. Continued use of the Platform after changes constitutes acceptance of the modified Terms.
               </p>
             </section>
 
@@ -65,6 +65,7 @@ export default function TermsPage() {
                 <li>You may only create one account per person</li>
                 <li>You may not impersonate others or create accounts on behalf of others without permission</li>
                 <li>You may not use offensive, misleading, or inappropriate usernames</li>
+                <li>Profile pictures must not violate our content restrictions (see Section 4.2)</li>
               </ul>
 
               <h3 className="text-xl font-semibold mb-3">3.2 Account Security</h3>
@@ -86,11 +87,11 @@ export default function TermsPage() {
               
               <h3 className="text-xl font-semibold mb-3">4.1 Content You Upload</h3>
               <p className="mb-4">
-                You retain ownership of content you upload (briefs, files, messages, profile information). By uploading content to briefica, you grant us a non-exclusive, worldwide, royalty-free license to store, display, and distribute your content as necessary to provide the Platform services.
+                You retain ownership of content you upload (briefs, files, messages, profile pictures, profile information). By uploading content to briefica, you grant us a non-exclusive, worldwide, royalty-free license to store, display, and distribute your content as necessary to provide the Platform services.
               </p>
 
               <h3 className="text-xl font-semibold mb-3">4.2 Content Restrictions</h3>
-              <p className="mb-2">You agree NOT to upload, post, or share content that:</p>
+              <p className="mb-2">You agree NOT to upload, post, or share content (including profile pictures) that:</p>
               <ul className="list-disc pl-6 space-y-2 mb-4">
                 <li>Violates any law, regulation, or third-party rights</li>
                 <li>Infringes on copyrights, trademarks, or intellectual property</li>
@@ -101,6 +102,7 @@ export default function TermsPage() {
                 <li>Contains personal information of others without consent</li>
                 <li>Is spam, advertising, or commercial solicitation</li>
                 <li>Impersonates others or misrepresents your identity</li>
+                <li>Depicts individuals without their consent (for profile pictures, use only images of yourself or images you have rights to use)</li>
               </ul>
 
               <h3 className="text-xl font-semibold mb-3">4.3 Academic Integrity</h3>
@@ -113,7 +115,7 @@ export default function TermsPage() {
 
               <h3 className="text-xl font-semibold mb-3">4.4 Content Moderation</h3>
               <p>
-                We reserve the right to review, remove, or restrict access to any content that violates these Terms. We may also report illegal content to appropriate authorities.
+                We reserve the right to review, remove, or restrict access to any content (including profile pictures) that violates these Terms. We may also report illegal content to appropriate authorities.
               </p>
             </section>
 
@@ -144,9 +146,9 @@ export default function TermsPage() {
             <section>
               <h2 className="text-2xl font-bold mb-4">7. Intellectual Property</h2>
               
-              <h3 className="text-xl font-semibold mb-3">7.1 briefica's Rights</h3>
+              <h3 className="text-xl font-semibold mb-3">7.1 VanHuxt's Rights</h3>
               <p className="mb-4">
-                The briefica Platform, including its design, logo, features, and underlying code, is owned by briefica and protected by copyright, trademark, and other intellectual property laws. You may not copy, modify, distribute, or create derivative works without permission.
+                The briefica Platform, including its design, logo, features, and underlying code, is owned by VanHuxt and protected by copyright, trademark, and other intellectual property laws. You may not copy, modify, distribute, or create derivative works without permission.
               </p>
 
               <h3 className="text-xl font-semibold mb-3">7.2 User Content Rights</h3>
@@ -182,20 +184,20 @@ export default function TermsPage() {
 
               <h3 className="text-xl font-semibold mb-3">9.4 Limitation of Liability</h3>
               <p>
-                TO THE MAXIMUM EXTENT PERMITTED BY LAW, BRIEFICA SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES ARISING FROM YOUR USE OF THE PLATFORM. OUR TOTAL LIABILITY SHALL NOT EXCEED $100.
+                TO THE MAXIMUM EXTENT PERMITTED BY LAW, VANHUXT AND BRIEFICA SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES ARISING FROM YOUR USE OF THE PLATFORM. OUR TOTAL LIABILITY SHALL NOT EXCEED $100.
               </p>
             </section>
 
             <section>
               <h2 className="text-2xl font-bold mb-4">10. Indemnification</h2>
               <p>
-                You agree to indemnify and hold harmless briefica, its officers, directors, employees, and agents from any claims, damages, losses, or expenses (including legal fees) arising from:
+                You agree to indemnify and hold harmless VanHuxt, briefica, and their respective officers, directors, employees, and agents from any claims, damages, losses, or expenses (including legal fees) arising from:
               </p>
               <ul className="list-disc pl-6 space-y-2 mt-4">
                 <li>Your use of the Platform</li>
                 <li>Your violation of these Terms</li>
                 <li>Your violation of any third-party rights</li>
-                <li>Content you upload or share</li>
+                <li>Content you upload or share (including profile pictures)</li>
               </ul>
             </section>
 
@@ -204,12 +206,12 @@ export default function TermsPage() {
               
               <h3 className="text-xl font-semibold mb-3">11.1 Governing Law</h3>
               <p className="mb-4">
-                These Terms are governed by the laws of the State of California, United States, without regard to conflict of law principles.
+                These Terms are governed by the laws of the State of Delaware, United States, without regard to conflict of law principles.
               </p>
 
               <h3 className="text-xl font-semibold mb-3">11.2 Arbitration</h3>
               <p className="mb-4">
-                Any disputes arising from these Terms or your use of briefica shall be resolved through binding arbitration in California, except for claims that may be brought in small claims court.
+                Any disputes arising from these Terms or your use of briefica shall be resolved through binding arbitration in Delaware, except for claims that may be brought in small claims court.
               </p>
 
               <h3 className="text-xl font-semibold mb-3">11.3 Class Action Waiver</h3>
@@ -246,7 +248,8 @@ export default function TermsPage() {
 
             <div className="mt-8 text-sm text-white/60">
               <p>Last updated: January 10, 2026</p>
-              <p className="mt-2">© 2026 briefica. All rights reserved.</p>
+              <p className="mt-2">© 2026 VanHuxt. All rights reserved.</p>
+              <p className="mt-1">briefica is a product of VanHuxt.</p>
             </div>
           </div>
         </div>
