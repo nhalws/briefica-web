@@ -1,0 +1,56 @@
+{
+  "items": [
+    {
+      "id": "item_2c588908-63c6-48ff-9f31-8b4347f62e3c",
+      "type": "case",
+      "citation": "347 U.S. 483 (1954)",
+      "case": "Brown v. Board of Education",
+      "name": "Brown v. Board of Education",
+      "area_of_law": [
+        "Constitutional Law"
+      ],
+      "facts": "Black children were denied admission to public schools attended by white children under state laws requiring or permitting racial segregation in public education.",
+      "question": "Does racial segregation in public public schools violate the Equal Protection Clause of the Fourteenth Amendment?",
+      "holding": "Yes. Racial segregation in public schools violates the Equal Protection Clause.",
+      "rule_of_law": "State-imposed segregation in public education is unconstitutional when it denies students equal protection of the laws.",
+      "rule": "State-imposed segregation in public education is unconstitutional when it denies students equal protection of the laws.",
+      "notes": "\n",
+      "taxonomy_path": [
+        "7450fbad-4cdb-46ec-82d9-67184e078c99",
+        "78df2cc8-a7be-42ff-88a9-bd5c9fda32bf"
+      ],
+      "heading_id": "78df2cc8-a7be-42ff-88a9-bd5c9fda32bf"
+    }
+  ],
+  "_meta": {
+    "headings": [
+      {
+        "id": "7450fbad-4cdb-46ec-82d9-67184e078c99",
+        "title": "The Fourteenth Amendment"
+      }
+    ],
+    "taxonomy": [
+      {
+        "id": "7450fbad-4cdb-46ec-82d9-67184e078c99",
+        "title": "The Fourteenth Amendment",
+        "children": [
+          {
+            "id": "78df2cc8-a7be-42ff-88a9-bd5c9fda32bf",
+            "title": "Equal Protection Clause",
+            "children": []
+          }
+        ]
+      }
+    ],
+    "stickies": [],
+    "ordering": {
+      "7450fbad-4cdb-46ec-82d9-67184e078c99": [],
+      "78df2cc8-a7be-42ff-88a9-bd5c9fda32bf": [
+        "item_2c588908-63c6-48ff-9f31-8b4347f62e3c"
+      ]
+    },
+    "highlights": {},
+    "styles": {},
+    "typos": []
+  }
+}

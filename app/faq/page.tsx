@@ -194,7 +194,121 @@ export default function FAQPage() {
                     It's designed specifically for law students to structure and store case analysis in a standardized format.
                   </p>
 
-                  <div>
+                  {/* INTERACTIVE DEMO */}
+                  <div className="bg-[#2b2b2b] border border-white/20 rounded-lg p-4 space-y-4 mt-4">
+                    <h5 className="font-semibold text-white mb-3 flex items-center gap-2">
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                      </svg>
+                      Interactive Demo: Case Brief Structure
+                    </h5>
+
+                    <p className="text-xs text-white/60 italic">
+                      Try filling in the fields below to see how a .bset file is structured!
+                    </p>
+
+                    <div className="space-y-3">
+                      {/* Citation */}
+                      <div>
+                        <label className="block text-sm font-medium text-white/90 mb-1">
+                          Citation:
+                        </label>
+                        <input
+                          type="text"
+                          placeholder="347 U.S. 483 (1954)"
+                          className="w-full bg-[#1e1e1e] border border-white/20 rounded px-3 py-2 text-white text-sm placeholder-white/40 focus:outline-none focus:border-white/40"
+                        />
+                      </div>
+
+                      {/* Name */}
+                      <div>
+                        <label className="block text-sm font-medium text-white/90 mb-1">
+                          Name (case or authority):
+                        </label>
+                        <input
+                          type="text"
+                          placeholder="Brown v. Board of Education"
+                          className="w-full bg-[#1e1e1e] border border-white/20 rounded px-3 py-2 text-white text-sm placeholder-white/40 focus:outline-none focus:border-white/40"
+                        />
+                      </div>
+
+                      {/* Area of Law */}
+                      <div>
+                        <label className="block text-sm font-medium text-white/90 mb-1">
+                          Area(s) of Law:
+                        </label>
+                        <input
+                          type="text"
+                          placeholder="Constitutional Law"
+                          className="w-full bg-[#1e1e1e] border border-white/20 rounded px-3 py-2 text-white text-sm placeholder-white/40 focus:outline-none focus:border-white/40"
+                        />
+                      </div>
+
+                      {/* Facts */}
+                      <div>
+                        <label className="block text-sm font-medium text-white/90 mb-1">
+                          Facts:
+                        </label>
+                        <textarea
+                          placeholder="Black children were denied admission to public schools attended by white children under state laws requiring or permitting racial segregation in public education."
+                          rows={3}
+                          className="w-full bg-[#1e1e1e] border border-white/20 rounded px-3 py-2 text-white text-sm placeholder-white/40 focus:outline-none focus:border-white/40 resize-none"
+                        />
+                      </div>
+
+                      {/* Question */}
+                      <div>
+                        <label className="block text-sm font-medium text-white/90 mb-1">
+                          Question:
+                        </label>
+                        <textarea
+                          placeholder="Does racial segregation in public schools violate the Equal Protection Clause of the Fourteenth Amendment?"
+                          rows={2}
+                          className="w-full bg-[#1e1e1e] border border-white/20 rounded px-3 py-2 text-white text-sm placeholder-white/40 focus:outline-none focus:border-white/40 resize-none"
+                        />
+                      </div>
+
+                      {/* Holding */}
+                      <div>
+                        <label className="block text-sm font-medium text-white/90 mb-1">
+                          Holding:
+                        </label>
+                        <textarea
+                          placeholder="Yes. Racial segregation in public schools violates the Equal Protection Clause."
+                          rows={2}
+                          className="w-full bg-[#1e1e1e] border border-white/20 rounded px-3 py-2 text-white text-sm placeholder-white/40 focus:outline-none focus:border-white/40 resize-none"
+                        />
+                      </div>
+
+                      {/* Rule */}
+                      <div>
+                        <label className="block text-sm font-medium text-white/90 mb-1">
+                          Rule:
+                        </label>
+                        <textarea
+                          placeholder="State-imposed segregation in public education is unconstitutional when it denies students equal protection of the laws."
+                          rows={2}
+                          className="w-full bg-[#1e1e1e] border border-white/20 rounded px-3 py-2 text-white text-sm placeholder-white/40 focus:outline-none focus:border-white/40 resize-none"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Download Button */}
+                    <div className="flex justify-center pt-2">
+                      <a
+                        href="/sample.bset"
+                        download="sample.bset"
+                        className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors"
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                        </svg>
+                        Download Sample
+                      </a>
+                    </div>
+                  </div>
+
+                  <div className="pt-4">
                     <h4 className="font-semibold mb-2">What's in a .bset file?</h4>
                     <ul className="list-disc pl-6 space-y-1 text-white/70">
                       <li><strong>Case Name:</strong> The full citation and parties</li>
