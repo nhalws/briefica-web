@@ -293,49 +293,15 @@ export default function FAQPage() {
                                   borderLeftColor: noteColor
                                 }}
                               >
-                                <div className="flex items-center gap-2 mb-1">
+                                <p className="text-xs text-white/70">
                                   <span className="font-semibold" style={{ color: noteColor }}>
                                     GENERAL NOTE ✎
                                   </span>
-                                </div>
-                                <p className="text-xs text-white/70">
+                                  {" - "}
                                   This is an example of a color-coded note in a .bmod file. 
                                   Click the color swatch to customize it!
                                 </p>
                               </div>
-                            </div>
-                          </div>
-
-                          {/* Example of multiple note types */}
-                          <div className="space-y-2 pt-2">
-                            <p className="text-xs text-white/60 font-semibold">Common note types in .bmod files:</p>
-                            
-                            <div className="p-3 rounded-lg border-l-4 bg-[#FF3B3015] border-[#FF3B30]">
-                              <div className="flex items-center gap-2 mb-1">
-                                <span className="font-semibold text-[#FF3B30]">IMPORTANT ⚠️</span>
-                              </div>
-                              <p className="text-xs text-white/70">Critical rules or principles you must remember</p>
-                            </div>
-
-                            <div className="p-3 rounded-lg border-l-4 bg-[#34C75915] border-[#34C759]">
-                              <div className="flex items-center gap-2 mb-1">
-                                <span className="font-semibold text-[#34C759]">EXAMPLE ✓</span>
-                              </div>
-                              <p className="text-xs text-white/70">Practical examples or hypotheticals</p>
-                            </div>
-
-                            <div className="p-3 rounded-lg border-l-4 bg-[#007AFF15] border-[#007AFF]">
-                              <div className="flex items-center gap-2 mb-1">
-                                <span className="font-semibold text-[#007AFF]">DEFINITION 📖</span>
-                              </div>
-                              <p className="text-xs text-white/70">Key terms and their meanings</p>
-                            </div>
-
-                            <div className="p-3 rounded-lg border-l-4 bg-[#AF52DE15] border-[#AF52DE]">
-                              <div className="flex items-center gap-2 mb-1">
-                                <span className="font-semibold text-[#AF52DE]">TIP 💡</span>
-                              </div>
-                              <p className="text-xs text-white/70">Study tips or mnemonics</p>
                             </div>
                           </div>
                         </div>
