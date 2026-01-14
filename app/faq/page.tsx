@@ -104,7 +104,7 @@ export default function FAQPage() {
                     onClick={() => toggleSubsection("briefica-offline")}
                     className="w-full flex items-center justify-between p-3 text-left hover:bg-white/5 transition-colors"
                   >
-                    <span className="font-semibold">A. How do I download briefica 6?</span>
+                    <span className="font-semibold">A. How do I use briefica 6 (briefica offline)?</span>
                     <svg
                       className={`w-4 h-4 flex-shrink-0 transition-transform ${openSubsection === "briefica-offline" ? 'rotate-180' : ''}`}
                       fill="none"
@@ -135,22 +135,7 @@ export default function FAQPage() {
                         </button>
                         {openQuestion === "download-b6" && (
                           <div className="px-3 pb-3 text-sm text-white/70 space-y-3">
-                            <div>
-                              <p className="font-semibold text-white mb-1">1. Download the installer</p>
-                              <p>Click the download button above to get the DMG file.</p>
-                            </div>
-                            <div>
-                              <p className="font-semibold text-white mb-1">2. Open the DMG</p>
-                              <p>Double-click the downloaded file to mount the installer.</p>
-                            </div>
-                            <div>
-                              <p className="font-semibold text-white mb-1">3. Drag briefica to your desktop</p>
-                              <p>Drag briefica to your desktop.</p>
-                            </div>
-                            <div>
-                              <p className="font-semibold text-white mb-1">4. Launch briefica</p>
-                              <p>Double-click briefica to launch the software.</p>
-                            </div>
+                            <p>Navigate to briefica.com and click on "download briefica 6." Save the installer to your computer.</p>
                           </div>
                         )}
                       </div>
@@ -706,7 +691,7 @@ export default function FAQPage() {
                       <a
                         href="/sample.bset"
                         download="sample.bset"
-                        className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors"
+                        className="inline-flex items-center gap-2 px-6 py-3 bg-[#66b2ff] hover:bg-[#5aa3ee] text-white font-medium rounded-lg transition-colors"
                       >
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
