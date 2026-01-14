@@ -10,6 +10,7 @@ export default function FAQPage() {
   const [openSection, setOpenSection] = useState<string | null>(null);
   const [openSubsection, setOpenSubsection] = useState<string | null>(null);
   const [openQuestion, setOpenQuestion] = useState<string | null>(null);
+  const [openSubSubsection, setOpenSubSubsection] = useState<string | null>(null);
   
   // State for interactive demos
   const [noteColor, setNoteColor] = useState("#FFD700");
@@ -19,15 +20,22 @@ export default function FAQPage() {
     setOpenSection(openSection === section ? null : section);
     setOpenSubsection(null);
     setOpenQuestion(null);
+    setOpenSubSubsection(null);
   };
 
   const toggleSubsection = (subsection: string) => {
     setOpenSubsection(openSubsection === subsection ? null : subsection);
     setOpenQuestion(null);
+    setOpenSubSubsection(null);
   };
 
   const toggleQuestion = (question: string) => {
     setOpenQuestion(openQuestion === question ? null : question);
+    setOpenSubSubsection(null);
+  };
+
+  const toggleSubSubsection = (subsubsection: string) => {
+    setOpenSubSubsection(openSubSubsection === subsubsection ? null : subsubsection);
   };
 
   // Preset colors that mimic macOS color picker
@@ -269,6 +277,106 @@ export default function FAQPage() {
                                 height={600}
                                 className="w-full h-auto"
                               />
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Sub-dropdown: IV. Using the table of contents */}
+                      <div className="border border-white/10 rounded-lg overflow-hidden">
+                        <button
+                          onClick={() => toggleQuestion("table-of-contents")}
+                          className="w-full flex items-center justify-between p-3 text-left hover:bg-white/5 transition-colors"
+                        >
+                          <span className="text-sm font-medium">IV. Using the table of contents</span>
+                          <svg
+                            className={`w-4 h-4 flex-shrink-0 transition-transform ${openQuestion === "table-of-contents" ? 'rotate-180' : ''}`}
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                          </svg>
+                        </button>
+                        {openQuestion === "table-of-contents" && (
+                          <div className="px-3 pb-3 space-y-2">
+                            {/* Sub-subsection (a): Creating headings */}
+                            <div className="border border-white/10 rounded-lg overflow-hidden bg-[#252525]">
+                              <button
+                                onClick={() => toggleSubSubsection("creating-headings")}
+                                className="w-full flex items-center justify-between p-2.5 text-left hover:bg-white/5 transition-colors"
+                              >
+                                <span className="text-xs font-medium">(a) Creating headings (+ sub-headings)</span>
+                                <svg
+                                  className={`w-3.5 h-3.5 flex-shrink-0 transition-transform ${openSubSubsection === "creating-headings" ? 'rotate-180' : ''}`}
+                                  fill="none"
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                </svg>
+                              </button>
+                              {openSubSubsection === "creating-headings" && (
+                                <div className="px-2.5 pb-2.5 text-xs text-white/70 space-y-3">
+                                  <p>
+                                    Create headings by clicking, "edit..." → "creating heading" OR "create subheading." Name your heading accordingly.
+                                  </p>
+                                  <div className="border border-white/20 rounded-lg overflow-hidden">
+                                    <Image
+                                      src="/creating headings.png"
+                                      alt="Creating headings in briefica"
+                                      width={800}
+                                      height={600}
+                                      className="w-full h-auto"
+                                    />
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+
+                            {/* Sub-subsection (b): Assigning authorities */}
+                            <div className="border border-white/10 rounded-lg overflow-hidden bg-[#252525]">
+                              <button
+                                onClick={() => toggleSubSubsection("assigning-authorities")}
+                                className="w-full flex items-center justify-between p-2.5 text-left hover:bg-white/5 transition-colors"
+                              >
+                                <span className="text-xs font-medium">(b) Assigning authorities</span>
+                                <svg
+                                  className={`w-3.5 h-3.5 flex-shrink-0 transition-transform ${openSubSubsection === "assigning-authorities" ? 'rotate-180' : ''}`}
+                                  fill="none"
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                </svg>
+                              </button>
+                              {openSubSubsection === "assigning-authorities" && (
+                                <div className="px-2.5 pb-2.5 text-xs text-white/70 space-y-3">
+                                  <p>
+                                    To assign an authority to a heading, select the authority in your library, click "edit" → "assign" → "reassign/assign", and select the heading you want the authority assigned to.
+                                  </p>
+                                  <div className="space-y-3">
+                                    <div className="border border-white/20 rounded-lg overflow-hidden">
+                                      <Image
+                                        src="/assignment_1.png"
+                                        alt="Assigning authorities step 1"
+                                        width={800}
+                                        height={600}
+                                        className="w-full h-auto"
+                                      />
+                                    </div>
+                                    <div className="border border-white/20 rounded-lg overflow-hidden">
+                                      <Image
+                                        src="/assignment _2.png"
+                                        alt="Assigning authorities step 2"
+                                        width={800}
+                                        height={600}
+                                        className="w-full h-auto"
+                                      />
+                                    </div>
+                                  </div>
+                                </div>
+                              )}
                             </div>
                           </div>
                         )}
