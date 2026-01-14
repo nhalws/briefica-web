@@ -377,123 +377,195 @@ export default function FAQPage() {
                           </svg>
                         </button>
                         {openQuestion === "outline-builder" && (
-                          <div className="px-3 pb-3 text-sm text-white/70 space-y-4">
-                            {/* Section 1 */}
-                            <div className="space-y-3">
-                              <p>
-                                Navigate to the outline builder by clicking, "build ✎". In the builder, you'll find all your notes in your outline. You can create, edit, and re-order these notes to your liking, and these changes are immediately reflected in the editor.
-                              </p>
-                              <div className="border border-white/20 rounded-lg overflow-hidden">
-                                <Image
-                                  src="/outline build.png"
-                                  alt="Outline builder interface"
-                                  width={800}
-                                  height={600}
-                                  className="w-full h-auto"
-                                />
-                              </div>
-                              <div className="border border-white/20 rounded-lg overflow-hidden">
-                                <Image
-                                  src="/adding notes.png"
-                                  alt="Adding notes in outline builder"
-                                  width={800}
-                                  height={600}
-                                  className="w-full h-auto"
-                                />
-                              </div>
+                          <div className="px-3 pb-3 space-y-2">
+                            {/* Sub-subsection (a): Navigating the builder */}
+                            <div className="border border-white/10 rounded-lg overflow-hidden bg-[#252525]">
+                              <button
+                                onClick={() => toggleSubSubsection("navigating-builder")}
+                                className="w-full flex items-center justify-between p-2.5 text-left hover:bg-white/5 transition-colors"
+                              >
+                                <span className="text-xs font-medium">(a) Navigating the builder</span>
+                                <svg
+                                  className={`w-3.5 h-3.5 flex-shrink-0 transition-transform ${openSubSubsection === "navigating-builder" ? 'rotate-180' : ''}`}
+                                  fill="none"
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                </svg>
+                              </button>
+                              {openSubSubsection === "navigating-builder" && (
+                                <div className="px-2.5 pb-2.5 text-xs text-white/70 space-y-3">
+                                  <p>
+                                    Navigate to the outline builder by clicking, "build ✎". In the builder, you'll find all your notes in your outline. You can create, edit, and re-order these notes to your liking, and these changes are immediately reflected in the editor.
+                                  </p>
+                                  <div className="border border-white/20 rounded-lg overflow-hidden">
+                                    <Image
+                                      src="/outline build.png"
+                                      alt="Outline builder interface"
+                                      width={800}
+                                      height={600}
+                                      className="w-full h-auto"
+                                    />
+                                  </div>
+                                  <div className="border border-white/20 rounded-lg overflow-hidden">
+                                    <Image
+                                      src="/adding notes.png"
+                                      alt="Adding notes in outline builder"
+                                      width={800}
+                                      height={600}
+                                      className="w-full h-auto"
+                                    />
+                                  </div>
+                                </div>
+                              )}
                             </div>
 
-                            {/* Section 2 */}
-                            <div className="space-y-3">
-                              <p>
-                                You may also edit these notes directly in your editor. These changes are saved to your briefset upon pressing the global "save..." button.
-                              </p>
-                              <div className="border border-white/20 rounded-lg overflow-hidden">
-                                <Image
-                                  src="/add note page main.png"
-                                  alt="Add note from page main"
-                                  width={800}
-                                  height={600}
-                                  className="w-full h-auto"
-                                />
-                              </div>
-                              <div className="border border-white/20 rounded-lg overflow-hidden">
-                                <Image
-                                  src="/note added to builder.png"
-                                  alt="Note added to builder"
-                                  width={800}
-                                  height={600}
-                                  className="w-full h-auto"
-                                />
-                              </div>
-                              <div className="border border-white/20 rounded-lg overflow-hidden">
-                                <Image
-                                  src="/edit note live.png"
-                                  alt="Edit note live"
-                                  width={800}
-                                  height={600}
-                                  className="w-full h-auto"
-                                />
-                              </div>
+                            {/* Sub-subsection (b): Editing notes */}
+                            <div className="border border-white/10 rounded-lg overflow-hidden bg-[#252525]">
+                              <button
+                                onClick={() => toggleSubSubsection("editing-notes")}
+                                className="w-full flex items-center justify-between p-2.5 text-left hover:bg-white/5 transition-colors"
+                              >
+                                <span className="text-xs font-medium">(b) Editing notes</span>
+                                <svg
+                                  className={`w-3.5 h-3.5 flex-shrink-0 transition-transform ${openSubSubsection === "editing-notes" ? 'rotate-180' : ''}`}
+                                  fill="none"
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                </svg>
+                              </button>
+                              {openSubSubsection === "editing-notes" && (
+                                <div className="px-2.5 pb-2.5 text-xs text-white/70 space-y-3">
+                                  <div className="border border-white/20 rounded-lg overflow-hidden">
+                                    <Image
+                                      src="/add note page main.png"
+                                      alt="Add note from page main"
+                                      width={800}
+                                      height={600}
+                                      className="w-full h-auto"
+                                    />
+                                  </div>
+                                  <div className="border border-white/20 rounded-lg overflow-hidden">
+                                    <Image
+                                      src="/note added to builder.png"
+                                      alt="Note added to builder"
+                                      width={800}
+                                      height={600}
+                                      className="w-full h-auto"
+                                    />
+                                  </div>
+                                  <p>
+                                    You may also edit these notes directly in your editor. These changes are saved to your briefset upon pressing the global "save..." button.
+                                  </p>
+                                  <div className="border border-white/20 rounded-lg overflow-hidden">
+                                    <Image
+                                      src="/edit note live.png"
+                                      alt="Edit note live"
+                                      width={800}
+                                      height={600}
+                                      className="w-full h-auto"
+                                    />
+                                  </div>
+                                </div>
+                              )}
                             </div>
 
-                            {/* Section 3 */}
-                            <div className="space-y-3">
-                              <p>
-                                After assigning authorities to your table of contents, pin them to your outline by clicking, "pin..". Select the respective heading, and select the specific contents of the authority you want pinned.
-                              </p>
-                              <div className="border border-white/20 rounded-lg overflow-hidden">
-                                <Image
-                                  src="/pin auth.png"
-                                  alt="Pin authority"
-                                  width={800}
-                                  height={600}
-                                  className="w-full h-auto"
-                                />
-                              </div>
-                              <div className="border border-white/20 rounded-lg overflow-hidden">
-                                <Image
-                                  src="/pin specifics.png"
-                                  alt="Pin specifics"
-                                  width={800}
-                                  height={600}
-                                  className="w-full h-auto"
-                                />
-                              </div>
-                              <div className="border border-white/20 rounded-lg overflow-hidden">
-                                <Image
-                                  src="/auth pinned.png"
-                                  alt="Authority pinned"
-                                  width={800}
-                                  height={600}
-                                  className="w-full h-auto"
-                                />
-                              </div>
+                            {/* Sub-subsection (c): Pinning authorities */}
+                            <div className="border border-white/10 rounded-lg overflow-hidden bg-[#252525]">
+                              <button
+                                onClick={() => toggleSubSubsection("pinning-authorities")}
+                                className="w-full flex items-center justify-between p-2.5 text-left hover:bg-white/5 transition-colors"
+                              >
+                                <span className="text-xs font-medium">(c) Pinning authorities</span>
+                                <svg
+                                  className={`w-3.5 h-3.5 flex-shrink-0 transition-transform ${openSubSubsection === "pinning-authorities" ? 'rotate-180' : ''}`}
+                                  fill="none"
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                </svg>
+                              </button>
+                              {openSubSubsection === "pinning-authorities" && (
+                                <div className="px-2.5 pb-2.5 text-xs text-white/70 space-y-3">
+                                  <p>
+                                    After assigning authorities to your table of contents, pin them to your outline by clicking, "pin..". Select the respective heading, and select the specific contents of the authority you want pinned.
+                                  </p>
+                                  <div className="border border-white/20 rounded-lg overflow-hidden">
+                                    <Image
+                                      src="/pin auth.png"
+                                      alt="Pin authority"
+                                      width={800}
+                                      height={600}
+                                      className="w-full h-auto"
+                                    />
+                                  </div>
+                                  <div className="border border-white/20 rounded-lg overflow-hidden">
+                                    <Image
+                                      src="/pin specifics.png"
+                                      alt="Pin specifics"
+                                      width={800}
+                                      height={600}
+                                      className="w-full h-auto"
+                                    />
+                                  </div>
+                                  <div className="border border-white/20 rounded-lg overflow-hidden">
+                                    <Image
+                                      src="/auth pinned.png"
+                                      alt="Authority pinned"
+                                      width={800}
+                                      height={600}
+                                      className="w-full h-auto"
+                                    />
+                                  </div>
+                                </div>
+                              )}
                             </div>
 
-                            {/* Section 4 */}
-                            <div className="space-y-3">
-                              <p>
-                                To export your outline, click, "export...". Upon exporting, select one of our native presets, or export your current outline build by selecting, "modded". Advanced toggles allow for more specification.
-                              </p>
-                              <div className="border border-white/20 rounded-lg overflow-hidden">
-                                <Image
-                                  src="/export sets.png"
-                                  alt="Export sets"
-                                  width={800}
-                                  height={600}
-                                  className="w-full h-auto"
-                                />
-                              </div>
-                              <div className="border border-white/20 rounded-lg overflow-hidden">
-                                <Image
-                                  src="/show export.png"
-                                  alt="Show exports"
-                                  width={800}
-                                  height={600}
-                                  className="w-full h-auto"
-                                />
-                              </div>
+                            {/* Sub-subsection (d): Exporting outlines */}
+                            <div className="border border-white/10 rounded-lg overflow-hidden bg-[#252525]">
+                              <button
+                                onClick={() => toggleSubSubsection("exporting-outlines")}
+                                className="w-full flex items-center justify-between p-2.5 text-left hover:bg-white/5 transition-colors"
+                              >
+                                <span className="text-xs font-medium">(d) Exporting outlines</span>
+                                <svg
+                                  className={`w-3.5 h-3.5 flex-shrink-0 transition-transform ${openSubSubsection === "exporting-outlines" ? 'rotate-180' : ''}`}
+                                  fill="none"
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                </svg>
+                              </button>
+                              {openSubSubsection === "exporting-outlines" && (
+                                <div className="px-2.5 pb-2.5 text-xs text-white/70 space-y-3">
+                                  <p>
+                                    To export your outline, click, "export...". Upon exporting, select one of our native presets, or export your current outline build by selecting, "modded". Advanced toggles allow for more specification.
+                                  </p>
+                                  <div className="border border-white/20 rounded-lg overflow-hidden">
+                                    <Image
+                                      src="/export sets.png"
+                                      alt="Export sets"
+                                      width={800}
+                                      height={600}
+                                      className="w-full h-auto"
+                                    />
+                                  </div>
+                                  <div className="border border-white/20 rounded-lg overflow-hidden">
+                                    <Image
+                                      src="/show export.png"
+                                      alt="Show exports"
+                                      width={800}
+                                      height={600}
+                                      className="w-full h-auto"
+                                    />
+                                  </div>
+                                </div>
+                              )}
                             </div>
                           </div>
                         )}
