@@ -345,7 +345,7 @@ export default function FAQPage() {
                                     </div>
                                     <div className="border border-white/20 rounded-lg overflow-hidden">
                                       <Image
-                                        src="/assignment _2.png"
+                                        src="/assignment_2.png"
                                         alt="Assigning authorities step 2"
                                         width={800}
                                         height={600}
@@ -410,8 +410,8 @@ export default function FAQPage() {
                               </p>
                               <div className="border border-white/20 rounded-lg overflow-hidden">
                                 <Image
-                                  src="/add note main page.png"
-                                  alt="Add note from main page"
+                                  src="/add note page main.png"
+                                  alt="Add note from page main"
                                   width={800}
                                   height={600}
                                   className="w-full h-auto"
@@ -487,7 +487,7 @@ export default function FAQPage() {
                               </div>
                               <div className="border border-white/20 rounded-lg overflow-hidden">
                                 <Image
-                                  src="/show exports.png"
+                                  src="/show export.png"
                                   alt="Show exports"
                                   width={800}
                                   height={600}
