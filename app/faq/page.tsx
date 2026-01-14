@@ -380,6 +380,9 @@ export default function FAQPage() {
                           <div className="px-3 pb-3 text-sm text-white/70 space-y-4">
                             {/* Section 1 */}
                             <div className="space-y-3">
+                              <p>
+                                Navigate to the outline builder by clicking, "build ✎". In the builder, you'll find all your notes in your outline. You can create, edit, and re-order these notes to your liking, and these changes are immediately reflected in the editor.
+                              </p>
                               <div className="border border-white/20 rounded-lg overflow-hidden">
                                 <Image
                                   src="/outline build.png"
@@ -398,13 +401,13 @@ export default function FAQPage() {
                                   className="w-full h-auto"
                                 />
                               </div>
-                              <p>
-                                Navigate to the outline builder by clicking, "build ✎". In the builder, you'll find all your notes in your outline. You can create, edit, and re-order these notes to your liking, and these changes are immediately reflected in the editor.
-                              </p>
                             </div>
 
                             {/* Section 2 */}
                             <div className="space-y-3">
+                              <p>
+                                You may also edit these notes directly in your editor. These changes are saved to your briefset upon pressing the global "save..." button.
+                              </p>
                               <div className="border border-white/20 rounded-lg overflow-hidden">
                                 <Image
                                   src="/add note main page.png"
@@ -432,13 +435,13 @@ export default function FAQPage() {
                                   className="w-full h-auto"
                                 />
                               </div>
-                              <p>
-                                You may also edit these notes directly in your editor. These changes are saved to your briefset upon pressing the global "save..." button.
-                              </p>
                             </div>
 
                             {/* Section 3 */}
                             <div className="space-y-3">
+                              <p>
+                                After assigning authorities to your table of contents, pin them to your outline by clicking, "pin..". Select the respective heading, and select the specific contents of the authority you want pinned.
+                              </p>
                               <div className="border border-white/20 rounded-lg overflow-hidden">
                                 <Image
                                   src="/pin auth.png"
@@ -466,13 +469,13 @@ export default function FAQPage() {
                                   className="w-full h-auto"
                                 />
                               </div>
-                              <p>
-                                After assigning authorities to your table of contents, pin them to your outline by clicking, "pin..". Select the respective heading, and select the specific contents of the authority you want pinned.
-                              </p>
                             </div>
 
                             {/* Section 4 */}
                             <div className="space-y-3">
+                              <p>
+                                To export your outline, click, "export...". Upon exporting, select one of our native presets, or export your current outline build by selecting, "modded". Advanced toggles allow for more specification.
+                              </p>
                               <div className="border border-white/20 rounded-lg overflow-hidden">
                                 <Image
                                   src="/export sets.png"
@@ -491,37 +494,10 @@ export default function FAQPage() {
                                   className="w-full h-auto"
                                 />
                               </div>
-                              <p>
-                                To export your outline, click, "export...". Upon exporting, select one of our native presets, or export your current outline build by selecting, "modded". Advanced toggles allow for more specification.
-                              </p>
                             </div>
                           </div>
                         )}
                       </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* SUBSECTION C: How do I use briefica online (b-web)? */}
-                <div className="border border-white/10 rounded-lg overflow-hidden">
-                  <button
-                    onClick={() => toggleSubsection("briefica-online")}
-                    className="w-full flex items-center justify-between p-3 text-left hover:bg-white/5 transition-colors"
-                  >
-                    <span className="font-semibold">C. How do I use briefica online (b-web)?</span>
-                    <svg
-                      className={`w-4 h-4 flex-shrink-0 transition-transform ${openSubsection === "briefica-online" ? 'rotate-180' : ''}`}
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                    </svg>
-                  </button>
-
-                  {openSubsection === "briefica-online" && (
-                    <div className="px-3 pb-3 space-y-2">
-                      {/* Add online questions here - keeping brief for length */}
                     </div>
                   )}
                 </div>
