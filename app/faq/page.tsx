@@ -367,7 +367,7 @@ export default function FAQPage() {
                                     </div>
                                     <div className="border border-white/20 rounded-lg overflow-hidden">
                                       <Image
-                                        src="/assignment _2.png"
+                                        src="/assignment_2.png"
                                         alt="Assigning authorities step 2"
                                         width={800}
                                         height={600}
