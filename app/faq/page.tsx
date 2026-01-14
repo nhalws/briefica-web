@@ -126,13 +126,23 @@ export default function FAQPage() {
                           </svg>
                         </button>
                         {openQuestion === "download-b6" && (
-                          <div className="px-3 pb-3 text-sm text-white/70 space-y-2">
-                            <p><strong>Step 1:</strong> Go to briefica.com/downloads or click "download briefica" from any page</p>
-                            <p><strong>Step 2:</strong> Choose your platform (currently macOS, Windows coming soon)</p>
-                            <p><strong>Step 3:</strong> Download the .dmg installer (for macOS)</p>
-                            <p><strong>Step 4:</strong> Open the downloaded file and drag briefica to your Applications folder</p>
-                            <p><strong>Step 5:</strong> Launch briefica 6 from your Applications</p>
-                            <p className="pt-2"><strong>Note:</strong> On first launch, you may need to right-click and select "Open" due to macOS security settings.</p>
+                          <div className="px-3 pb-3 text-sm text-white/70 space-y-3">
+                            <div>
+                              <p className="font-semibold text-white mb-1">1. Download the installer</p>
+                              <p>Click the download button above to get the DMG file.</p>
+                            </div>
+                            <div>
+                              <p className="font-semibold text-white mb-1">2. Open the DMG</p>
+                              <p>Double-click the downloaded file to mount the installer.</p>
+                            </div>
+                            <div>
+                              <p className="font-semibold text-white mb-1">3. Drag briefica to your desktop</p>
+                              <p>Drag briefica to your desktop.</p>
+                            </div>
+                            <div>
+                              <p className="font-semibold text-white mb-1">4. Launch briefica</p>
+                              <p>Double-click briefica to launch the software.</p>
+                            </div>
                           </div>
                         )}
                       </div>
@@ -142,13 +152,70 @@ export default function FAQPage() {
                   )}
                 </div>
 
-                {/* SUBSECTION B: How do I use briefica online (b-web)? */}
+                {/* SUBSECTION B: Getting started with briefica */}
+                <div className="border border-white/10 rounded-lg overflow-hidden mb-3">
+                  <button
+                    onClick={() => toggleSubsection("getting-started")}
+                    className="w-full flex items-center justify-between p-3 text-left hover:bg-white/5 transition-colors"
+                  >
+                    <span className="font-semibold">B. Getting started with briefica</span>
+                    <svg
+                      className={`w-4 h-4 flex-shrink-0 transition-transform ${openSubsection === "getting-started" ? 'rotate-180' : ''}`}
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
+
+                  {openSubsection === "getting-started" && (
+                    <div className="px-3 pb-3 space-y-2">
+                      {/* Sub-dropdown: I. Creating a briefset */}
+                      <div className="border border-white/10 rounded-lg overflow-hidden">
+                        <button
+                          onClick={() => toggleQuestion("creating-briefset")}
+                          className="w-full flex items-center justify-between p-3 text-left hover:bg-white/5 transition-colors"
+                        >
+                          <span className="text-sm font-medium">I. Creating a briefset (.bset)</span>
+                          <svg
+                            className={`w-4 h-4 flex-shrink-0 transition-transform ${openQuestion === "creating-briefset" ? 'rotate-180' : ''}`}
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                          </svg>
+                        </button>
+                        {openQuestion === "creating-briefset" && (
+                          <div className="px-3 pb-3 text-sm text-white/70 space-y-3">
+                            <p>
+                              After downloading and installing briefica, you will be prompted to create a briefset. 
+                              Title your briefset, and click, "create and open."
+                            </p>
+                            <div className="flex justify-center">
+                              <Image
+                                src="/beginning.png"
+                                alt="Creating a briefset in briefica"
+                                width={600}
+                                height={400}
+                                className="rounded-lg border border-white/20"
+                              />
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* SUBSECTION C: How do I use briefica online (b-web)? */}
                 <div className="border border-white/10 rounded-lg overflow-hidden">
                   <button
                     onClick={() => toggleSubsection("briefica-online")}
                     className="w-full flex items-center justify-between p-3 text-left hover:bg-white/5 transition-colors"
                   >
-                    <span className="font-semibold">B. How do I use briefica online (b-web)?</span>
+                    <span className="font-semibold">C. How do I use briefica online (b-web)?</span>
                     <svg
                       className={`w-4 h-4 flex-shrink-0 transition-transform ${openSubsection === "briefica-online" ? 'rotate-180' : ''}`}
                       fill="none"
