@@ -55,7 +55,7 @@ export default function DownloadsPage() {
 
             <h2 className="text-2xl font-semibold text-center mb-2">macOS</h2>
             <p className="text-center text-white/60 mb-6">
-              version 6.0.0 - sunrise
+              version 6.1 (sunlight)
             </p>
 
             <div className="space-y-3 mb-6">
@@ -80,7 +80,7 @@ export default function DownloadsPage() {
             </div>
 
             <a
-              href="/downloads/briefica-6.0.0.dmg"
+              href="/downloads/briefica-6.1.0-sunlight.dmg"
               className="block w-full text-center text-white rounded-lg py-3 px-4 font-medium transition-colors hover:opacity-90"
               style={{ backgroundColor: '#66b2ff' }}
               onMouseEnter={(e) => {
