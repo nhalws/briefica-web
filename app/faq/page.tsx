@@ -205,6 +205,40 @@ export default function FAQPage() {
                           </div>
                         )}
                       </div>
+
+                      {/* Sub-dropdown: II. Adding a new authority */}
+                      <div className="border border-white/10 rounded-lg overflow-hidden">
+                        <button
+                          onClick={() => toggleQuestion("add-new-authority")}
+                          className="w-full flex items-center justify-between p-3 text-left hover:bg-white/5 transition-colors"
+                        >
+                          <span className="text-sm font-medium">II. Adding a new authority</span>
+                          <svg
+                            className={`w-4 h-4 flex-shrink-0 transition-transform ${openQuestion === "add-new-authority" ? 'rotate-180' : ''}`}
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                          </svg>
+                        </button>
+                        {openQuestion === "add-new-authority" && (
+                          <div className="px-3 pb-3 text-sm text-white/70 space-y-3">
+                            <p>
+                              Once your briefset is created, click "options" → "authorities" → "add new" to add a legal authority to your set.
+                            </p>
+                            <div className="border border-white/20 rounded-lg overflow-hidden">
+                              <Image
+                                src="/add new auth.png"
+                                alt="Adding a new authority in briefica"
+                                width={800}
+                                height={600}
+                                className="w-full h-auto"
+                              />
+                            </div>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   )}
                 </div>
