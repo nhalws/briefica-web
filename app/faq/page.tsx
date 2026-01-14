@@ -239,6 +239,40 @@ export default function FAQPage() {
                           </div>
                         )}
                       </div>
+
+                      {/* Sub-dropdown: III. Adding */}
+                      <div className="border border-white/10 rounded-lg overflow-hidden">
+                        <button
+                          onClick={() => toggleQuestion("adding")}
+                          className="w-full flex items-center justify-between p-3 text-left hover:bg-white/5 transition-colors"
+                        >
+                          <span className="text-sm font-medium">III. Adding</span>
+                          <svg
+                            className={`w-4 h-4 flex-shrink-0 transition-transform ${openQuestion === "adding" ? 'rotate-180' : ''}`}
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                          </svg>
+                        </button>
+                        {openQuestion === "adding" && (
+                          <div className="px-3 pb-3 text-sm text-white/70 space-y-3">
+                            <p>
+                              Add an authority by completing the (1) name, (2) area(s) of law, and (3) rule OR notes fields at a minimum.
+                            </p>
+                            <div className="border border-white/20 rounded-lg overflow-hidden">
+                              <Image
+                                src="/new auth page.png"
+                                alt="Adding authority details in briefica"
+                                width={800}
+                                height={600}
+                                className="w-full h-auto"
+                              />
+                            </div>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   )}
                 </div>
