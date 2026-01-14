@@ -104,7 +104,7 @@ export default function FAQPage() {
                     onClick={() => toggleSubsection("briefica-offline")}
                     className="w-full flex items-center justify-between p-3 text-left hover:bg-white/5 transition-colors"
                   >
-                    <span className="font-semibold">A. How do I use briefica 6 (briefica offline)?</span>
+                    <span className="font-semibold">A. How do I download briefica 6?</span>
                     <svg
                       className={`w-4 h-4 flex-shrink-0 transition-transform ${openSubsection === "briefica-offline" ? 'rotate-180' : ''}`}
                       fill="none"
