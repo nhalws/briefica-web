@@ -214,15 +214,15 @@ export default function FAQPage() {
                         )}
                       </div>
 
-                      {/* Sub-dropdown: II. Adding a new authority */}
+                      {/* Sub-dropdown: II. Adding legal authorities */}
                       <div className="border border-white/10 rounded-lg overflow-hidden">
                         <button
-                          onClick={() => toggleQuestion("add-new-authority")}
+                          onClick={() => toggleQuestion("add-legal-authorities")}
                           className="w-full flex items-center justify-between p-3 text-left hover:bg-white/5 transition-colors"
                         >
-                          <span className="text-sm font-medium">II. Adding a new authority</span>
+                          <span className="text-sm font-medium">II. Adding legal authorities</span>
                           <svg
-                            className={`w-4 h-4 flex-shrink-0 transition-transform ${openQuestion === "add-new-authority" ? 'rotate-180' : ''}`}
+                            className={`w-4 h-4 flex-shrink-0 transition-transform ${openQuestion === "add-legal-authorities" ? 'rotate-180' : ''}`}
                             fill="none"
                             stroke="currentColor"
                             viewBox="0 0 24 24"
@@ -230,7 +230,7 @@ export default function FAQPage() {
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                           </svg>
                         </button>
-                        {openQuestion === "add-new-authority" && (
+                        {openQuestion === "add-legal-authorities" && (
                           <div className="px-3 pb-3 text-sm text-white/70 space-y-3">
                             <p>
                               Once your briefset is created, click "options" → "authorities" → "add new" to add a legal authority to your set.
@@ -244,28 +244,6 @@ export default function FAQPage() {
                                 className="w-full h-auto"
                               />
                             </div>
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Sub-dropdown: III. Adding */}
-                      <div className="border border-white/10 rounded-lg overflow-hidden">
-                        <button
-                          onClick={() => toggleQuestion("adding")}
-                          className="w-full flex items-center justify-between p-3 text-left hover:bg-white/5 transition-colors"
-                        >
-                          <span className="text-sm font-medium">III. Adding</span>
-                          <svg
-                            className={`w-4 h-4 flex-shrink-0 transition-transform ${openQuestion === "adding" ? 'rotate-180' : ''}`}
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                          </svg>
-                        </button>
-                        {openQuestion === "adding" && (
-                          <div className="px-3 pb-3 text-sm text-white/70 space-y-3">
                             <p>
                               Add an authority by completing the (1) name, (2) area(s) of law, and (3) rule OR notes fields at a minimum.
                             </p>
@@ -282,13 +260,13 @@ export default function FAQPage() {
                         )}
                       </div>
 
-                      {/* Sub-dropdown: IV. Using the table of contents */}
+                      {/* Sub-dropdown: III. Using the table of contents */}
                       <div className="border border-white/10 rounded-lg overflow-hidden">
                         <button
                           onClick={() => toggleQuestion("table-of-contents")}
                           className="w-full flex items-center justify-between p-3 text-left hover:bg-white/5 transition-colors"
                         >
-                          <span className="text-sm font-medium">IV. Using the table of contents</span>
+                          <span className="text-sm font-medium">III. Using the table of contents</span>
                           <svg
                             className={`w-4 h-4 flex-shrink-0 transition-transform ${openQuestion === "table-of-contents" ? 'rotate-180' : ''}`}
                             fill="none"
@@ -367,7 +345,7 @@ export default function FAQPage() {
                                     </div>
                                     <div className="border border-white/20 rounded-lg overflow-hidden">
                                       <Image
-                                        src="/assignment_2.png"
+                                        src="/assignment _2.png"
                                         alt="Assigning authorities step 2"
                                         width={800}
                                         height={600}
@@ -377,6 +355,145 @@ export default function FAQPage() {
                                   </div>
                                 </div>
                               )}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Sub-dropdown: IV. Using the outline builder */}
+                      <div className="border border-white/10 rounded-lg overflow-hidden">
+                        <button
+                          onClick={() => toggleQuestion("outline-builder")}
+                          className="w-full flex items-center justify-between p-3 text-left hover:bg-white/5 transition-colors"
+                        >
+                          <span className="text-sm font-medium">IV. Using the outline builder</span>
+                          <svg
+                            className={`w-4 h-4 flex-shrink-0 transition-transform ${openQuestion === "outline-builder" ? 'rotate-180' : ''}`}
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                          </svg>
+                        </button>
+                        {openQuestion === "outline-builder" && (
+                          <div className="px-3 pb-3 text-sm text-white/70 space-y-4">
+                            {/* Section 1 */}
+                            <div className="space-y-3">
+                              <div className="border border-white/20 rounded-lg overflow-hidden">
+                                <Image
+                                  src="/outline build.png"
+                                  alt="Outline builder interface"
+                                  width={800}
+                                  height={600}
+                                  className="w-full h-auto"
+                                />
+                              </div>
+                              <div className="border border-white/20 rounded-lg overflow-hidden">
+                                <Image
+                                  src="/adding notes.png"
+                                  alt="Adding notes in outline builder"
+                                  width={800}
+                                  height={600}
+                                  className="w-full h-auto"
+                                />
+                              </div>
+                              <p>
+                                Navigate to the outline builder by clicking, "build ✎". In the builder, you'll find all your notes in your outline. You can create, edit, and re-order these notes to your liking, and these changes are immediately reflected in the editor.
+                              </p>
+                            </div>
+
+                            {/* Section 2 */}
+                            <div className="space-y-3">
+                              <div className="border border-white/20 rounded-lg overflow-hidden">
+                                <Image
+                                  src="/add note main page.png"
+                                  alt="Add note from main page"
+                                  width={800}
+                                  height={600}
+                                  className="w-full h-auto"
+                                />
+                              </div>
+                              <div className="border border-white/20 rounded-lg overflow-hidden">
+                                <Image
+                                  src="/note added to builder.png"
+                                  alt="Note added to builder"
+                                  width={800}
+                                  height={600}
+                                  className="w-full h-auto"
+                                />
+                              </div>
+                              <div className="border border-white/20 rounded-lg overflow-hidden">
+                                <Image
+                                  src="/edit note live.png"
+                                  alt="Edit note live"
+                                  width={800}
+                                  height={600}
+                                  className="w-full h-auto"
+                                />
+                              </div>
+                              <p>
+                                You may also edit these notes directly in your editor. These changes are saved to your briefset upon pressing the global "save..." button.
+                              </p>
+                            </div>
+
+                            {/* Section 3 */}
+                            <div className="space-y-3">
+                              <div className="border border-white/20 rounded-lg overflow-hidden">
+                                <Image
+                                  src="/pin auth.png"
+                                  alt="Pin authority"
+                                  width={800}
+                                  height={600}
+                                  className="w-full h-auto"
+                                />
+                              </div>
+                              <div className="border border-white/20 rounded-lg overflow-hidden">
+                                <Image
+                                  src="/pin specifics.png"
+                                  alt="Pin specifics"
+                                  width={800}
+                                  height={600}
+                                  className="w-full h-auto"
+                                />
+                              </div>
+                              <div className="border border-white/20 rounded-lg overflow-hidden">
+                                <Image
+                                  src="/auth pinned.png"
+                                  alt="Authority pinned"
+                                  width={800}
+                                  height={600}
+                                  className="w-full h-auto"
+                                />
+                              </div>
+                              <p>
+                                After assigning authorities to your table of contents, pin them to your outline by clicking, "pin..". Select the respective heading, and select the specific contents of the authority you want pinned.
+                              </p>
+                            </div>
+
+                            {/* Section 4 */}
+                            <div className="space-y-3">
+                              <div className="border border-white/20 rounded-lg overflow-hidden">
+                                <Image
+                                  src="/export sets.png"
+                                  alt="Export sets"
+                                  width={800}
+                                  height={600}
+                                  className="w-full h-auto"
+                                />
+                              </div>
+                              <div className="border border-white/20 rounded-lg overflow-hidden">
+                                <Image
+                                  src="/show exports.png"
+                                  alt="Show exports"
+                                  width={800}
+                                  height={600}
+                                  className="w-full h-auto"
+                                />
+                              </div>
+                              <p>
+                                To export your outline, click, "export...". Upon exporting, select one of our native presets, or export your current outline build by selecting, "modded". Advanced toggles allow for more specification.
+                              </p>
                             </div>
                           </div>
                         )}
