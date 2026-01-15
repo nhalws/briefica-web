@@ -69,8 +69,8 @@ export default function FAQPage() {
           />
         </div>
 
-        <h1 className="text-4xl font-bold mb-2">Frequently Asked Questions</h1>
-        <p className="text-white/70 mb-8">Everything you need to know about briefica</p>
+        <h1 className="text-4xl font-bold mb-2">manual</h1>
+        <p className="text-white/70 mb-8">everything you need to know about briefica</p>
 
         <div className="space-y-3">
           {/* SECTION 1: What is briefica? */}
@@ -104,7 +104,7 @@ export default function FAQPage() {
                     onClick={() => toggleSubsection("briefica-offline")}
                     className="w-full flex items-center justify-between p-3 text-left hover:bg-white/5 transition-colors"
                   >
-                    <span className="font-semibold">A. How do I use briefica 6 (briefica offline)?</span>
+                    <span className="font-semibold">A. How do I use briefica 6?</span>
                     <svg
                       className={`w-4 h-4 flex-shrink-0 transition-transform ${openSubsection === "briefica-offline" ? 'rotate-180' : ''}`}
                       fill="none"
@@ -723,7 +723,7 @@ export default function FAQPage() {
                     onClick={() => toggleSubsection("bmod-files")}
                     className="w-full flex items-center justify-between p-3 text-left hover:bg-white/5 transition-colors"
                   >
-                    <span className="font-semibold">.bmod files (b-modifications)</span>
+                    <span className="font-semibold">.bmod (modifications)</span>
                     <svg
                       className={`w-4 h-4 flex-shrink-0 transition-transform ${openSubsection === "bmod-files" ? 'rotate-180' : ''}`}
                       fill="none"
@@ -845,7 +845,7 @@ export default function FAQPage() {
                     onClick={() => toggleSubsection("tbank-files")}
                     className="w-full flex items-center justify-between p-3 text-left hover:bg-white/5 transition-colors"
                   >
-                    <span className="font-semibold">.tbank files (typo-banks)</span>
+                    <span className="font-semibold">.tbank (typobanks)</span>
                     <svg
                       className={`w-4 h-4 flex-shrink-0 transition-transform ${openSubsection === "tbank-files" ? 'rotate-180' : ''}`}
                       fill="none"
@@ -860,7 +860,7 @@ export default function FAQPage() {
                     <div className="px-3 pb-3">
                       <div className="space-y-3 text-white/70 text-sm">
                         <p>
-                          <strong>.tbank</strong> (Typo-Bank) files are briefica's format for practice questions and exam preparation materials.
+                          <strong>.tbank</strong> Typobanks serve as your own personal spell-check. Commerical spell-checks may not always pick on student's mistakes. With typobanks, students can keep a literal bank of their typos.
                         </p>
                         {/* Add tbank content as before */}
                       </div>
