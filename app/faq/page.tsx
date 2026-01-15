@@ -93,8 +93,8 @@ export default function FAQPage() {
             {openSection === "what-is-briefica" && (
               <div className="px-4 pb-4">
                 <p className="text-white/80 mb-4 pl-4">
-                  briefica is a comprehensive platform for law students that combines a powerful native desktop editor 
-                  with a social web platform. Create structured case briefs, outlines, and test banks offline, then share 
+                  briefica is a comprehensive platform for law students that combines our powerful native desktop software 
+                  with a social web platform. create outlines, briefsets, and b-files in our native, then share 
                   and discover materials online with your school community.
                 </p>
 
@@ -583,7 +583,7 @@ export default function FAQPage() {
               <div className="px-4 pb-4">
                 <div className="pl-4 space-y-3 mb-4">
                   <p className="text-white/80">
-                    A <strong>.bset</strong> (Brief Set) is briefica's native file format for organizing collections of case briefs. 
+                    A <strong>.bset</strong> (briefset) is briefica's native file format for organizing collections of case briefs. 
                     It's designed specifically for law students to structure and store case analysis in a standardized format.
                   </p>
 
