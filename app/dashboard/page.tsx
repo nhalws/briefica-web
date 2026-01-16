@@ -469,13 +469,13 @@ export default function DashboardPage() {
               onClick={() => router.push("/downloads")}
               className="inline-flex items-center justify-center rounded-lg border border-white/20 bg-white/10 px-4 py-2 hover:bg-white/15 transition-colors"
             >
-              download briefica
+              Download briefica
             </button>
             <button
               onClick={() => router.push("/faq")}
               className="inline-flex items-center justify-center rounded-lg border border-white/20 bg-white/10 px-4 py-2 hover:bg-white/15 transition-colors"
             >
-              help
+              Help
             </button>
             <button
               onClick={handleLogout}
