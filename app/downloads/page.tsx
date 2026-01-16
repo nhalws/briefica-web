@@ -205,7 +205,7 @@ export default function DownloadsPage() {
             </div>
             <div className="text-center p-4 bg-white/5 rounded-lg">
               <div className="text-2xl font-bold mb-1">.bmod</div>
-              <div className="text-sm text-white/60">b-modifications</div>
+              <div className="text-sm text-white/60">modifications</div>
             </div>
             <div className="text-center p-4 bg-white/5 rounded-lg">
               <div className="text-2xl font-bold mb-1">.tbank</div>
