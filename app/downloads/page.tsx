@@ -25,7 +25,7 @@ export default function DownloadsPage() {
             onClick={() => router.push("/auth")}
             className="border border-white/20 rounded-lg py-2 px-4 font-medium hover:bg-white/5 transition-colors"
           >
-            sign in
+            back
           </button>
         </div>
       </div>
