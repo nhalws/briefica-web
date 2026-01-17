@@ -55,6 +55,7 @@ export default function DashboardPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [typeFilter, setTypeFilter] = useState<"all" | "bset" | "bmod" | "tbank">("all");
   const [msg, setMsg] = useState<string | null>(null);
+  const [goldilexAccess, setGoldilexAccess] = useState<boolean>(false);
 
   // SET PAGE TITLE
   useEffect(() => {
@@ -280,6 +281,24 @@ export default function DashboardPage() {
     setFilteredRows(filtered);
   }, [searchQuery, typeFilter, rows, usernamesByOwner]);
 
+  useEffect(() => {
+    async function checkGoldilexAccess() {
+      if (!currentUserId) return;
+
+      const { data } = await supabase
+        .from("goldilex_access")
+        .select("approved")
+        .eq("user_id", currentUserId)
+        .single();
+
+      setGoldilexAccess(data?.approved ?? false);
+    }
+
+    if (currentUserId) {
+      checkGoldilexAccess();
+    }
+  }, [currentUserId]);
+
   async function toggleLike(artifactId: string) {
     if (!currentUserId) return;
 
@@ -476,6 +495,25 @@ export default function DashboardPage() {
               className="inline-flex items-center justify-center rounded-lg border border-white/20 bg-white/10 px-4 py-2 hover:bg-white/15 transition-colors"
             >
               Help
+            </button>
+            <button
+              onClick={() => {
+                if (goldilexAccess) {
+                  window.location.href = 'https://goldilex.briefica.com';
+                }
+              }}
+              disabled={!goldilexAccess}
+              className={`rounded-lg py-2 px-4 font-medium transition-colors ${
+                goldilexAccess 
+                  ? 'hover:opacity-90 cursor-pointer' 
+                  : 'cursor-not-allowed opacity-50'
+              }`}
+              style={{ 
+                backgroundColor: goldilexAccess ? '#BF9B30' : '#4a4a4a',
+                color: 'white'
+              }}
+            >
+              lex
             </button>
             <button
               onClick={handleLogout}
