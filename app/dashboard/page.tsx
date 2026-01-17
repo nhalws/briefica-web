@@ -513,7 +513,7 @@ export default function DashboardPage() {
                 color: 'white'
               }}
             >
-              lex
+              open lex
             </button>
             <button
               onClick={handleLogout}
