@@ -482,19 +482,19 @@ export default function DashboardPage() {
               onClick={() => router.push("/upload")}
               className="bg-white text-black rounded-lg py-2 px-4 font-medium hover:bg-white/90 transition-colors"
             >
-              Upload
+              upload
             </button>
             <button
               onClick={() => router.push("/downloads")}
               className="inline-flex items-center justify-center rounded-lg border border-white/20 bg-white/10 px-4 py-2 hover:bg-white/15 transition-colors"
             >
-              Download
+              download
             </button>
             <button
               onClick={() => router.push("/faq")}
               className="inline-flex items-center justify-center rounded-lg border border-white/20 bg-white/10 px-4 py-2 hover:bg-white/15 transition-colors"
             >
-              Help
+              help
             </button>
             <button
               onClick={() => {
@@ -519,7 +519,7 @@ export default function DashboardPage() {
               onClick={handleLogout}
               className="border border-white/20 rounded-lg py-2 px-4 font-medium hover:bg-white/5 transition-colors"
             >
-              Logout
+              logout
             </button>
           </div>
         </div>
