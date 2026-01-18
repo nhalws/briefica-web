@@ -499,7 +499,7 @@ export default function DashboardPage() {
             <button
               onClick={() => {
                 if (goldilexAccess) {
-                  window.location.href = 'https://goldilex.briefica.com';
+                  window.open("https://goldilex.briefica.com", "_blank", "noopener,noreferrer");
                 }
               }}
               disabled={!goldilexAccess}
