@@ -6,6 +6,7 @@ import Image from "next/image";
 import { supabase } from "../../lib/supabaseClient";
 import FileTypeTutorial from "../../components/Filetypetutorial";
 import ProfilePicture from "../../components/ProfilePicture";
+import { ArtifactBadges } from "../../components/ArtifactBadges";
 
 type Artifact = {
   id: string;
@@ -14,9 +15,11 @@ type Artifact = {
   title: string;
   description: string | null;
   storage_key: string;
-  visibility: "private" | "public" | "friends";  // REMOVED "unlisted"
+  visibility: "private" | "public" | "friends";
   created_at: string;
   original_filename: string | null;
+  has_top_grade_badge?: boolean;
+  is_professor_verified?: boolean;
 };
 
 type Profile = {
@@ -92,13 +95,14 @@ export default function ArtifactPage() {
 
       if (!pErr) setUploader(p);
 
-      // Load download count
-      const { count: dlCount } = await supabase
-        .from("artifact_downloads")
-        .select("id", { count: "exact", head: true })
-        .eq("artifact_id", a.id);
+      // Load download count from artifacts table
+      const { data: artifactData } = await supabase
+        .from("artifacts")
+        .select("downloads_count")
+        .eq("id", a.id)
+        .single();
 
-      setDownloadCount(dlCount ?? 0);
+      setDownloadCount(artifactData?.downloads_count || 0);
 
       // Load like count
       const { count: likeC } = await supabase
@@ -136,7 +140,7 @@ export default function ArtifactPage() {
   async function loadComments(artId: string) {
     const { data: commentsData } = await supabase
       .from("artifact_comments")
-        .select(`
+      .select(`
         id,
         user_id,
         content,
@@ -224,36 +228,93 @@ export default function ArtifactPage() {
     setBusy(true);
     setMsg(null);
 
-    try {
-      // Record download (don't require authentication for public artifacts)
-      const { data: userRes } = await supabase.auth.getUser();
-      const uid = userRes.user?.id ?? null;
+    // Check if artifact is .bset (costs 1 BB) or Free-B (.bmod/.tbank = free)
+    const isBset = artifact.type === "bset";
 
-      if (uid) {
-        await supabase.from("artifact_downloads").insert({
-          artifact_id: artifact.id,
-          user_id: uid,
-        });
-      }
-
-      // Get signed URL with longer expiration
-      const { data, error } = await supabase.storage
-        .from("artifacts")
-        .createSignedUrl(artifact.storage_key, 300); // 5 minutes
-
-      if (error) {
-        console.error("Storage error:", error);
-        throw new Error("Failed to generate download link. Please try again.");
-      }
-
-      if (!data?.signedUrl) {
-        throw new Error("No download URL generated");
-      }
-
-      // Download with original filename (preserved from upload)
-      const filename = artifact.original_filename || `${artifact.title}.${artifact.type}`;
-      
+    if (isBset) {
+      // Use the new API route that checks BBs
       try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) {
+          setMsg("Please sign in to download");
+          setBusy(false);
+          return;
+        }
+
+        const response = await fetch(`/api/artifacts/${artifact.id}/download`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${session.access_token}`
+          }
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          if (data.code === 'INSUFFICIENT_BBS') {
+            // Show error with upgrade options
+            const shouldUpgrade = confirm(
+              `${data.error}\n\nOptions:\n- Buy BBs ($5 each)\n- Upgrade to Gold ($15/month unlimited)\n\nWould you like to view pricing?`
+            );
+            if (shouldUpgrade) {
+              router.push('/pricing');
+            }
+          } else {
+            setMsg(data.error || 'Failed to download');
+          }
+          setBusy(false);
+          return;
+        }
+
+        // Download the file using signed URL from API
+        const filename = artifact.original_filename || `${artifact.title}.${artifact.type}`;
+        const link = document.createElement("a");
+        link.href = data.download_url;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        // Update local download count
+        setDownloadCount((prev) => prev + 1);
+
+      } catch (e) {
+        console.error("Download failed:", e);
+        setMsg("Download failed. Please try again.");
+      } finally {
+        setBusy(false);
+      }
+    } else {
+      // Free-B files (.bmod, .tbank) - download without BB check
+      try {
+        // Record download in database (but don't consume BB)
+        const { data: userRes } = await supabase.auth.getUser();
+        const uid = userRes.user?.id ?? null;
+
+        if (uid) {
+          await supabase.from("artifact_downloads").insert({
+            artifact_id: artifact.id,
+            user_id: uid,
+          });
+        }
+
+        // Get signed URL with longer expiration
+        const { data, error } = await supabase.storage
+          .from("artifacts")
+          .createSignedUrl(artifact.storage_key, 300); // 5 minutes
+
+        if (error) {
+          console.error("Storage error:", error);
+          throw new Error("Failed to generate download link. Please try again.");
+        }
+
+        if (!data?.signedUrl) {
+          throw new Error("No download URL generated");
+        }
+
+        // Download with original filename (preserved from upload)
+        const filename = artifact.original_filename || `${artifact.title}.${artifact.type}`;
+        
         const response = await fetch(data.signedUrl);
         if (!response.ok) {
           throw new Error(`Download failed: ${response.statusText}`);
@@ -270,15 +331,12 @@ export default function ArtifactPage() {
         document.body.removeChild(a);
 
         setDownloadCount((prev) => prev + 1);
-      } catch (fetchError) {
-        console.error("Fetch error:", fetchError);
-        throw new Error("Failed to download file. Please check your connection.");
+      } catch (e: any) {
+        console.error("Download error:", e);
+        setMsg(e?.message ?? "Download failed. Please try again.");
+      } finally {
+        setBusy(false);
       }
-    } catch (e: any) {
-      console.error("Download error:", e);
-      setMsg(e?.message ?? "Download failed. Please try again.");
-    } finally {
-      setBusy(false);
     }
   }
 
@@ -392,6 +450,14 @@ export default function ArtifactPage() {
             <p className="text-white/70 mt-2">{artifact.description}</p>
           )}
 
+          {/* Badges - NEW! */}
+          <div className="mt-3">
+            <ArtifactBadges
+              hasTopGrade={artifact.has_top_grade_badge || false}
+              isProfessorVerified={artifact.is_professor_verified || false}
+            />
+          </div>
+
           {/* Like and Share Stats */}
           <div className="mt-4 flex items-center gap-6 text-sm">
             <button
@@ -419,13 +485,7 @@ export default function ArtifactPage() {
               <span>{likeCount}</span>
             </button>
 
-            <button
-              onClick={download}
-              disabled={busy}
-              className={`flex items-center gap-1.5 transition-colors ${
-                busy ? "opacity-50 cursor-not-allowed" : "text-white/60 hover:text-white/80"
-              }`}
-            >
+            <div className="flex items-center gap-1.5 text-white/60">
               <svg
                 className="w-6 h-6"
                 fill="none"
@@ -440,7 +500,9 @@ export default function ArtifactPage() {
                 />
               </svg>
               <span>{downloadCount}</span>
-            </button>
+              {artifact.type === "bset" && <span className="text-xs text-white/40">(1 BB)</span>}
+              {artifact.type !== "bset" && <span className="text-xs text-green-400">(Free-B)</span>}
+            </div>
           </div>
 
           <div className="mt-6 flex flex-wrap gap-3">
@@ -449,7 +511,7 @@ export default function ArtifactPage() {
               disabled={busy}
               className="bg-white text-black rounded-lg py-2 px-4 font-medium hover:bg-white/90 transition-colors disabled:opacity-50"
             >
-              {busy ? "Preparing..." : "Download"}
+              {busy ? "Preparing..." : artifact.type === "bset" ? "Download (1 BB)" : "Download (Free-B)"}
             </button>
             {artifact.owner_id === currentUserId && (
               <>
@@ -506,13 +568,13 @@ export default function ArtifactPage() {
           {msg && <p className="text-sm text-red-400 mt-4">{msg}</p>}
         </div>
 
-        {/* FILE TYPE TUTORIAL - NEW SECTION */}
+        {/* FILE TYPE TUTORIAL */}
         <div className="mt-6">
           <FileTypeTutorial fileType={artifact.type} />
         </div>
 
         {/* COMMENTS SECTION */}
-        <div className="border border-white/10 bg-[#1e1e1e] rounded-2xl p-6">
+        <div className="mt-6 border border-white/10 bg-[#1e1e1e] rounded-2xl p-6">
           <h2 className="text-lg font-semibold mb-4">
             Comments ({comments.length})
           </h2>
@@ -575,7 +637,7 @@ export default function ArtifactPage() {
               <p className="text-white/60 text-sm">
                 No comments yet. Be the first to comment!
               </p>
-              )}
+            )}
           </div>
         </div>
       </div>

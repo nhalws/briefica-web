@@ -9,6 +9,14 @@ import SchoolCommunity from "../components/SchoolCommunity";
 import LiveChat from "../components/LiveChat";
 import Footer from "../components/Footer";
 import ConfirmedBanner from "./Confirmedbanner";
+import { BBCounter } from "../components/BBCounter";
+
+type CommentPreview = {
+  id: string;
+  content: string;
+  username: string;
+  created_at: string;
+};
 
 type ArtifactRow = {
   id: string;
@@ -17,7 +25,9 @@ type ArtifactRow = {
   title: string;
   description: string | null;
   created_at: string;
-  storage_key: string; // ← Change from file_url to storage_key
+  storage_key: string;
+  has_top_grade_badge?: boolean;
+  is_professor_verified?: boolean;
 };
 
 type Friend = {
@@ -49,9 +59,7 @@ export default function DashboardPage() {
   const [likeCounts, setLikeCounts] = useState<Record<string, number>>({});
   const [downloadCounts, setDownloadCounts] = useState<Record<string, number>>({});
   const [userLikes, setUserLikes] = useState<Set<string>>(new Set());
-  const [commentPreviews, setCommentPreviews] = useState<
-    Record<string, { id: string; content: string; username: string; created_at: string }[]>
-  >({});
+  const [commentPreviews, setCommentPreviews] = useState<Record<string, CommentPreview[]>>({});
   const [searchQuery, setSearchQuery] = useState("");
   const [typeFilter, setTypeFilter] = useState<"all" | "bset" | "bmod" | "tbank">("all");
   const [msg, setMsg] = useState<string | null>(null);
@@ -189,7 +197,7 @@ export default function DashboardPage() {
 
       const { data, error } = await supabase
         .from("artifacts")
-        .select("id, owner_id, type, title, description, created_at, storage_key") // ← Use storage_key instead
+        .select("id, owner_id, type, title, description, created_at, storage_key, has_top_grade_badge, is_professor_verified")
         .eq("visibility", "public")
         .order("created_at", { ascending: false })
         .limit(100);
@@ -237,15 +245,15 @@ export default function DashboardPage() {
     });
     setLikeCounts(likesMap);
 
-    // Load download counts
-    const { data: downloads } = await supabase
-      .from("artifact_downloads")
-      .select("artifact_id")
-      .in("artifact_id", artifactIds);
+    // Load download counts from artifacts table (now tracking there)
+    const { data: artifacts } = await supabase
+      .from("artifacts")
+      .select("id, downloads_count")
+      .in("id", artifactIds);
 
     const downloadsMap: Record<string, number> = {};
-    (downloads ?? []).forEach((download) => {
-      downloadsMap[download.artifact_id] = (downloadsMap[download.artifact_id] || 0) + 1;
+    (artifacts ?? []).forEach((artifact: any) => {
+      downloadsMap[artifact.id] = artifact.downloads_count || 0;
     });
     setDownloadCounts(downloadsMap);
 
@@ -336,42 +344,99 @@ export default function DashboardPage() {
     }
   }
 
-  async function handleDownload(artifactId: string, storageKey: string, fileName: string) {
+  async function handleDownload(artifactId: string, storageKey: string, fileName: string, artifactType: string) {
     if (!currentUserId) return;
 
-    // Record download in database
-    await supabase.from("artifact_downloads").insert({
-      artifact_id: artifactId,
-      user_id: currentUserId,
-    });
+    // Check if artifact is .bset (costs 1 BB) or Free-B (.bmod/.tbank = free)
+    const isBset = artifactType === "bset";
 
-    // Update local count
-    setDownloadCounts((prev) => ({
-      ...prev,
-      [artifactId]: (prev[artifactId] || 0) + 1,
-    }));
+    if (isBset) {
+      // Use the new API route that checks BBs
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) {
+          alert("Please sign in to download");
+          return;
+        }
 
-    // Get signed URL and download
-    try {
-      const { data, error } = await supabase.storage.from("artifacts").createSignedUrl(storageKey, 300);
+        const response = await fetch(`/api/artifacts/${artifactId}/download`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${session.access_token}`
+          }
+        });
 
-      if (error || !data?.signedUrl) {
-        console.error("Failed to generate download link");
-        return;
+        const data = await response.json();
+
+        if (!response.ok) {
+          if (data.code === 'INSUFFICIENT_BBS') {
+            // Show error with upgrade options
+            const shouldUpgrade = confirm(
+              `${data.error}\n\nOptions:\n- Buy BBs ($5 each)\n- Upgrade to Gold ($15/month unlimited)\n\nWould you like to view pricing?`
+            );
+            if (shouldUpgrade) {
+              router.push('/pricing');
+            }
+          } else {
+            alert(data.error || 'Failed to download');
+          }
+          return;
+        }
+
+        // Download the file using signed URL from API
+        const link = document.createElement("a");
+        link.href = data.download_url;
+        link.download = fileName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        // Update local download count
+        setDownloadCounts((prev) => ({
+          ...prev,
+          [artifactId]: (prev[artifactId] || 0) + 1,
+        }));
+
+      } catch (e) {
+        console.error("Download failed:", e);
+        alert("Download failed. Please try again.");
       }
+    } else {
+      // Free-B files (.bmod, .tbank) - download without BB check
+      try {
+        // Record download in database (but don't consume BB)
+        await supabase.from("artifact_downloads").insert({
+          artifact_id: artifactId,
+          user_id: currentUserId,
+        });
 
-      const response = await fetch(data.signedUrl);
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = fileName;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-    } catch (e) {
-      console.error("Download failed:", e);
+        // Get signed URL and download
+        const { data, error } = await supabase.storage.from("artifacts").createSignedUrl(storageKey, 300);
+
+        if (error || !data?.signedUrl) {
+          console.error("Failed to generate download link");
+          return;
+        }
+
+        const response = await fetch(data.signedUrl);
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+
+        // Update local count
+        setDownloadCounts((prev) => ({
+          ...prev,
+          [artifactId]: (prev[artifactId] || 0) + 1,
+        }));
+      } catch (e) {
+        console.error("Download failed:", e);
+      }
     }
   }
 
@@ -403,7 +468,7 @@ export default function DashboardPage() {
 
     if (!data) return;
 
-    const grouped: Record<string, { id: string; content: string; username: string; created_at: string }[]> = {};
+    const grouped: Record<string, CommentPreview[]> = {};
     data.forEach((c: any) => {
       const arr = grouped[c.artifact_id] || [];
       if (arr.length < 3) {
@@ -491,6 +556,12 @@ export default function DashboardPage() {
               download
             </button>
             <button
+              onClick={() => router.push("/report-card")}
+              className="inline-flex items-center justify-center rounded-lg border border-white/20 bg-white/10 px-4 py-2 hover:bg-white/15 transition-colors"
+            >
+              report card
+            </button>
+            <button
               onClick={() => router.push("/faq")}
               className="inline-flex items-center justify-center rounded-lg border border-white/20 bg-white/10 px-4 py-2 hover:bg-white/15 transition-colors"
             >
@@ -527,6 +598,9 @@ export default function DashboardPage() {
         <div className="flex gap-6">
           {/* LEFT SIDEBAR */}
           <aside className="w-72 flex-shrink-0 space-y-4">
+            {/* BB COUNTER - NEW! */}
+            <BBCounter />
+
             {/* PROFILE WIDGET */}
             {userProfile && currentUserId && (
               <div className="border border-white/10 bg-[#1e1e1e] rounded-2xl p-4">
@@ -662,9 +736,21 @@ export default function DashboardPage() {
               {filteredRows.map((r) => (
                 <div key={r.id} className="border border-white/10 bg-[#1e1e1e] rounded-2xl p-4 flex flex-col">
                   <div className="flex items-center justify-between gap-3">
-                    <div className="text-xs text-white/60">
+                    <div className="text-xs text-white/60 flex items-center gap-2">
                       <span className="inline-block px-2 py-1 rounded bg-white/10 border border-white/10">{badge(r.type)}</span>
-                      <span className="ml-3">{new Date(r.created_at).toLocaleString()}</span>
+                      <span>{new Date(r.created_at).toLocaleString()}</span>
+                      
+                      {/* Show badges */}
+                      {r.has_top_grade_badge && (
+                        <span className="px-2 py-0.5 bg-yellow-900/30 border border-yellow-600 rounded text-yellow-500 text-xs">
+                          🏆 Top Grade
+                        </span>
+                      )}
+                      {r.is_professor_verified && (
+                        <span className="px-2 py-0.5 bg-blue-900/30 border border-blue-600 rounded text-blue-500 text-xs">
+                          👨‍🏫 Professor
+                        </span>
+                      )}
                     </div>
 
                     <button
@@ -681,9 +767,9 @@ export default function DashboardPage() {
                   </button>
 
                   {/* Comments preview */}
-                  {commentPreviews[r.id]?.length > 0 && (
+                  {commentPreviews[r.id] && commentPreviews[r.id].length > 0 && (
                     <div className="mt-3 space-y-2 text-xs text-white/70">
-                      {commentPreviews[r.id].map((c) => (
+                      {commentPreviews[r.id].map((c: CommentPreview) => (
                         <div key={c.id} className="border border-white/10 rounded-lg p-2 bg-[#2b2b2b] line-clamp-2">
                           <span className="text-white">@{c.username}</span>: {c.content}
                         </div>
@@ -711,7 +797,7 @@ export default function DashboardPage() {
                     </button>
 
                     <button
-                      onClick={() => handleDownload(r.id, r.storage_key, `${r.title}.${r.type}`)}
+                      onClick={() => handleDownload(r.id, r.storage_key, `${r.title}.${r.type}`, r.type)}
                       className="flex items-center gap-1.5 transition-colors text-white/60 hover:text-white/80"
                     >
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -723,6 +809,8 @@ export default function DashboardPage() {
                         />
                       </svg>
                       <span>{downloadCounts[r.id] || 0}</span>
+                      {r.type === "bset" && <span className="text-xs text-white/40">(1 BB)</span>}
+                      {r.type !== "bset" && <span className="text-xs text-green-400">(Free-B)</span>}
                     </button>
                   </div>
                 </div>
