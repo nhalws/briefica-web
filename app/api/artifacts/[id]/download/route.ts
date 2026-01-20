@@ -8,10 +8,11 @@ const supabase = createClient(
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const artifactId = params.id;
+    // Await params (Next.js 15+ requirement)
+    const { id: artifactId } = await params;
 
     // Get authenticated user
     const authHeader = request.headers.get('authorization');
