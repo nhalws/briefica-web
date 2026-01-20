@@ -11,9 +11,8 @@ export async function POST(request: NextRequest) {
     );
 
     // Initialize Stripe inside the function (not at module level)
-    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-      apiVersion: '2024-11-20' as any,
-    });
+    // Remove apiVersion to use account default
+    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
     const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
 

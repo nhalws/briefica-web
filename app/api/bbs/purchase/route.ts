@@ -71,9 +71,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-      apiVersion: '2024-11-20' as any,
-    });
+    // Remove apiVersion or use a valid one
+    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
     // Create Stripe checkout session
     const cost = bb_amount * 5; // $5 per BB (in dollars)
