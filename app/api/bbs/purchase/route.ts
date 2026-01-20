@@ -7,12 +7,13 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2024-11-20' as any,
-});
-
 export async function POST(request: NextRequest) {
   try {
+    // Initialize Stripe inside the function (not at module level)
+    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+      apiVersion: '2024-11-20' as any,
+    });
+
     const { bb_amount } = await request.json();
 
     // Validate amount (1, 2, or 3)
