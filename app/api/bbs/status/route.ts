@@ -1,24 +1,43 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+// Verify env vars are loaded
+if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
+  console.error('[BB Status API] Missing NEXT_PUBLIC_SUPABASE_URL');
+}
+if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+  console.error('[BB Status API] Missing SUPABASE_SERVICE_ROLE_KEY');
+}
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 
 export async function GET(req: NextRequest) {
   try {
+    // Create Supabase client with service role
+    const supabase = createClient(supabaseUrl, supabaseServiceKey, {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false
+      }
+    });
+
     const authHeader = req.headers.get('authorization');
     if (!authHeader) {
       return NextResponse.json({ error: 'No authorization header' }, { status: 401 });
     }
 
     const token = authHeader.replace('Bearer ', '');
+    
+    // Verify user with the token
     const { data: { user }, error: authError } = await supabase.auth.getUser(token);
 
     if (authError || !user) {
+      console.error('[BB Status API] Auth error:', authError);
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
+
+    console.log('[BB Status API] User authenticated:', user.id);
 
     // Get user's BB data
     const { data: userData, error: userError } = await supabase
@@ -28,22 +47,28 @@ export async function GET(req: NextRequest) {
       .single();
 
     if (userError && userError.code !== 'PGRST116') {
-      console.error('Error fetching user BBs:', userError);
-      return NextResponse.json({ error: 'Failed to fetch BB status' }, { status: 500 });
+      console.error('[BB Status API] Error fetching user BBs:', userError);
     }
 
     // Check if user has Gold tier in goldilex_access table
-    const { data: goldilexAccess } = await supabase
+    const { data: goldilexAccess, error: goldError } = await supabase
       .from('goldilex_access')
       .select('tier, approved')
       .eq('user_id', user.id)
       .single();
 
+    if (goldError && goldError.code !== 'PGRST116') {
+      console.error('[BB Status API] Error fetching goldilex access:', goldError);
+    }
+
     const isGold = goldilexAccess?.tier === 'gold' && goldilexAccess?.approved === true;
+    console.log('[BB Status API] Is gold:', isGold, 'Access data:', goldilexAccess);
 
     // If no BB record exists, create one
     if (!userData) {
-      const { data: newUserData } = await supabase
+      console.log('[BB Status API] Creating new user_bbs record for:', user.id);
+      
+      const { data: newUserData, error: insertError } = await supabase
         .from('user_bbs')
         .insert({
           user_id: user.id,
@@ -53,6 +78,10 @@ export async function GET(req: NextRequest) {
         })
         .select()
         .single();
+
+      if (insertError) {
+        console.error('[BB Status API] Error creating user_bbs:', insertError);
+      }
 
       return NextResponse.json({
         monthly_bbs: 3,
@@ -74,6 +103,8 @@ export async function GET(req: NextRequest) {
 
     // Check if we need to reset monthly BBs
     if (daysUntilReset <= 0) {
+      console.log('[BB Status API] Resetting monthly BBs for:', user.id);
+      
       await supabase
         .from('user_bbs')
         .update({
@@ -93,20 +124,24 @@ export async function GET(req: NextRequest) {
     // User can purchase up to 3 BBs total per month
     const canPurchase = Math.max(0, 3 - purchasedBBs);
 
-    return NextResponse.json({
+    const response = {
       monthly_bbs: monthlyBBs,
       purchased_bbs: purchasedBBs,
       total_bbs: totalBBs,
       days_until_reset: Math.max(1, daysUntilReset),
       tier: isGold ? 'gold' : 'free',
       can_purchase: canPurchase,
-      is_gold: isGold  // THIS IS THE KEY FIELD
-    });
+      is_gold: isGold
+    };
+
+    console.log('[BB Status API] Returning:', response);
+
+    return NextResponse.json(response);
 
   } catch (error: any) {
-    console.error('BB status error:', error);
+    console.error('[BB Status API] Unexpected error:', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Internal server error', details: error.message },
       { status: 500 }
     );
   }
