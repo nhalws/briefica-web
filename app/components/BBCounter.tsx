@@ -64,9 +64,9 @@ export function BBCounter() {
 
   if (loading) {
     return (
-      <div className="p-4 bg-[#1e1e1e] border border-white/10 rounded-2xl animate-pulse">
-        <div className="h-4 bg-white/10 rounded w-1/2 mb-2"></div>
-        <div className="h-8 bg-white/10 rounded w-3/4"></div>
+      <div className="animate-pulse">
+        <div className="h-4 bg-white/10 rounded w-1/2 mb-2 mx-auto"></div>
+        <div className="h-8 bg-white/10 rounded w-3/4 mx-auto"></div>
       </div>
     );
   }
@@ -78,37 +78,30 @@ export function BBCounter() {
   return (
     <div>
       {/* BB Title Image */}
-      <div className="flex justify-center mb-3">
+      <div className="flex justify-center mb-2">
         <Image 
           src="/briefica-bucks.png" 
           alt="briefica bucks" 
-          width={180} 
-          height={45}
+          width={160} 
+          height={40}
           className="object-contain"
         />
       </div>
 
-      {/* BB Icon */}
+      {/* BB Icon - ONLY THE IMAGE, NO TEXT */}
       <div className="flex justify-center mb-3">
         <Image 
           src={getBBImage()} 
           alt={`${bbStatus.total_bbs} BB`} 
-          width={100} 
-          height={100}
+          width={90} 
+          height={90}
           className="object-contain"
         />
       </div>
 
-      {/* BB Count */}
-      <div className="text-center mb-4">
-        <div className="text-4xl font-bold text-blue-400">
-          {bbStatus.is_gold ? '∞' : bbStatus.total_bbs} BB
-        </div>
-      </div>
-
       {/* BB Breakdown - Only show for non-gold users */}
       {!bbStatus.is_gold && (
-        <div className="space-y-1 text-xs text-white/60 mb-4">
+        <div className="space-y-1 text-xs text-white/60 mb-3">
           <div className="flex justify-between">
             <span>Monthly:</span>
             <span className="font-medium text-white">{bbStatus.monthly_bbs} BB</span>
@@ -125,7 +118,7 @@ export function BBCounter() {
 
       {/* Gold badge for gold users */}
       {bbStatus.is_gold && (
-        <div className="mb-4 text-center text-sm text-yellow-500">
+        <div className="mb-3 text-center text-sm text-yellow-500">
           ⭐ briefica gold member
         </div>
       )}
@@ -135,24 +128,24 @@ export function BBCounter() {
         {!bbStatus.is_gold && bbStatus.can_purchase > 0 && (
           <button
             onClick={() => router.push('/buy-bbs')}
-            className="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded font-medium transition-colors"
+            className="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded font-medium transition-colors text-sm"
           >
             Buy BBs ({bbStatus.can_purchase} available)
           </button>
         )}
 
         {!bbStatus.is_gold && bbStatus.can_purchase === 0 && (
-          <div className="w-full px-4 py-2 bg-gray-700 rounded font-medium text-center text-white/60">
+          <div className="w-full px-4 py-2 bg-gray-700 rounded font-medium text-center text-white/60 text-sm">
             At purchase limit
           </div>
         )}
 
         <button
           onClick={() => router.push('/pricing')}
-          className="w-full px-4 py-2 rounded font-medium transition-colors hover:opacity-90"
+          className="w-full px-4 py-2 rounded font-medium transition-colors hover:opacity-90 text-sm"
           style={{ backgroundColor: '#BF9B30', color: 'white' }}
         >
-          ⭐ Upgrade to Gold - $15/mo
+          Upgrade to Gold - $15/mo
         </button>
       </div>
     </div>
