@@ -67,7 +67,7 @@ export async function POST(request: NextRequest) {
     // Verify grading key exists and belongs to an artifact
     const { data: artifact, error: artifactError } = await supabase
       .from('artifacts')
-      .select('id, user_id, title')
+      .select('id, owner_id, title')
       .eq('grading_key', grading_key)
       .single();
 
@@ -80,8 +80,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Verify the artifact belongs to the user submitting the grade
-    if (artifact.user_id !== user.id) {
-      console.error('User mismatch:', artifact.user_id, 'vs', user.id);
+    if (artifact.owner_id !== user.id) {
+      console.error('User mismatch:', artifact.owner_id, 'vs', user.id);
       return NextResponse.json(
         { error: 'This grading key does not belong to you.' },
         { status: 403 }
