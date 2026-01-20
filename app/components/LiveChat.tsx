@@ -168,7 +168,6 @@ export default function LiveChat({ currentUserId, username, userSchool, large = 
       <div className="border border-white/10 bg-[#1e1e1e] rounded-2xl p-4">
         <div className="flex items-center justify-between mb-3">
           <h2 className="font-semibold">Live Chat</h2>
-          <span className="text-xs text-white/60">IRC-style</span>
         </div>
         <p className="text-sm text-white/60 mb-4">
           Join the live chat to talk with other briefica users in real-time.

@@ -556,12 +556,6 @@ export default function DashboardPage() {
               download
             </button>
             <button
-              onClick={() => router.push("/report-card")}
-              className="inline-flex items-center justify-center rounded-lg border border-white/20 bg-white/10 px-4 py-2 hover:bg-white/15 transition-colors"
-            >
-              report card
-            </button>
-            <button
               onClick={() => router.push("/faq")}
               className="inline-flex items-center justify-center rounded-lg border border-white/20 bg-white/10 px-4 py-2 hover:bg-white/15 transition-colors"
             >
@@ -584,7 +578,7 @@ export default function DashboardPage() {
                 color: 'white'
               }}
             >
-              open lex
+              open Goldilex
             </button>
             <button
               onClick={handleLogout}
@@ -598,13 +592,11 @@ export default function DashboardPage() {
         <div className="flex gap-6">
           {/* LEFT SIDEBAR */}
           <aside className="w-72 flex-shrink-0 space-y-4">
-            {/* BB COUNTER - NEW! */}
-            <BBCounter />
-
-            {/* PROFILE WIDGET */}
+            {/* COMBINED PROFILE + BB WIDGET */}
             {userProfile && currentUserId && (
               <div className="border border-white/10 bg-[#1e1e1e] rounded-2xl p-4">
-                <div className="flex items-center gap-3 mb-3">
+                {/* Profile Section at Top */}
+                <div className="flex items-center gap-3 mb-4 pb-4 border-b border-white/10">
                   <ProfilePicture
                     userId={currentUserId}
                     currentPictureUrl={userProfile.profile_picture_url}
@@ -618,7 +610,7 @@ export default function DashboardPage() {
                       onClick={() => router.push(`/u/${userProfile.username}`)}
                       className="text-xl font-semibold hover:text-white/80 transition-colors"
                     >
-                      @{userProfile.username}
+                      {userProfile.username}
                     </button>
                     {userProfile.law_school && (
                       <p className="text-sm text-white/60 mt-1">{userProfile.law_school}</p>
@@ -626,7 +618,8 @@ export default function DashboardPage() {
                   </div>
                 </div>
 
-                <div className="flex flex-col gap-1 text-xs">
+                {/* Stats */}
+                <div className="flex flex-col gap-1 text-xs mb-4 pb-4 border-b border-white/10">
                   <div className="flex items-center gap-1">
                     <span className="text-white/60">Uploads:</span>
                     <span className="font-medium">{userProfile.upload_count}</span>
@@ -636,15 +629,15 @@ export default function DashboardPage() {
                     <span className="font-medium">{userProfile.total_likes}</span>
                   </div>
                   <div className="flex items-center gap-1">
-                    <span className="text-white/60">Downloads:</span>
-                    <span className="font-medium">{userProfile.total_downloads}</span>
-                  </div>
-                  <div className="flex items-center gap-1">
                     <span className="text-white/60">Friends:</span>
                     <span className="font-medium">{userProfile.friend_count}</span>
                   </div>
                 </div>
 
+                {/* BB Counter Component */}
+                <BBCounter />
+
+                {/* Friend Requests Button */}
                 {userProfile.pending_requests > 0 && (
                   <button
                     onClick={() => router.push("/friends")}

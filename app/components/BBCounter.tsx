@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { createClient } from '@supabase/supabase-js';
+import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -19,6 +21,7 @@ interface BBStatus {
 }
 
 export function BBCounter() {
+  const router = useRouter();
   const [bbStatus, setBBStatus] = useState<BBStatus | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -51,11 +54,19 @@ export function BBCounter() {
     }
   }
 
+  // Determine which BB image to show
+  const getBBImage = () => {
+    if (!bbStatus) return '/0bb.png';
+    if (bbStatus.is_gold) return '/7bb.png'; // Gold/infinite BB image
+    const total = Math.min(bbStatus.total_bbs, 7); // Cap at 7
+    return `/${total}bb.png`; // 0bb.png through 7bb.png
+  };
+
   if (loading) {
     return (
-      <div className="p-4 bg-gray-800 border border-gray-700 rounded-lg animate-pulse">
-        <div className="h-4 bg-gray-700 rounded w-1/2 mb-2"></div>
-        <div className="h-8 bg-gray-700 rounded w-3/4"></div>
+      <div className="p-4 bg-[#1e1e1e] border border-white/10 rounded-2xl animate-pulse">
+        <div className="h-4 bg-white/10 rounded w-1/2 mb-2"></div>
+        <div className="h-8 bg-white/10 rounded w-3/4"></div>
       </div>
     );
   }
@@ -64,55 +75,82 @@ export function BBCounter() {
     return null;
   }
 
-  // Gold user display
-  if (bbStatus.is_gold) {
-    return (
-      <div className="p-4 bg-gradient-to-br from-yellow-900/30 to-yellow-800/20 border border-yellow-600/50 rounded-lg">
-        <div className="flex items-center gap-2 mb-2">
-          <span className="text-2xl">⭐</span>
-          <span className="font-semibold text-yellow-500">briefica gold</span>
-        </div>
-        <p className="text-sm text-gray-300">Unlimited downloads + goldilex access</p>
-      </div>
-    );
-  }
-
-  // Free user display
   return (
-    <div className="p-4 bg-gray-800 border border-gray-700 rounded-lg">
-      <div className="flex items-center justify-between mb-3">
-        <span className="text-sm text-gray-400">briefica bucks</span>
-        <span className="text-2xl font-bold text-blue-400">{bbStatus.total_bbs} BB</span>
+    <div>
+      {/* BB Title Image */}
+      <div className="flex justify-center mb-3">
+        <Image 
+          src="/briefica-bucks.png" 
+          alt="briefica bucks" 
+          width={180} 
+          height={45}
+          className="object-contain"
+        />
       </div>
 
-      <div className="space-y-1 text-xs text-gray-500 mb-3">
-        <div className="flex justify-between">
-          <span>Monthly:</span>
-          <span className="text-gray-300">{bbStatus.monthly_bbs} BB</span>
-        </div>
-        <div className="flex justify-between">
-          <span>Purchased:</span>
-          <span className="text-gray-300">{bbStatus.purchased_bbs} BB</span>
-        </div>
-        <div className="mt-2 pt-2 border-t border-gray-700">
-          <span>Resets in {bbStatus.days_until_reset} days</span>
+      {/* BB Icon */}
+      <div className="flex justify-center mb-3">
+        <Image 
+          src={getBBImage()} 
+          alt={`${bbStatus.total_bbs} BB`} 
+          width={100} 
+          height={100}
+          className="object-contain"
+        />
+      </div>
+
+      {/* BB Count */}
+      <div className="text-center mb-4">
+        <div className="text-4xl font-bold text-blue-400">
+          {bbStatus.is_gold ? '∞' : bbStatus.total_bbs} BB
         </div>
       </div>
 
+      {/* BB Breakdown - Only show for non-gold users */}
+      {!bbStatus.is_gold && (
+        <div className="space-y-1 text-xs text-white/60 mb-4">
+          <div className="flex justify-between">
+            <span>Monthly:</span>
+            <span className="font-medium text-white">{bbStatus.monthly_bbs} BB</span>
+          </div>
+          <div className="flex justify-between">
+            <span>Purchased:</span>
+            <span className="font-medium text-white">{bbStatus.purchased_bbs} BB</span>
+          </div>
+          <div className="text-xs text-white/40 mt-2">
+            Resets in {bbStatus.days_until_reset} days
+          </div>
+        </div>
+      )}
+
+      {/* Gold badge for gold users */}
+      {bbStatus.is_gold && (
+        <div className="mb-4 text-center text-sm text-yellow-500">
+          ⭐ briefica gold member
+        </div>
+      )}
+
+      {/* Action Buttons */}
       <div className="space-y-2">
+        {!bbStatus.is_gold && bbStatus.can_purchase > 0 && (
+          <button
+            onClick={() => router.push('/buy-bbs')}
+            className="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded font-medium transition-colors"
+          >
+            Buy BBs ({bbStatus.can_purchase} available)
+          </button>
+        )}
+
+        {!bbStatus.is_gold && bbStatus.can_purchase === 0 && (
+          <div className="w-full px-4 py-2 bg-gray-700 rounded font-medium text-center text-white/60">
+            At purchase limit
+          </div>
+        )}
+
         <button
-          onClick={() => window.location.href = '/buy-bbs'}
-          disabled={bbStatus.can_purchase === 0}
-          className="w-full py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-700 disabled:cursor-not-allowed rounded text-sm font-medium transition-colors"
-        >
-          {bbStatus.can_purchase > 0 
-            ? `Buy BBs (${bbStatus.can_purchase} available)` 
-            : 'At purchase limit'}
-        </button>
-        
-        <button
-          onClick={() => window.location.href = '/pricing'}
-          className="w-full py-2 bg-yellow-600 hover:bg-yellow-700 rounded text-sm font-medium transition-colors"
+          onClick={() => router.push('/pricing')}
+          className="w-full px-4 py-2 rounded font-medium transition-colors hover:opacity-90"
+          style={{ backgroundColor: '#BF9B30', color: 'white' }}
         >
           ⭐ Upgrade to Gold - $15/mo
         </button>
