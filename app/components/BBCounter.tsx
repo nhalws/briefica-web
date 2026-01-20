@@ -138,13 +138,10 @@ export function BBCounter() {
         />
       </div>
 
-      {/* Member ID for Gold users - REPLACES the gold badge */}
+      {/* Member ID for Gold users - ONE LINE, GOLD COLOR, SAME SIZE */}
       {bbStatus.is_gold && bbStatus.gold_member_number && (
-        <div className="mb-3 text-center">
-          <div className="text-xs text-white/60 mb-1">Member ID</div>
-          <div className="text-lg font-bold text-yellow-500">
-            G-{bbStatus.gold_member_number}
-          </div>
+        <div className="mb-3 text-center text-xs" style={{ color: '#BF9B30' }}>
+          Member ID: G-{bbStatus.gold_member_number}
         </div>
       )}
 
