@@ -697,7 +697,7 @@ export default function DashboardPage() {
                   }`}
                 >
                   <Image src="/bset.png" alt="bset" width={20} height={20} />
-                  .bset
+                  briefset
                 </button>
                 <button
                   onClick={() => setTypeFilter("bmod")}
@@ -708,7 +708,7 @@ export default function DashboardPage() {
                   }`}
                 >
                   <Image src="/bmod.png" alt="bmod" width={20} height={20} />
-                  .bmod
+                  mod
                 </button>
                 <button
                   onClick={() => setTypeFilter("tbank")}
@@ -719,7 +719,7 @@ export default function DashboardPage() {
                   }`}
                 >
                   <Image src="/b_blank.png" alt="tbank" width={20} height={20} />
-                  .tbank
+                  typobank
                 </button>
               </div>
             </div>
