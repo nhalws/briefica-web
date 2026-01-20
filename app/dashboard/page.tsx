@@ -1,7 +1,7 @@
 "use client";
 
 import { Suspense, useEffect, useState } from "react";
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { supabase } from "../lib/supabaseClient";
 import ProfilePicture from "../components/ProfilePicture";
@@ -48,7 +48,6 @@ type UserProfile = {
 
 export default function DashboardPage() {
   const router = useRouter();
-  const pathname = usePathname();
 
   const [rows, setRows] = useState<ArtifactRow[]>([]);
   const [filteredRows, setFilteredRows] = useState<ArtifactRow[]>([]);
@@ -65,7 +64,6 @@ export default function DashboardPage() {
   const [msg, setMsg] = useState<string | null>(null);
   const [goldilexAccess, setGoldilexAccess] = useState<boolean>(false);
 
-  // SET PAGE TITLE
   useEffect(() => {
     document.title = "briefica web (b-web)";
   }, []);
@@ -233,7 +231,6 @@ export default function DashboardPage() {
   }, []);
 
   async function loadLikesAndDownloads(artifactIds: string[]) {
-    // Load like counts
     const { data: likes } = await supabase
       .from("artifact_likes")
       .select("artifact_id")
@@ -245,7 +242,6 @@ export default function DashboardPage() {
     });
     setLikeCounts(likesMap);
 
-    // Load download counts from artifacts table (now tracking there)
     const { data: artifacts } = await supabase
       .from("artifacts")
       .select("id, downloads_count")
@@ -257,7 +253,6 @@ export default function DashboardPage() {
     });
     setDownloadCounts(downloadsMap);
 
-    // Load current user's likes
     if (currentUserId) {
       const { data: userLikesData } = await supabase
         .from("artifact_likes")
@@ -347,11 +342,9 @@ export default function DashboardPage() {
   async function handleDownload(artifactId: string, storageKey: string, fileName: string, artifactType: string) {
     if (!currentUserId) return;
 
-    // Check if artifact is .bset (costs 1 BB) or Free-B (.bmod/.tbank = free)
     const isBset = artifactType === "bset";
 
     if (isBset) {
-      // Use the new API route that checks BBs
       try {
         const { data: { session } } = await supabase.auth.getSession();
         if (!session) {
@@ -370,7 +363,6 @@ export default function DashboardPage() {
 
         if (!response.ok) {
           if (data.code === 'INSUFFICIENT_BBS') {
-            // Show error with upgrade options
             const shouldUpgrade = confirm(
               `${data.error}\n\nOptions:\n- Buy BBs ($5 each)\n- Upgrade to Gold ($15/month unlimited)\n\nWould you like to view pricing?`
             );
@@ -383,7 +375,6 @@ export default function DashboardPage() {
           return;
         }
 
-        // Download the file using signed URL from API
         const link = document.createElement("a");
         link.href = data.download_url;
         link.download = fileName;
@@ -391,7 +382,6 @@ export default function DashboardPage() {
         link.click();
         document.body.removeChild(link);
 
-        // Update local download count
         setDownloadCounts((prev) => ({
           ...prev,
           [artifactId]: (prev[artifactId] || 0) + 1,
@@ -402,15 +392,12 @@ export default function DashboardPage() {
         alert("Download failed. Please try again.");
       }
     } else {
-      // Free-B files (.bmod, .tbank) - download without BB check
       try {
-        // Record download in database (but don't consume BB)
         await supabase.from("artifact_downloads").insert({
           artifact_id: artifactId,
           user_id: currentUserId,
         });
 
-        // Get signed URL and download
         const { data, error } = await supabase.storage.from("artifacts").createSignedUrl(storageKey, 300);
 
         if (error || !data?.signedUrl) {
@@ -429,7 +416,6 @@ export default function DashboardPage() {
         window.URL.revokeObjectURL(url);
         document.body.removeChild(a);
 
-        // Update local count
         setDownloadCounts((prev) => ({
           ...prev,
           [artifactId]: (prev[artifactId] || 0) + 1,
@@ -464,7 +450,7 @@ export default function DashboardPage() {
         profiles!artifact_comments_user_id_fkey(username)
       `)
       .in("artifact_id", artifactIds)
-      .order("created_at", { ascending: false });
+      .order("created_at", { ascending: false});
 
     if (!data) return;
 
@@ -487,7 +473,6 @@ export default function DashboardPage() {
   return (
     <main className="min-h-screen bg-[#2b2b2b] text-white p-6">
       <div className="max-w-6xl mx-auto">
-        {/* Confirmed banner (only reads URL params inside the child component) */}
         <Suspense fallback={null}>
           <ConfirmedBanner />
         </Suspense>
@@ -561,12 +546,9 @@ export default function DashboardPage() {
             >
               help
             </button>
+            {/* UPDATED: Navigate to /goldilex instead of opening new window */}
             <button
-              onClick={() => {
-                if (goldilexAccess) {
-                  window.open("https://goldilex.briefica.com", "_blank", "noopener,noreferrer");
-                }
-              }}
+              onClick={() => router.push('/goldilex')}
               disabled={!goldilexAccess}
               className={`rounded-lg py-2 px-4 font-medium transition-colors ${
                 goldilexAccess 
@@ -590,12 +572,9 @@ export default function DashboardPage() {
         </div>
 
         <div className="flex gap-6">
-          {/* LEFT SIDEBAR */}
           <aside className="w-72 flex-shrink-0 space-y-4">
-            {/* COMBINED PROFILE + BB WIDGET */}
             {userProfile && currentUserId && (
               <div className="border border-white/10 bg-[#1e1e1e] rounded-2xl p-4">
-                {/* Profile Section with Stats on Same Row */}
                 <div className="flex items-start gap-3 mb-3 pb-3 border-b border-white/10">
                   <ProfilePicture
                     userId={currentUserId}
@@ -615,7 +594,6 @@ export default function DashboardPage() {
                     {userProfile.law_school && (
                       <p className="text-xs text-white/60 mb-2">{userProfile.law_school}</p>
                     )}
-                    {/* Stats moved here beside profile */}
                     <div className="flex gap-3 text-xs">
                       <div className="flex items-center gap-1">
                         <span className="text-white/60">Uploads:</span>
@@ -633,10 +611,8 @@ export default function DashboardPage() {
                   </div>
                 </div>
 
-                {/* BB Counter Component - NO BOTTOM BORDER */}
                 <BBCounter />
 
-                {/* Friend Requests Button */}
                 {userProfile.pending_requests > 0 && (
                   <button
                     onClick={() => router.push("/friends")}
@@ -652,20 +628,16 @@ export default function DashboardPage() {
               </div>
             )}
 
-            {/* SCHOOL COMMUNITY WIDGET */}
             {userProfile && currentUserId && (
               <SchoolCommunity userSchool={userProfile.law_school} currentUserId={currentUserId} />
             )}
 
-            {/* LIVE CHAT WIDGET */}
             {userProfile && currentUserId && (
               <LiveChat currentUserId={currentUserId} username={userProfile.username} userSchool={userProfile.law_school} />
             )}
           </aside>
 
-          {/* MAIN CONTENT */}
           <div className="flex-1 max-w-4xl">
-            {/* Search and Filter */}
             <div className="mt-4 flex flex-col sm:flex-row gap-3">
               <input
                 type="text"
@@ -732,7 +704,6 @@ export default function DashboardPage() {
                       <span className="inline-block px-2 py-1 rounded bg-white/10 border border-white/10">{badge(r.type)}</span>
                       <span>{new Date(r.created_at).toLocaleString()}</span>
                       
-                      {/* Show badges */}
                       {r.has_top_grade_badge && (
                         <span className="px-2 py-0.5 bg-yellow-900/30 border border-yellow-600 rounded text-yellow-500 text-xs">
                           🏆 Top Grade
@@ -758,7 +729,6 @@ export default function DashboardPage() {
                     {r.description && <div className="text-sm text-white/70 mt-1 line-clamp-2">{r.description}</div>}
                   </button>
 
-                  {/* Comments preview */}
                   {commentPreviews[r.id] && commentPreviews[r.id].length > 0 && (
                     <div className="mt-3 space-y-2 text-xs text-white/70">
                       {commentPreviews[r.id].map((c: CommentPreview) => (
@@ -769,7 +739,6 @@ export default function DashboardPage() {
                     </div>
                   )}
 
-                  {/* Like and Download buttons */}
                   <div className="mt-3 flex items-center gap-4 text-sm">
                     <button
                       onClick={() => toggleLike(r.id)}
@@ -823,7 +792,6 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Footer */}
         <Footer />
       </div>
     </main>
