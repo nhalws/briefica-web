@@ -50,10 +50,10 @@ export async function GET(req: NextRequest) {
       console.error('[BB Status API] Error fetching user BBs:', userError);
     }
 
-    // Check if user has Gold tier in goldilex_access table
+    // Check if user has Gold tier in goldilex_access table - NOW INCLUDING gold_member_number
     const { data: goldilexAccess, error: goldError } = await supabase
       .from('goldilex_access')
-      .select('tier, approved')
+      .select('tier, approved, gold_member_number')
       .eq('user_id', user.id)
       .single();
 
@@ -62,7 +62,9 @@ export async function GET(req: NextRequest) {
     }
 
     const isGold = goldilexAccess?.tier === 'gold' && goldilexAccess?.approved === true;
-    console.log('[BB Status API] Is gold:', isGold, 'Access data:', goldilexAccess);
+    const memberNumber = goldilexAccess?.gold_member_number || null;
+    
+    console.log('[BB Status API] Is gold:', isGold, 'Member number:', memberNumber);
 
     // If no BB record exists, create one
     if (!userData) {
@@ -90,7 +92,8 @@ export async function GET(req: NextRequest) {
         days_until_reset: 30,
         tier: isGold ? 'gold' : 'free',
         can_purchase: 3,
-        is_gold: isGold
+        is_gold: isGold,
+        gold_member_number: memberNumber
       });
     }
 
@@ -131,7 +134,8 @@ export async function GET(req: NextRequest) {
       days_until_reset: Math.max(1, daysUntilReset),
       tier: isGold ? 'gold' : 'free',
       can_purchase: canPurchase,
-      is_gold: isGold
+      is_gold: isGold,
+      gold_member_number: memberNumber  // NEW FIELD
     };
 
     console.log('[BB Status API] Returning:', response);

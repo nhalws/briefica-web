@@ -18,12 +18,14 @@ interface BBStatus {
   tier: string;
   can_purchase: number;
   is_gold: boolean;
+  gold_member_number?: number | null;
 }
 
 export function BBCounter() {
   const router = useRouter();
   const [bbStatus, setBBStatus] = useState<BBStatus | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchBBStatus();
@@ -31,24 +33,37 @@ export function BBCounter() {
 
   async function fetchBBStatus() {
     try {
+      setError(null);
       const { data: { session } } = await supabase.auth.getSession();
+      
       if (!session) {
+        console.log('[BBCounter] No session found');
         setLoading(false);
         return;
       }
 
+      console.log('[BBCounter] Fetching BB status...');
+      
       const response = await fetch('/api/bbs/status', {
         headers: {
           'Authorization': `Bearer ${session.access_token}`
         }
       });
 
+      console.log('[BBCounter] Response status:', response.status);
+
       if (response.ok) {
         const data = await response.json();
+        console.log('[BBCounter] BB Status data:', data);
         setBBStatus(data);
+      } else {
+        const errorData = await response.json();
+        console.error('[BBCounter] API error:', errorData);
+        setError(errorData.error || 'Failed to load BB status');
       }
     } catch (error) {
-      console.error('Error fetching BB status:', error);
+      console.error('[BBCounter] Error fetching BB status:', error);
+      setError('Network error - please refresh');
     } finally {
       setLoading(false);
     }
@@ -71,8 +86,32 @@ export function BBCounter() {
     );
   }
 
+  if (error) {
+    return (
+      <div className="border border-red-500/20 bg-red-900/10 rounded-lg p-3">
+        <p className="text-xs text-red-400 mb-2">⚠️ {error}</p>
+        <button
+          onClick={fetchBBStatus}
+          className="text-xs text-blue-400 hover:text-blue-300 underline"
+        >
+          Try Again
+        </button>
+      </div>
+    );
+  }
+
   if (!bbStatus) {
-    return null;
+    return (
+      <div className="text-xs text-white/60 text-center p-3">
+        <p>No BB data available</p>
+        <button
+          onClick={fetchBBStatus}
+          className="text-blue-400 hover:text-blue-300 underline mt-2"
+        >
+          Reload
+        </button>
+      </div>
+    );
   }
 
   return (
@@ -99,6 +138,16 @@ export function BBCounter() {
         />
       </div>
 
+      {/* Member ID for Gold users - REPLACES the gold badge */}
+      {bbStatus.is_gold && bbStatus.gold_member_number && (
+        <div className="mb-3 text-center">
+          <div className="text-xs text-white/60 mb-1">Member ID</div>
+          <div className="text-lg font-bold text-yellow-500">
+            G-{bbStatus.gold_member_number}
+          </div>
+        </div>
+      )}
+
       {/* BB Breakdown - Only show for non-gold users */}
       {!bbStatus.is_gold && (
         <div className="space-y-1 text-xs text-white/60 mb-3">
@@ -116,37 +165,35 @@ export function BBCounter() {
         </div>
       )}
 
-      {/* Gold badge for gold users */}
-      {bbStatus.is_gold && (
-        <div className="mb-3 text-center text-sm text-yellow-500">
-          ⭐ briefica gold member
-        </div>
-      )}
-
       {/* Action Buttons */}
       <div className="space-y-2">
-        {!bbStatus.is_gold && bbStatus.can_purchase > 0 && (
-          <button
-            onClick={() => router.push('/buy-bbs')}
-            className="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded font-medium transition-colors text-sm"
-          >
-            Buy BBs ({bbStatus.can_purchase} available)
-          </button>
-        )}
+        {/* Only show these buttons for NON-Gold users */}
+        {!bbStatus.is_gold && (
+          <>
+            {bbStatus.can_purchase > 0 && (
+              <button
+                onClick={() => router.push('/buy-bbs')}
+                className="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded font-medium transition-colors text-sm"
+              >
+                Buy BBs ({bbStatus.can_purchase} available)
+              </button>
+            )}
 
-        {!bbStatus.is_gold && bbStatus.can_purchase === 0 && (
-          <div className="w-full px-4 py-2 bg-gray-700 rounded font-medium text-center text-white/60 text-sm">
-            At purchase limit
-          </div>
-        )}
+            {bbStatus.can_purchase === 0 && (
+              <div className="w-full px-4 py-2 bg-gray-700 rounded font-medium text-center text-white/60 text-sm">
+                At purchase limit
+              </div>
+            )}
 
-        <button
-          onClick={() => router.push('/pricing')}
-          className="w-full px-4 py-2 rounded font-medium transition-colors hover:opacity-90 text-sm"
-          style={{ backgroundColor: '#BF9B30', color: 'white' }}
-        >
-          Upgrade to Gold - $15/mo
-        </button>
+            <button
+              onClick={() => router.push('/pricing')}
+              className="w-full px-4 py-2 rounded font-medium transition-colors hover:opacity-90 text-sm"
+              style={{ backgroundColor: '#BF9B30', color: 'white' }}
+            >
+              Upgrade to Gold - $15/mo
+            </button>
+          </>
+        )}
       </div>
     </div>
   );
