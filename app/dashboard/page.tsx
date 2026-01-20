@@ -595,8 +595,8 @@ export default function DashboardPage() {
             {/* COMBINED PROFILE + BB WIDGET */}
             {userProfile && currentUserId && (
               <div className="border border-white/10 bg-[#1e1e1e] rounded-2xl p-4">
-                {/* Profile Section at Top */}
-                <div className="flex items-center gap-3 mb-4 pb-4 border-b border-white/10">
+                {/* Profile Section with Stats on Same Row */}
+                <div className="flex items-start gap-3 mb-3 pb-3 border-b border-white/10">
                   <ProfilePicture
                     userId={currentUserId}
                     currentPictureUrl={userProfile.profile_picture_url}
@@ -608,40 +608,41 @@ export default function DashboardPage() {
                   <div className="flex-1">
                     <button
                       onClick={() => router.push(`/u/${userProfile.username}`)}
-                      className="text-xl font-semibold hover:text-white/80 transition-colors"
+                      className="text-lg font-semibold hover:text-white/80 transition-colors block mb-1"
                     >
                       {userProfile.username}
                     </button>
                     {userProfile.law_school && (
-                      <p className="text-sm text-white/60 mt-1">{userProfile.law_school}</p>
+                      <p className="text-xs text-white/60 mb-2">{userProfile.law_school}</p>
                     )}
+                    {/* Stats moved here beside profile */}
+                    <div className="flex gap-3 text-xs">
+                      <div className="flex items-center gap-1">
+                        <span className="text-white/60">Uploads:</span>
+                        <span className="font-medium">{userProfile.upload_count}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <span className="text-white/60">Likes:</span>
+                        <span className="font-medium">{userProfile.total_likes}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <span className="text-white/60">Friends:</span>
+                        <span className="font-medium">{userProfile.friend_count}</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
-                {/* Stats */}
-                <div className="flex flex-col gap-1 text-xs mb-4 pb-4 border-b border-white/10">
-                  <div className="flex items-center gap-1">
-                    <span className="text-white/60">Uploads:</span>
-                    <span className="font-medium">{userProfile.upload_count}</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <span className="text-white/60">Likes:</span>
-                    <span className="font-medium">{userProfile.total_likes}</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <span className="text-white/60">Friends:</span>
-                    <span className="font-medium">{userProfile.friend_count}</span>
-                  </div>
+                {/* BB Counter Component - compact version without bottom blue BB text */}
+                <div className="pb-3 border-b border-white/10">
+                  <BBCounter />
                 </div>
-
-                {/* BB Counter Component */}
-                <BBCounter />
 
                 {/* Friend Requests Button */}
                 {userProfile.pending_requests > 0 && (
                   <button
                     onClick={() => router.push("/friends")}
-                    className="mt-4 w-full rounded-lg py-2 px-4 font-medium transition-colors flex items-center justify-center gap-2 text-white hover:opacity-90"
+                    className="mt-3 w-full rounded-lg py-2 px-4 font-medium transition-colors flex items-center justify-center gap-2 text-white hover:opacity-90"
                     style={{ backgroundColor: "#66b2ff" }}
                   >
                     Add Friends
