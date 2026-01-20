@@ -633,10 +633,8 @@ export default function DashboardPage() {
                   </div>
                 </div>
 
-                {/* BB Counter Component - compact version without bottom blue BB text */}
-                <div className="pb-3 border-b border-white/10">
-                  <BBCounter />
-                </div>
+                {/* BB Counter Component - NO BOTTOM BORDER */}
+                <BBCounter />
 
                 {/* Friend Requests Button */}
                 {userProfile.pending_requests > 0 && (
@@ -697,7 +695,7 @@ export default function DashboardPage() {
                   }`}
                 >
                   <Image src="/bset.png" alt="bset" width={20} height={20} />
-                  briefset
+                  .bset
                 </button>
                 <button
                   onClick={() => setTypeFilter("bmod")}
@@ -708,7 +706,7 @@ export default function DashboardPage() {
                   }`}
                 >
                   <Image src="/bmod.png" alt="bmod" width={20} height={20} />
-                  mod
+                  .bmod
                 </button>
                 <button
                   onClick={() => setTypeFilter("tbank")}
@@ -719,7 +717,7 @@ export default function DashboardPage() {
                   }`}
                 >
                   <Image src="/b_blank.png" alt="tbank" width={20} height={20} />
-                  typobank
+                  .tbank
                 </button>
               </div>
             </div>

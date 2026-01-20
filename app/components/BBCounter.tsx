@@ -138,12 +138,7 @@ export function BBCounter() {
         />
       </div>
 
-      {/* Member ID for Gold users - ONE LINE, GOLD COLOR, SAME SIZE */}
-      {bbStatus.is_gold && bbStatus.gold_member_number && (
-        <div className="mb-3 text-center text-xs" style={{ color: '#BF9B30' }}>
-          Member ID: G-{bbStatus.gold_member_number}
-        </div>
-      )}
+      {/* NO MEMBER ID LINE - COMPLETELY REMOVED */}
 
       {/* BB Breakdown - Only show for non-gold users */}
       {!bbStatus.is_gold && (
