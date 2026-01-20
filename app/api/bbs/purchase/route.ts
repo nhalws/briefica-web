@@ -2,28 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import Stripe from 'stripe';
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
-
 export async function POST(request: NextRequest) {
   try {
-    // Initialize Stripe inside the function (not at module level)
-    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-      apiVersion: '2024-11-20' as any,
-    });
-
-    const { bb_amount } = await request.json();
-
-    // Validate amount (1, 2, or 3)
-    if (![1, 2, 3].includes(bb_amount)) {
-      return NextResponse.json(
-        { error: 'Invalid amount. Must be 1, 2, or 3 BBs.' },
-        { status: 400 }
-      );
-    }
-
     // Get authenticated user
     const authHeader = request.headers.get('authorization');
     if (!authHeader) {
@@ -34,14 +14,45 @@ export async function POST(request: NextRequest) {
     }
 
     const token = authHeader.replace('Bearer ', '');
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+
+    // Create Supabase client with user's token
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        global: {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      }
+    );
+
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
     
     if (authError || !user) {
+      console.error('Auth error:', authError);
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
       );
     }
+
+    // Parse request body
+    const { bb_amount } = await request.json();
+
+    // Validate amount (1, 2, or 3)
+    if (![1, 2, 3].includes(bb_amount)) {
+      return NextResponse.json(
+        { error: 'Invalid amount. Must be 1, 2, or 3 BBs.' },
+        { status: 400 }
+      );
+    }
+
+    // Initialize Stripe inside the function (not at module level)
+    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+      apiVersion: '2024-11-20' as any,
+    });
 
     // Create Stripe checkout session
     const cost = bb_amount * 5; // $5 per BB (in dollars)
@@ -80,7 +91,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Error in /api/bbs/purchase:', error);
     return NextResponse.json(
-      { error: 'Failed to create checkout session' },
+      { error: 'Failed to create checkout session', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
     );
   }
