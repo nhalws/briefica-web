@@ -121,7 +121,7 @@ function AuthPageContent() {
         return;
       }
 
-      // Sign up with Supabase Auth
+      // Sign up with Supabase Auth - database trigger will create profile and goldilex_access
       const { data, error: signUpError } = await supabase.auth.signUp({
         email,
         password,
@@ -137,39 +137,10 @@ function AuthPageContent() {
         return;
       }
 
-      const userId = data.user?.id;
-      if (!userId) {
-        setMessage("Signup succeeded, but no user id returned.");
+      if (!data.user) {
+        setMessage("Signup succeeded, but no user returned.");
         setLoading(false);
         return;
-      }
-
-      // Create profile entry manually (in case trigger doesn't work)
-      const { error: profileError } = await supabase
-        .from("profiles")
-        .insert({
-          user_id: userId,
-          username: u,
-          email: email,
-        });
-
-      if (profileError) {
-        console.error("Profile creation error:", profileError);
-        // Don't fail completely - the trigger might have created it
-      }
-
-      // Initialize goldilex_access with free tier
-      const { error: accessError } = await supabase
-        .from("goldilex_access")
-        .insert({
-          user_id: userId,
-          tier: 'free',
-          approved: true,
-        });
-
-      if (accessError) {
-        console.error("Goldilex access creation error:", accessError);
-        // Don't fail completely
       }
 
       setMessage("Account created! Check your email to confirm, then you can sign in.");
@@ -316,7 +287,7 @@ function AuthPageContent() {
         </div>
 
         {message && (
-          <p className={`text-sm mt-4 ${message.includes('error') || message.includes('failed') ? 'text-red-400' : 'text-white/70'}`}>
+          <p className={`text-sm mt-4 ${message.includes('error') || message.includes('failed') || message.includes('Database') ? 'text-red-400' : 'text-white/70'}`}>
             {message}
           </p>
         )}
