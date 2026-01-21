@@ -1,45 +1,67 @@
-import { redirect } from 'next/navigation';
-import { cookies } from 'next/headers';
-import { createServerClient } from '@supabase/auth-helpers-nextjs';
+'use client';
+
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { supabase } from '../lib/supabaseClient';
 import GoldilexInterface from '@/components/goldilex/GoldilexInterface';
 
-export default async function GoldilexPage() {
-  const cookieStore = await cookies();
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        get(name: string) {
-          return cookieStore.get(name)?.value;
-        },
-      },
+export default function GoldilexPage() {
+  const router = useRouter();
+  const [checking, setChecking] = useState(true);
+  const [canAccess, setCanAccess] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function checkAccess() {
+      const { data: { session } } = await supabase.auth.getSession();
+
+      if (!session) {
+        router.replace('/auth?redirect=/goldilex');
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from('goldilex_access')
+        .select('tier, approved')
+        .eq('user_id', session.user.id)
+        .single();
+
+      if (error) {
+        console.error('Failed to fetch goldilex access:', error.message);
+      }
+
+      const isGold = data?.tier === 'gold' && data?.approved === true;
+
+      if (!isGold) {
+        router.replace('/pricing?upgrade=goldilex');
+        return;
+      }
+
+      if (!cancelled) {
+        setCanAccess(true);
+        setChecking(false);
+      }
     }
-  );
 
-  // Step 1: Check if user is authenticated
-  const { data: { session } } = await supabase.auth.getSession();
+    checkAccess();
 
-  if (!session) {
-    // Not logged in - redirect to auth with return URL
-    redirect('/auth?redirect=/goldilex');
+    return () => {
+      cancelled = true;
+    };
+  }, [router]);
+
+  if (checking) {
+    return (
+      <main className="min-h-screen flex items-center justify-center bg-[#1e1e1e] text-white">
+        Checking access...
+      </main>
+    );
   }
 
-  // Step 2: Check if user has Gold access
-  const { data: access, error } = await supabase
-    .from('goldilex_access')
-    .select('tier, approved')
-    .eq('user_id', session.user.id)
-    .single();
-
-  // Check Gold status - must have tier='gold' AND approved=true
-  const isGold = access?.tier === 'gold' && access?.approved === true;
-
-  if (!isGold) {
-    // Not Gold - redirect to pricing page
-    redirect('/pricing?upgrade=goldilex');
+  if (!canAccess) {
+    return null;
   }
 
-  // User is Gold and approved - show goldilex interface
   return <GoldilexInterface />;
 }
