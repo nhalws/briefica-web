@@ -4,7 +4,7 @@ import { createServerClient } from '@supabase/auth-helpers-nextjs';
 import GoldilexInterface from '@/components/goldilex/GoldilexInterface';
 
 export default async function GoldilexPage() {
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
