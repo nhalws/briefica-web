@@ -121,6 +121,9 @@ function AuthPageContent() {
         return;
       }
 
+      // Debug: Log what we're sending
+      console.log('Attempting signup with:', { email, username: u });
+
       // Sign up with Supabase Auth - database trigger will create profile and goldilex_access
       const { data, error: signUpError } = await supabase.auth.signUp({
         email,
@@ -130,6 +133,8 @@ function AuthPageContent() {
           emailRedirectTo: `${window.location.origin}/auth/callback`,
         },
       });
+
+      console.log('Signup response:', { data, error: signUpError });
 
       if (signUpError) {
         setMessage(signUpError.message);
