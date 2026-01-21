@@ -1,9 +1,21 @@
 import { redirect } from 'next/navigation';
 import { cookies } from 'next/headers';
-import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
+import { createServerClient } from '@supabase/auth-helpers-nextjs';
+import GoldilexInterface from '@/components/goldilex/GoldilexInterface';
 
 export default async function GoldilexPage() {
-  const supabase = createServerComponentClient({ cookies });
+  const cookieStore = cookies();
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        get(name: string) {
+          return cookieStore.get(name)?.value;
+        },
+      },
+    }
+  );
 
   // Step 1: Check if user is authenticated
   const { data: { session } } = await supabase.auth.getSession();
@@ -28,8 +40,6 @@ export default async function GoldilexPage() {
     redirect('/pricing?upgrade=goldilex');
   }
 
-  // User is Gold and approved - dynamically import and show goldilex
-  const GoldilexInterface = (await import('@/components/goldilex/GoldilexInterface')).default;
-  
+  // User is Gold and approved - show goldilex interface
   return <GoldilexInterface />;
 }
