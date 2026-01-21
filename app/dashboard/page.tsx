@@ -290,11 +290,12 @@ export default function DashboardPage() {
 
       const { data } = await supabase
         .from("goldilex_access")
-        .select("approved")
+        .select("tier, approved")
         .eq("user_id", currentUserId)
         .single();
 
-      setGoldilexAccess(data?.approved ?? false);
+      const isGold = data?.tier === "gold" && data?.approved === true;
+      setGoldilexAccess(isGold);
     }
 
     if (currentUserId) {
