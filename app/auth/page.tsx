@@ -15,6 +15,7 @@ function AuthPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const modeParam = searchParams.get("mode");
+  const redirectParam = searchParams.get("redirect");
   
   const [mode, setMode] = useState<Mode>(
     modeParam === "signup" ? "signup" : "signin"
@@ -35,10 +36,12 @@ function AuthPageContent() {
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
       if (data.session) {
-        router.push("/dashboard");
+        // If there's a redirect parameter, go there, otherwise dashboard
+        const destination = redirectParam || "/dashboard";
+        router.push(destination);
       }
     });
-  }, [router]);
+  }, [router, redirectParam]);
 
   useEffect(() => {
     if (modeParam === "signup" || modeParam === "signin") {
@@ -78,10 +81,12 @@ function AuthPageContent() {
         password,
       });
 
-      if (signInError) setMessage(signInError.message);
-      else {
+      if (signInError) {
+        setMessage(signInError.message);
+      } else {
         setMessage("Signed in successfully.");
-        router.push("/dashboard");
+        const destination = redirectParam || "/dashboard";
+        router.push(destination);
       }
     } catch (e: any) {
       setMessage(e?.message ?? "Sign in failed.");
@@ -108,6 +113,7 @@ function AuthPageContent() {
     }
 
     try {
+      // Check if username is available
       const available = await isUsernameAvailable(u);
       if (!available) {
         setMessage("That username is already taken.");
@@ -115,14 +121,15 @@ function AuthPageContent() {
         return;
       }
 
-const { data, error: signUpError } = await supabase.auth.signUp({
-  email,
-  password,
-  options: {
-    data: { username: u },
-    emailRedirectTo: "https://briefica.com/auth/callback",
-  },
-});
+      // Sign up with Supabase Auth
+      const { data, error: signUpError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: { username: u },
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
+        },
+      });
 
       if (signUpError) {
         setMessage(signUpError.message);
@@ -137,9 +144,38 @@ const { data, error: signUpError } = await supabase.auth.signUp({
         return;
       }
 
-      setMessage("Account created. Check your email to confirm.");
+      // Create profile entry manually (in case trigger doesn't work)
+      const { error: profileError } = await supabase
+        .from("profiles")
+        .insert({
+          user_id: userId,
+          username: u,
+          email: email,
+        });
+
+      if (profileError) {
+        console.error("Profile creation error:", profileError);
+        // Don't fail completely - the trigger might have created it
+      }
+
+      // Initialize goldilex_access with free tier
+      const { error: accessError } = await supabase
+        .from("goldilex_access")
+        .insert({
+          user_id: userId,
+          tier: 'free',
+          approved: true,
+        });
+
+      if (accessError) {
+        console.error("Goldilex access creation error:", accessError);
+        // Don't fail completely
+      }
+
+      setMessage("Account created! Check your email to confirm, then you can sign in.");
     } catch (e: any) {
-      setMessage(e?.message ?? "Something went wrong.");
+      console.error("Signup error:", e);
+      setMessage(e?.message ?? "Something went wrong during signup.");
     } finally {
       setLoading(false);
     }
@@ -279,7 +315,11 @@ const { data, error: signUpError } = await supabase.auth.signUp({
           </button>
         </div>
 
-        {message && <p className="text-sm text-white/70 mt-4">{message}</p>}
+        {message && (
+          <p className={`text-sm mt-4 ${message.includes('error') || message.includes('failed') ? 'text-red-400' : 'text-white/70'}`}>
+            {message}
+          </p>
+        )}
       </div>
     </main>
   );
