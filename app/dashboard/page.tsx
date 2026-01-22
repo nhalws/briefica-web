@@ -288,13 +288,18 @@ export default function DashboardPage() {
     async function checkGoldilexAccess() {
       if (!currentUserId) return;
 
-      const { data } = await supabase
+      console.log('Checking Goldilex access for user:', currentUserId);
+
+      const { data, error } = await supabase
         .from("goldilex_access")
         .select("tier, approved")
         .eq("user_id", currentUserId)
         .single();
 
+      console.log('Goldilex access data:', data, 'error:', error);
+
       const isGold = data?.tier === "gold" && data?.approved === true;
+      console.log('Is Gold?', isGold);
       setGoldilexAccess(isGold);
     }
 
