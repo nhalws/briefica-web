@@ -286,14 +286,22 @@ export default function DashboardPage() {
 
   useEffect(() => {
     async function checkGoldilexAccess() {
-      if (!currentUserId) return;
+      console.log('Checking Goldilex access...');
 
-      console.log('Checking Goldilex access for user:', currentUserId);
+      // Get the current authenticated user ID directly from auth
+      const { data: { user } } = await supabase.auth.getUser();
+
+      if (!user) {
+        console.log('No authenticated user found');
+        return;
+      }
+
+      console.log('Authenticated user ID:', user.id);
 
       const { data, error } = await supabase
         .from("goldilex_access")
         .select("tier, approved")
-        .eq("user_id", currentUserId)
+        .eq("user_id", user.id)
         .single();
 
       console.log('Goldilex access data:', data, 'error:', error);
@@ -303,10 +311,8 @@ export default function DashboardPage() {
       setGoldilexAccess(isGold);
     }
 
-    if (currentUserId) {
-      checkGoldilexAccess();
-    }
-  }, [currentUserId]);
+    checkGoldilexAccess();
+  }, []);  // Run once on mount
 
   async function toggleLike(artifactId: string) {
     if (!currentUserId) return;
