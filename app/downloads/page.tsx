@@ -55,7 +55,7 @@ export default function DownloadsPage() {
 
             <h2 className="text-2xl font-semibold text-center mb-2">macOS</h2>
             <p className="text-center text-white/60 mb-6">
-              version 6.2 (horizon)
+              version 6.3 (sandcastle)
             </p>
 
             <div className="space-y-3 mb-6">
@@ -80,7 +80,7 @@ export default function DownloadsPage() {
             </div>
 
             <a
-              href="/downloads/b6.2.dmg"
+              href="/downloads/b6.3.dmg"
               className="block w-full text-center text-white rounded-lg py-3 px-4 font-medium transition-colors hover:opacity-90"
               style={{ backgroundColor: '#66b2ff' }}
               onMouseEnter={(e) => {
@@ -94,7 +94,7 @@ export default function DownloadsPage() {
             </a>
 
             <p className="text-xs text-white/50 text-center mt-4">
-              ~65 MB • DMG installer
+              ~54 MB • DMG installer
             </p>
           </div>
 
@@ -200,16 +200,25 @@ export default function DownloadsPage() {
           
           <div className="grid grid-cols-3 gap-4">
             <div className="text-center p-4 bg-white/5 rounded-lg">
+              <div className="flex justify-center mb-2">
+                <Image src="/bset.png" alt="briefset" width={40} height={40} className="object-contain" />
+              </div>
               <div className="text-2xl font-bold mb-1">.bset</div>
-              <div className="text-sm text-white/60">briefsets</div>
+              <div className="text-sm text-white/60">briefset</div>
             </div>
             <div className="text-center p-4 bg-white/5 rounded-lg">
+              <div className="flex justify-center mb-2">
+                <Image src="/bmod.png" alt="b-modification" width={40} height={40} className="object-contain" />
+              </div>
               <div className="text-2xl font-bold mb-1">.bmod</div>
-              <div className="text-sm text-white/60">modifications</div>
+              <div className="text-sm text-white/60">b-modification</div>
             </div>
             <div className="text-center p-4 bg-white/5 rounded-lg">
+              <div className="flex justify-center mb-2">
+                <Image src="/b_blank.png" alt="typobank" width={40} height={40} className="object-contain" />
+              </div>
               <div className="text-2xl font-bold mb-1">.tbank</div>
-              <div className="text-sm text-white/60">typobanks</div>
+              <div className="text-sm text-white/60">typobank</div>
             </div>
           </div>
         </div>
