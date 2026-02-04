@@ -13,11 +13,9 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     autoRefreshToken: true,
     detectSessionInUrl: true,
   },
-  // Explicitly attach the anon key to every request to avoid "No API key found" errors.
   global: {
     headers: {
       apikey: supabaseAnonKey,
-      Authorization: `Bearer ${supabaseAnonKey}`,
     },
   },
 });
