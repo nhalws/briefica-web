@@ -83,36 +83,8 @@ function PricingContent() {
     }
   }
 
-  async function handleBBCheckout() {
-    setLoading(true);
-    
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        router.push("/auth?redirect=/pricing");
-        return;
-      }
-
-      const response = await fetch("/api/stripe/create-checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          priceId: process.env.NEXT_PUBLIC_STRIPE_BB_PRICE_ID,
-          userId: session.user.id,
-          tier: "free",
-        }),
-      });
-
-      const { url } = await response.json();
-      if (url) {
-        window.location.href = url;
-      }
-    } catch (error) {
-      console.error("Checkout error:", error);
-      alert("Failed to start checkout. Please try again.");
-    } finally {
-      setLoading(false);
-    }
+  function handleBBCheckout() {
+    router.push("/buy-bbs");
   }
 
   if (loading) {

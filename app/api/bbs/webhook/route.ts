@@ -36,33 +36,93 @@ export async function POST(request: NextRequest) {
       const session = event.data.object as Stripe.Checkout.Session;
 
       const userId = session.metadata?.user_id;
-      const bbAmount = parseInt(session.metadata?.bb_amount || '0');
-      const paymentIntentId = session.payment_intent as string;
+      const purchaseType = session.metadata?.type;
 
-      if (!userId || !bbAmount) {
-        console.error('Missing metadata in checkout session');
+      if (!userId) {
+        console.error('Missing user_id in checkout session metadata');
         return NextResponse.json(
           { error: 'Invalid session metadata' },
           { status: 400 }
         );
       }
 
-      // Call purchase_bbs function
-      const { data, error } = await supabase.rpc('purchase_bbs', {
-        user_uuid: userId,
-        bb_amount: bbAmount,
-        stripe_payment_id: paymentIntentId,
-      });
+      if (purchaseType === 'gold_subscription') {
+        // Handle Gold subscription activation
+        console.log('Processing Gold subscription for user:', userId);
 
-      if (error) {
-        console.error('Error purchasing BBs:', error);
-        return NextResponse.json(
-          { error: 'Failed to process BB purchase' },
-          { status: 500 }
-        );
+        // Check if user already has a goldilex_access record
+        const { data: existing } = await supabase
+          .from('goldilex_access')
+          .select('id')
+          .eq('user_id', userId)
+          .single();
+
+        if (existing) {
+          // Update existing record to gold
+          const { error: updateError } = await supabase
+            .from('goldilex_access')
+            .update({ tier: 'gold', approved: true })
+            .eq('user_id', userId);
+
+          if (updateError) {
+            console.error('Error updating goldilex_access:', updateError);
+          }
+        } else {
+          // Insert new gold record
+          const { error: insertError } = await supabase
+            .from('goldilex_access')
+            .insert({
+              user_id: userId,
+              tier: 'gold',
+              approved: true,
+            });
+
+          if (insertError) {
+            console.error('Error inserting goldilex_access:', insertError);
+          }
+        }
+
+        // Update user_bbs subscription tier to gold
+        const { error: bbError } = await supabase
+          .from('user_bbs')
+          .update({ subscription_tier: 'gold' })
+          .eq('user_id', userId);
+
+        if (bbError) {
+          console.error('Error updating user_bbs tier:', bbError);
+        }
+
+        console.log('Gold subscription activated for user:', userId);
+
+      } else {
+        // Handle BB purchase
+        const bbAmount = parseInt(session.metadata?.bb_amount || '0');
+        const paymentIntentId = session.payment_intent as string;
+
+        if (!bbAmount) {
+          console.error('Missing bb_amount in checkout session metadata');
+          return NextResponse.json(
+            { error: 'Invalid session metadata' },
+            { status: 400 }
+          );
+        }
+
+        const { data, error } = await supabase.rpc('purchase_bbs', {
+          user_uuid: userId,
+          bb_amount: bbAmount,
+          stripe_payment_id: paymentIntentId,
+        });
+
+        if (error) {
+          console.error('Error purchasing BBs:', error);
+          return NextResponse.json(
+            { error: 'Failed to process BB purchase' },
+            { status: 500 }
+          );
+        }
+
+        console.log('BB purchase successful:', data);
       }
-
-      console.log('BB purchase successful:', data);
     }
 
     return NextResponse.json({ received: true });
