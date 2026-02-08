@@ -85,9 +85,10 @@ export async function POST(
     }
 
     // Get download URL from Supabase Storage
+    const downloadFilename = artifact.original_filename || `${artifact.title}.${artifact.type}`;
     const { data: urlData } = await supabase.storage
       .from('artifacts')
-      .createSignedUrl(artifact.storage_key, 60); // 60 second expiry
+      .createSignedUrl(artifact.storage_key, 60, { download: downloadFilename }); // 60 second expiry
 
     if (!urlData) {
       return NextResponse.json(

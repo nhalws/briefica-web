@@ -388,12 +388,16 @@ export default function DashboardPage() {
           return;
         }
 
-        const link = document.createElement("a");
-        link.href = data.download_url;
-        link.download = fileName;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+        const fileResponse = await fetch(data.download_url);
+        const blob = await fileResponse.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
 
         setDownloadCounts((prev) => ({
           ...prev,

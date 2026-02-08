@@ -268,12 +268,16 @@ export default function ArtifactPage() {
 
         // Download the file using signed URL from API
         const filename = artifact.original_filename || `${artifact.title}.${artifact.type}`;
-        const link = document.createElement("a");
-        link.href = data.download_url;
-        link.download = filename;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+        const fileResponse = await fetch(data.download_url);
+        const blob = await fileResponse.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
 
         // Update local download count
         setDownloadCount((prev) => prev + 1);
