@@ -28,6 +28,7 @@ type ArtifactRow = {
   storage_key: string;
   has_top_grade_badge?: boolean;
   is_professor_verified?: boolean;
+  original_filename?: string | null;
 };
 
 type Friend = {
@@ -195,7 +196,7 @@ export default function DashboardPage() {
 
       const { data, error } = await supabase
         .from("artifacts")
-        .select("id, owner_id, type, title, description, created_at, storage_key, has_top_grade_badge, is_professor_verified")
+        .select("id, owner_id, type, title, description, created_at, storage_key, has_top_grade_badge, is_professor_verified, original_filename")
         .eq("visibility", "public")
         .order("created_at", { ascending: false })
         .limit(100);
@@ -770,7 +771,7 @@ export default function DashboardPage() {
                     </button>
 
                     <button
-                      onClick={() => handleDownload(r.id, r.storage_key, `${r.title}.${r.type}`, r.type)}
+                      onClick={() => handleDownload(r.id, r.storage_key, r.original_filename || `${r.title}.${r.type}`, r.type)}
                       className="flex items-center gap-1.5 transition-colors text-white/60 hover:text-white/80"
                     >
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -33,6 +33,7 @@ interface Artifact {
   owner_username?: string;
   like_count?: number;
   download_count?: number;
+  original_filename?: string | null;
 }
 
 // School logo mapping - add your images here
@@ -571,7 +572,7 @@ const [mostDownloadedExpanded, setMostDownloadedExpanded] = useState(false);
                           {artifact.like_count || 0}
                         </span>
                         <button
-                          onClick={() => handleDownload(artifact.id, artifact.storage_key, `${artifact.title}.${artifact.type}`)}
+                          onClick={() => handleDownload(artifact.id, artifact.storage_key, artifact.original_filename || `${artifact.title}.${artifact.type}`)}
                           className="flex items-center gap-1 hover:text-white transition-colors"
                         >
                           <svg
