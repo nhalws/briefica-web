@@ -64,6 +64,7 @@ export default function DashboardPage() {
   const [typeFilter, setTypeFilter] = useState<"all" | "bset" | "bmod" | "tbank">("all");
   const [msg, setMsg] = useState<string | null>(null);
   const [goldilexAccess, setGoldilexAccess] = useState<boolean>(false);
+  const [bbRefreshKey, setBbRefreshKey] = useState(0);
 
   useEffect(() => {
     document.title = "briefica web (b-web)";
@@ -403,6 +404,7 @@ export default function DashboardPage() {
           ...prev,
           [artifactId]: (prev[artifactId] || 0) + 1,
         }));
+        setBbRefreshKey((prev) => prev + 1);
 
       } catch (e) {
         console.error("Download failed:", e);
@@ -628,7 +630,7 @@ export default function DashboardPage() {
                   </div>
                 </div>
 
-                <BBCounter />
+                <BBCounter refreshKey={bbRefreshKey} />
 
                 {userProfile.pending_requests > 0 && (
                   <button

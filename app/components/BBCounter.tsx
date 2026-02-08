@@ -21,7 +21,7 @@ interface BBStatus {
   gold_member_number?: number | null;
 }
 
-export function BBCounter() {
+export function BBCounter({ refreshKey = 0 }: { refreshKey?: number }) {
   const router = useRouter();
   const [bbStatus, setBBStatus] = useState<BBStatus | null>(null);
   const [loading, setLoading] = useState(true);
@@ -29,7 +29,7 @@ export function BBCounter() {
 
   useEffect(() => {
     fetchBBStatus();
-  }, []);
+  }, [refreshKey]);
 
   async function fetchBBStatus() {
     try {
