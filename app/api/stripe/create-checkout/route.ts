@@ -31,21 +31,21 @@ export async function POST(request: NextRequest) {
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
     if (tier === 'gold') {
-      // Gold subscription checkout — read price ID server-side
-      const goldPriceId = process.env.NEXT_PUBLIC_STRIPE_GOLD_PRICE_ID;
-      if (!goldPriceId) {
-        console.error('NEXT_PUBLIC_STRIPE_GOLD_PRICE_ID not set');
-        return NextResponse.json(
-          { error: 'Gold checkout not configured' },
-          { status: 500 }
-        );
-      }
-
       const session = await stripe.checkout.sessions.create({
         payment_method_types: ['card'],
         line_items: [
           {
-            price: goldPriceId,
+            price_data: {
+              currency: 'usd',
+              product_data: {
+                name: 'Briefica Gold',
+                description: 'Unlimited BBs + Full Goldilex AI access',
+              },
+              unit_amount: 1500, // $15.00
+              recurring: {
+                interval: 'month',
+              },
+            },
             quantity: 1,
           },
         ],
