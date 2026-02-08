@@ -65,7 +65,6 @@ function PricingContent() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          priceId: process.env.NEXT_PUBLIC_STRIPE_GOLD_PRICE_ID,
           userId: session.user.id,
           tier: "gold",
         }),

@@ -9,7 +9,7 @@ const supabase = createClient(
 
 export async function POST(request: NextRequest) {
   try {
-    const { priceId, userId, tier } = await request.json();
+    const { userId, tier } = await request.json();
 
     if (!userId || !tier) {
       return NextResponse.json(
@@ -30,11 +30,13 @@ export async function POST(request: NextRequest) {
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
     if (tier === 'gold') {
-      // Gold subscription checkout
-      if (!priceId) {
+      // Gold subscription checkout — read price ID server-side
+      const goldPriceId = process.env.NEXT_PUBLIC_STRIPE_GOLD_PRICE_ID;
+      if (!goldPriceId) {
+        console.error('NEXT_PUBLIC_STRIPE_GOLD_PRICE_ID not set');
         return NextResponse.json(
-          { error: 'Price ID required for Gold checkout' },
-          { status: 400 }
+          { error: 'Gold checkout not configured' },
+          { status: 500 }
         );
       }
 
@@ -42,7 +44,7 @@ export async function POST(request: NextRequest) {
         payment_method_types: ['card'],
         line_items: [
           {
-            price: priceId,
+            price: goldPriceId,
             quantity: 1,
           },
         ],
@@ -58,33 +60,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ url: session.url });
 
     } else {
-      // BB purchase checkout
-      if (!priceId) {
-        return NextResponse.json(
-          { error: 'Price ID required for BB checkout' },
-          { status: 400 }
-        );
-      }
-
-      const session = await stripe.checkout.sessions.create({
-        payment_method_types: ['card'],
-        line_items: [
-          {
-            price: priceId,
-            quantity: 1,
-          },
-        ],
-        mode: 'payment',
-        success_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard?purchase=success`,
-        cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/pricing?purchase=cancelled`,
-        metadata: {
-          user_id: userId,
-          bb_amount: '1',
-          type: 'bb_purchase',
-        },
-      });
-
-      return NextResponse.json({ url: session.url });
+      return NextResponse.json(
+        { error: 'Use /buy-bbs for BB purchases' },
+        { status: 400 }
+      );
     }
 
   } catch (error: any) {
