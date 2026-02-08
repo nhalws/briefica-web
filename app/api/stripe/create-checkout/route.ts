@@ -19,8 +19,9 @@ export async function POST(request: NextRequest) {
     }
 
     // Verify user exists
-    const { data: user, error: userError } = await supabase.auth.admin.getUserById(userId);
-    if (userError || !user) {
+    const { data: userData, error: userError } = await supabase.auth.admin.getUserById(userId);
+    if (userError || !userData?.user) {
+      console.error('User verification failed:', userError?.message);
       return NextResponse.json(
         { error: 'User not found' },
         { status: 404 }

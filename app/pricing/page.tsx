@@ -70,9 +70,16 @@ function PricingContent() {
         }),
       });
 
-      const { url } = await response.json();
-      if (url) {
-        window.location.href = url;
+      const data = await response.json();
+      if (!response.ok) {
+        console.error("Checkout API error:", data);
+        alert(data.error || "Failed to start checkout.");
+        return;
+      }
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        alert("No checkout URL returned. Please try again.");
       }
     } catch (error) {
       console.error("Checkout error:", error);
