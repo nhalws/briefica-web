@@ -42,7 +42,7 @@ export async function GET(req: NextRequest) {
     // Get user's BB data
     const { data: userData, error: userError } = await supabase
       .from('user_bbs')
-      .select('monthly_bbs, purchased_bbs, last_reset')
+      .select('monthly_bbs, purchased_bbs, bb_reset_date')
       .eq('user_id', user.id)
       .single();
 
@@ -76,7 +76,7 @@ export async function GET(req: NextRequest) {
           user_id: user.id,
           monthly_bbs: 3,
           purchased_bbs: 0,
-          last_reset: new Date().toISOString()
+          bb_reset_date: new Date().toISOString()
         })
         .select()
         .single();
@@ -98,7 +98,7 @@ export async function GET(req: NextRequest) {
     }
 
     // Calculate days until reset
-    const lastReset = new Date(userData.last_reset);
+    const lastReset = new Date(userData.bb_reset_date);
     const now = new Date();
     const nextReset = new Date(lastReset);
     nextReset.setMonth(nextReset.getMonth() + 1);
@@ -112,7 +112,7 @@ export async function GET(req: NextRequest) {
         .from('user_bbs')
         .update({
           monthly_bbs: 3,
-          last_reset: new Date().toISOString()
+          bb_reset_date: new Date().toISOString()
         })
         .eq('user_id', user.id);
 
