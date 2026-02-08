@@ -225,11 +225,18 @@ export default function ArtifactPage() {
 
   async function download() {
     if (!artifact) return;
-    setBusy(true);
-    setMsg(null);
 
     // Check if artifact is .bset (costs 1 BB) or Free-B (.bmod/.tbank = free)
     const isBset = artifact.type === "bset";
+
+    if (isBset) {
+      if (!confirm("Are you sure you want to download this .bset? This will cost 1 BB.")) return;
+    } else {
+      if (!confirm("Are you sure you want to download this file?")) return;
+    }
+
+    setBusy(true);
+    setMsg(null);
 
     if (isBset) {
       // Use the new API route that checks BBs

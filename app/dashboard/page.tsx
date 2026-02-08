@@ -359,6 +359,7 @@ export default function DashboardPage() {
     const isBset = artifactType === "bset";
 
     if (isBset) {
+      if (!confirm("Are you sure you want to download this .bset? This will cost 1 BB.")) return;
       try {
         const { data: { session } } = await supabase.auth.getSession();
         if (!session) {
@@ -411,6 +412,7 @@ export default function DashboardPage() {
         alert("Download failed. Please try again.");
       }
     } else {
+      if (!confirm("Are you sure you want to download this file?")) return;
       try {
         await supabase.from("artifact_downloads").insert({
           artifact_id: artifactId,
