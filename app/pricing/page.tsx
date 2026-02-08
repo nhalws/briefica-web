@@ -73,7 +73,7 @@ function PricingContent() {
       const data = await response.json();
       if (!response.ok) {
         console.error("Checkout API error:", data);
-        alert(data.error || "Failed to start checkout.");
+        alert(data.error + (data.details ? ": " + data.details : ""));
         return;
       }
       if (data.url) {

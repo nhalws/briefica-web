@@ -50,6 +50,7 @@ export async function POST(request: NextRequest) {
           },
         ],
         mode: 'subscription',
+        customer_email: userData.user.email,
         success_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard?upgrade=success`,
         cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/pricing?upgrade=cancelled`,
         metadata: {
