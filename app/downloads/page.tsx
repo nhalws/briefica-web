@@ -55,7 +55,7 @@ export default function DownloadsPage() {
 
             <h2 className="text-2xl font-semibold text-center mb-2">macOS</h2>
             <p className="text-center text-white/60 mb-6">
-              version 6.3 (sandcastle)
+              version 6.4 (sandmansion)
             </p>
 
             <div className="space-y-3 mb-6">
@@ -80,7 +80,7 @@ export default function DownloadsPage() {
             </div>
 
             <a
-              href="/downloads/b6.3.dmg"
+              href="/downloads/b6.4.dmg"
               className="block w-full text-center text-white rounded-lg py-3 px-4 font-medium transition-colors hover:opacity-90"
               style={{ backgroundColor: '#66b2ff' }}
               onMouseEnter={(e) => {
@@ -94,7 +94,7 @@ export default function DownloadsPage() {
             </a>
 
             <p className="text-xs text-white/50 text-center mt-4">
-              ~54 MB • DMG installer
+              ~63 MB • DMG installer
             </p>
           </div>
 
