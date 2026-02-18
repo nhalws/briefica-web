@@ -74,23 +74,28 @@ export async function POST(request: NextRequest) {
     // Remove apiVersion or use a valid one
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
-    // Create Stripe checkout session
-    const cost = bb_amount * 5; // $5 per BB (in dollars)
-    const amountInCents = cost * 100;
+    // Map bb_amount to Stripe price IDs
+    const priceIdMap: Record<number, string | undefined> = {
+      1: process.env.NEXT_PUBLIC_STRIPE_1_BB_PRICE_ID,
+      2: process.env.NEXT_PUBLIC_STRIPE_2_BB_PRICE_ID,
+      3: process.env.NEXT_PUBLIC_STRIPE_3_BB_PRICE_ID,
+    };
 
-    console.log('Creating checkout session...');
+    const priceId = priceIdMap[bb_amount];
+    if (!priceId) {
+      console.error('Missing Stripe price ID for amount:', bb_amount);
+      return NextResponse.json(
+        { error: 'Payment configuration error' },
+        { status: 500 }
+      );
+    }
+
+    console.log('Creating checkout session with price ID:', priceId);
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       line_items: [
         {
-          price_data: {
-            currency: 'usd',
-            product_data: {
-              name: `${bb_amount} briefica buck${bb_amount > 1 ? 's' : ''}`,
-              description: `Purchase ${bb_amount} additional download${bb_amount > 1 ? 's' : ''}`,
-            },
-            unit_amount: amountInCents,
-          },
+          price: priceId,
           quantity: 1,
         },
       ],
