@@ -6,8 +6,8 @@ import type {
   BSetItem,
   TaxonomyNode,
   ConstraintObject,
-  AnalyticalPath,
   AuthorizedContext,
+  Sticky,
 } from '@/types/bset';
 
 /**
@@ -163,6 +163,46 @@ function isAnalyticalPathPrefixOfItem(analyticalPath: string[], itemPath: string
 }
 
 /**
+ * Flatten the taxonomy tree (from _meta.taxonomy) into a flat array of TaxonomyNode,
+ * adding parent_id so computeAnalyticalPath can walk up the tree.
+ */
+export function flattenTaxonomyTree(
+  nodes: Array<{ id: string; title: string; children?: Array<any> }>,
+  parentId: string | null = null
+): TaxonomyNode[] {
+  const result: TaxonomyNode[] = [];
+  for (const node of nodes) {
+    result.push({ id: node.id, title: node.title, parent_id: parentId });
+    if (node.children && node.children.length > 0) {
+      result.push(...flattenTaxonomyTree(node.children, node.id));
+    }
+  }
+  return result;
+}
+
+/**
+ * Retrieve sticky notes using path-based prefix matching.
+ * Returns all stickies whose path starts with the analytical path.
+ */
+export function retrieveStickies(
+  analyticalPath: string[],
+  stickies: Sticky[]
+): Sticky[] {
+  const exact: Sticky[] = [];
+  const descendants: Sticky[] = [];
+
+  for (const sticky of stickies) {
+    if (pathsMatch(sticky.path, analyticalPath)) {
+      exact.push(sticky);
+    } else if (isAnalyticalPathPrefixOfItem(analyticalPath, sticky.path)) {
+      descendants.push(sticky);
+    }
+  }
+
+  return [...exact, ...descendants];
+}
+
+/**
  * Step 4: Retrieve constraint objects using path-based matching
  * Implements constraint retrieval (patent §235)
  */
@@ -235,13 +275,17 @@ export function assembleAuthorizedContext(
   analyticalPath: string[],
   targetNode: TaxonomyNode,
   reasoningObjects: BSetItem[],
-  constraintObjects: ConstraintObject[]
+  constraintObjects: ConstraintObject[],
+  stickyNotes: Sticky[],
+  taxonomy: TaxonomyNode[]
 ): AuthorizedContext {
   return {
     reasoning_objects: reasoningObjects,
     constraint_objects: constraintObjects,
     analytical_path: analyticalPath,
     target_node: targetNode,
+    sticky_notes: stickyNotes,
+    taxonomy,
   };
 }
 
@@ -253,9 +297,15 @@ export function generateStructuredInstructions(
   context: AuthorizedContext,
   query: string
 ): string {
-  const { target_node, reasoning_objects, constraint_objects } = context;
-  
-  let instructions = `You are goldilex, a constrained legal reasoning assistant. You ONLY use information from the provided authorized context - you never add outside knowledge or make things up.\n\n`;
+  const { target_node, reasoning_objects, constraint_objects, sticky_notes, taxonomy } = context;
+
+  // Build a quick id→title lookup from the taxonomy
+  const nodeTitle: Record<string, string> = {};
+  for (const n of taxonomy) {
+    nodeTitle[n.id] = n.title;
+  }
+
+  let instructions = `You are goldilex, a constrained reasoning assistant. You ONLY use information from the provided authorized context - you never add outside knowledge or make things up.\n\n`;
   instructions += `PERSONALITY:\n`;
   instructions += `- Always refer to yourself as "goldilex" or use "I" statements (e.g., "I found..." "I analyzed...")\n`;
   instructions += `- Be clear, professional, and helpful\n`;
@@ -263,15 +313,12 @@ export function generateStructuredInstructions(
   instructions += `ANALYTICAL DOMAIN: ${target_node.title}\n`;
   instructions += `USER QUERY: ${query}\n\n`;
   instructions += `CRITICAL CONSTRAINTS (NEVER VIOLATE THESE):\n`;
-  instructions += `1. I MUST ONLY cite cases and authorities provided in the authorized context below.\n`;
-  instructions += `2. I MUST NOT cite any cases, statutes, or authorities not explicitly listed.\n`;
-  instructions += `3. Every legal rule or holding I state MUST map to a rule_of_law field from an authorized case.\n`;
-  instructions += `4. I will use proper legal citation format: Case Name, Citation (Year).\n`;
-  instructions += `5. If the authorized context doesn't contain enough information to fully answer the query, I will say so clearly.\n`;
-  instructions += `6. All metadata in the items (facts, holdings, notes, questions, etc.) should be understood literally as the user's content.\n`;
-  instructions += `7. The taxonomy_path and heading_id indicate which heading/subheading the authority belongs to.\n\n`;
-  
-  // Add test/standard constraints
+  instructions += `1. I MUST ONLY use information explicitly provided in the authorized context below.\n`;
+  instructions += `2. I MUST NOT introduce outside facts, cases, statutes, or authorities not listed here.\n`;
+  instructions += `3. If the authorized context doesn't contain enough information to fully answer the query, I will say so clearly.\n`;
+  instructions += `4. All notes should be understood literally as the user's own recorded content.\n\n`;
+
+  // Add test/standard constraints (from legacy items)
   const tests = constraint_objects.filter(c => c.is_test_standard);
   if (tests.length > 0) {
     instructions += `REQUIRED ANALYTICAL FRAMEWORK:\n`;
@@ -280,8 +327,8 @@ export function generateStructuredInstructions(
     });
     instructions += `\n`;
   }
-  
-  // Add element/factor constraints
+
+  // Add element/factor constraints (from legacy items)
   const elements = constraint_objects.filter(c => c.is_element_factor);
   if (elements.length > 0) {
     instructions += `REQUIRED ELEMENTS TO ADDRESS:\n`;
@@ -290,8 +337,8 @@ export function generateStructuredInstructions(
     });
     instructions += `\n`;
   }
-  
-  // Add authorized cases
+
+  // Add authorized cases/authorities (legacy items)
   if (reasoning_objects.length > 0) {
     instructions += `AUTHORIZED CASES AND AUTHORITIES (you may ONLY cite from this list - ${reasoning_objects.length} total):\n\n`;
     reasoning_objects.forEach((obj, idx) => {
@@ -306,9 +353,45 @@ export function generateStructuredInstructions(
       instructions += `\n`;
     });
   }
-  
-  instructions += `\nProvide your analysis addressing the query using ONLY the authorized cases listed above.\n`;
-  
+
+  // Add sticky notes organized by type
+  if (sticky_notes.length > 0) {
+    instructions += `AUTHORIZED NOTES FROM BRIEFSET (${sticky_notes.length} total - use ONLY these):\n\n`;
+
+    const noteTypeOrder: Array<Sticky['note_type']> = [
+      'test/standard',
+      'element/factor',
+      'macro-fork',
+      'micro-fork',
+      'general note',
+      'footnote',
+    ];
+    const typeLabels: Record<Sticky['note_type'], string> = {
+      'test/standard': 'TESTS & STANDARDS (Analytical Frameworks)',
+      'element/factor': 'ELEMENTS & FACTORS',
+      'macro-fork': 'MACRO-FORKS (Major Alternative Paths)',
+      'micro-fork': 'MICRO-FORKS (Minor Alternative Paths)',
+      'general note': 'GENERAL NOTES',
+      'footnote': 'FOOTNOTES',
+    };
+
+    for (const noteType of noteTypeOrder) {
+      const group = sticky_notes.filter(s => s.note_type === noteType);
+      if (group.length === 0) continue;
+
+      instructions += `--- ${typeLabels[noteType]} ---\n`;
+      for (const sticky of group) {
+        const leafId = sticky.path[sticky.path.length - 1];
+        const heading = nodeTitle[leafId] || leafId;
+        const text = sticky.content.map(c => c.text).join('');
+        instructions += `[Under "${heading}"]: ${text}\n`;
+      }
+      instructions += `\n`;
+    }
+  }
+
+  instructions += `\nProvide your answer addressing the query using ONLY the authorized context listed above.\n`;
+
   return instructions;
 }
 
@@ -320,36 +403,42 @@ export class ExternalController {
   constructor(private bsetFile: BSetFile) {}
   
   async processQuery(query: string, targetNodeId?: string): Promise<AuthorizedContext> {
-    const taxonomy = this.bsetFile._meta.headings;
-    
+    // Use full flattened taxonomy (includes sub-nodes) for better node matching
+    const taxonomy = this.bsetFile._meta.taxonomy
+      ? flattenTaxonomyTree(this.bsetFile._meta.taxonomy)
+      : this.bsetFile._meta.headings;
+
     // Step 1: Determine target node (§220-227)
     let targetNode: TaxonomyNode | null;
-    
+
     if (targetNodeId) {
       targetNode = taxonomy.find(n => n.id === targetNodeId) || null;
     } else {
       targetNode = determineTargetNode(query, taxonomy);
     }
-    
+
     if (!targetNode) {
       throw new Error('Could not determine target analytical node from query');
     }
-    
+
     // Step 2: Compute analytical path (§230)
     const analyticalPath = computeAnalyticalPath(targetNode, taxonomy);
-    
-    // Step 3 & 4: Retrieve reasoning and constraint objects (§235, §240)
+
+    // Step 3 & 4: Retrieve reasoning objects, constraint objects, and sticky notes
     const reasoningObjects = retrieveReasoningObjects(analyticalPath, this.bsetFile.items);
     const constraintObjects = retrieveConstraintObjects(analyticalPath, this.bsetFile);
-    
+    const stickyNotes = retrieveStickies(analyticalPath, this.bsetFile._meta.stickies ?? []);
+
     // Step 5: Assemble context (§250)
     const context = assembleAuthorizedContext(
       analyticalPath,
       targetNode,
       reasoningObjects,
-      constraintObjects
+      constraintObjects,
+      stickyNotes,
+      taxonomy
     );
-    
+
     return context;
   }
 }

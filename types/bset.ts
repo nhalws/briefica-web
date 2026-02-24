@@ -1,5 +1,26 @@
 // Type definitions based on the patent specification and .bset file format
 
+export interface StickyContentSegment {
+  text: string;
+  bold: boolean;
+  italic: boolean;
+  underline: boolean;
+}
+
+export interface Sticky {
+  id: string;
+  path: string[];
+  content: StickyContentSegment[];
+  note_type: 'general note' | 'test/standard' | 'element/factor' | 'macro-fork' | 'micro-fork' | 'footnote';
+  is_footnote: boolean;
+  is_subnote: boolean;
+  is_sub_subnote: boolean;
+  is_sub_sub_subnote: boolean;
+  is_sub_sub_sub_subnote: boolean;
+  is_element_factor: boolean;
+  created_at: string;
+}
+
 export interface BSetItem {
   id: string;
   type: 'case' | 'statute' | 'authority' | string;
@@ -48,7 +69,7 @@ export interface ContentSegment {
 export interface BSetMeta {
   headings: TaxonomyNode[];
   taxonomy?: any;
-  stickies?: any;
+  stickies?: Sticky[];
   ordering?: any;
   highlights?: any;
   styles?: any;
@@ -73,6 +94,8 @@ export interface AuthorizedContext {
   constraint_objects: ConstraintObject[];
   analytical_path: string[];
   target_node: TaxonomyNode;
+  sticky_notes: Sticky[];
+  taxonomy: TaxonomyNode[];
 }
 
 export interface ValidationResult {

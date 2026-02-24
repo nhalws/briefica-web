@@ -32,11 +32,11 @@ export async function POST(req: NextRequest) {
     // Get authorized context (Steps 1-5 from patent FIG. 4A)
     const context = await controller.processQuery(query, target_node_id);
 
-    if (context.reasoning_objects.length === 0) {
+    if (context.reasoning_objects.length === 0 && context.sticky_notes.length === 0) {
       return NextResponse.json(
-        { 
-          error: 'No authorized reasoning objects found for this query',
-          context 
+        {
+          error: 'No authorized content found for this query',
+          context
         },
         { status: 404 }
       );
