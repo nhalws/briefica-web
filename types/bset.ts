@@ -1,24 +1,31 @@
 // Type definitions based on the patent specification and .bset file format
 
 export interface StickyContentSegment {
-  text: string;
-  bold: boolean;
-  italic: boolean;
-  underline: boolean;
+  text?: string;
+  bold?: boolean;
+  italic?: boolean;
+  underline?: boolean;
 }
+
+// Alias used by the standalone controller (both names map to the same shape)
+export type StickyContent = StickyContentSegment;
 
 export interface Sticky {
   id: string;
   path: string[];
   content: StickyContentSegment[];
-  note_type: 'general note' | 'test/standard' | 'element/factor' | 'macro-fork' | 'micro-fork' | 'footnote';
-  is_footnote: boolean;
-  is_subnote: boolean;
-  is_sub_subnote: boolean;
-  is_sub_sub_subnote: boolean;
-  is_sub_sub_sub_subnote: boolean;
-  is_element_factor: boolean;
-  created_at: string;
+  note_type: 'general note' | 'test/standard' | 'element/factor' | 'macro-fork' | 'micro-fork' | 'footnote' | string;
+  is_footnote?: boolean;
+  is_subnote?: boolean;
+  is_sub_subnote?: boolean;
+  is_sub_sub_subnote?: boolean;
+  is_sub_sub_sub_subnote?: boolean;
+  is_element_factor?: boolean;
+  is_test_standard?: boolean;
+  is_micro_fork?: boolean;
+  is_macro_fork?: boolean;
+  is_element_factor_flag?: boolean;
+  created_at?: string;
 }
 
 export interface BSetItem {
@@ -49,6 +56,16 @@ export interface TaxonomyNode {
   children?: string[];
 }
 
+/**
+ * A node as stored in the nested _meta.taxonomy tree.
+ * Contains full hierarchy with children inline and titles for every level.
+ */
+export interface TaxonomyEntry {
+  id: string;
+  title: string;
+  children: TaxonomyEntry[];
+}
+
 export interface ConstraintObject {
   id: string;
   path: string[]; // Ordered array of UUIDs
@@ -68,12 +85,16 @@ export interface ContentSegment {
 
 export interface BSetMeta {
   headings: TaxonomyNode[];
-  taxonomy?: any;
+  /** Full hierarchical tree with sub-heading titles. Richer than headings. */
+  taxonomy?: TaxonomyEntry[] | null;
   stickies?: Sticky[];
-  ordering?: any;
-  highlights?: any;
-  styles?: any;
-  typos?: any;
+  ordering?: Record<string, string[]> | null;
+  highlights?: unknown;
+  styles?: unknown;
+  typos?: unknown;
+  grading_key?: unknown;
+  created_at?: string;
+  version?: string;
   format_version?: string;
   domain?: string;
   created?: string;
@@ -95,7 +116,8 @@ export interface AuthorizedContext {
   analytical_path: string[];
   target_node: TaxonomyNode;
   sticky_notes: Sticky[];
-  taxonomy: TaxonomyNode[];
+  /** Pre-rendered table of contents string included in every prompt. */
+  toc_string: string;
 }
 
 export interface ValidationResult {
