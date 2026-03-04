@@ -49,7 +49,7 @@ export default function ManageMembershipPage() {
         if (data.error === 'Subscription not found in Stripe') {
           setManualGold(true);
         } else {
-          setError(data.error || 'Failed to load subscription info');
+          setError((data.details ? `${data.error}: ${data.details}` : data.error) || 'Failed to load subscription info');
         }
         return;
       }
