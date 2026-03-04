@@ -43,10 +43,10 @@ export async function GET(request: NextRequest) {
   try {
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
-    // Get stored subscription ID from DB
+    // Get stored subscription ID from DB (use * so missing columns don't error)
     const { data: access } = await supabase
       .from('goldilex_access')
-      .select('tier, approved, stripe_subscription_id')
+      .select('*')
       .eq('user_id', user.id)
       .single();
 
@@ -54,7 +54,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'No active Gold subscription' }, { status: 404 });
     }
 
-    const subscription = await findSubscription(stripe, user.email!, access.stripe_subscription_id);
+    const subscription = await findSubscription(stripe, user.email!, access.stripe_subscription_id ?? null);
 
     if (!subscription) {
       return NextResponse.json({ error: 'Subscription not found in Stripe' }, { status: 404 });
