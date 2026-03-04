@@ -813,27 +813,6 @@ export default function FAQPage() {
                           </div>
                         </div>
 
-                        <div className="pt-2">
-                          <h5 className="font-semibold text-white mb-2">How .bmod files work:</h5>
-                          <ol className="list-decimal pl-6 space-y-2">
-                            <li>Create different note types with custom colors</li>
-                            <li>Organize notes hierarchically (topics → subtopics → details)</li>
-                            <li>Use consistent color-coding across all your outlines</li>
-                            <li>Visual organization helps with recall during exams</li>
-                            <li>Export to PDF with colors preserved</li>
-                          </ol>
-                        </div>
-
-                        <div>
-                          <h5 className="font-semibold text-white mb-2">When to use .bmod files?</h5>
-                          <ul className="list-disc pl-6 space-y-1">
-                            <li>Creating comprehensive course outlines</li>
-                            <li>Breaking down complex topics into digestible modules</li>
-                            <li>Organizing black letter law by subject</li>
-                            <li>Building study guides for specific exam topics</li>
-                            <li>Supplementing your .bset briefs with theoretical frameworks</li>
-                          </ul>
-                        </div>
                       </div>
                     </div>
                   )}
