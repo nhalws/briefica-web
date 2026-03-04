@@ -60,7 +60,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Subscription not found in Stripe' }, { status: 404 });
     }
 
-    const periodEnd = new Date((subscription as any).current_period_end * 1000);
+    const periodEnd = new Date(subscription.items.data[0].current_period_end * 1000);
 
     return NextResponse.json({
       subscription_id: subscription.id,
