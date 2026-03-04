@@ -36,7 +36,7 @@ export default function GoldilexInterface() {
   useEffect(() => {
     if (showWelcome && welcomeText.length === 0) {
       const fullText =
-        "Hi, I'm goldilex! :-)\n\nI'm a legal analysis chatbot designed as an AI component for briefica. I read briefsets and answer questions about them, without accessing external information. As a result, my answers are essentially hallucination-free! Don't believe me? Ask me anything. © 2026 VanHuxt. All rights reserved.";
+        "Hi, I'm goldilex! :-)\n\nI'm a legal analysis chatbot designed as an AI component for briefica. I read briefsets and answer questions about them, without accessing external information. As a result, my answers are based on your actual course materials. Don't believe me? Ask me anything. © 2026 VanHuxt. All rights reserved.";
       let i = 0;
       const tick = () => {
         if (i < fullText.length) {
@@ -219,7 +219,7 @@ Format bold text like this: **text to bold**`,
           <div className="flex items-center gap-3">
             <div>
               <h1 className="text-base font-semibold" style={{ color: '#BF9B30' }}>goldilex</h1>
-              <p className="text-xs text-gray-400">v1.4.0</p>
+              <p className="text-xs text-gray-400">v1.4.1</p>
             </div>
           </div>
 

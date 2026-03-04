@@ -3,7 +3,7 @@ import './globals.css'
 
 export const metadata: Metadata = {
   title: 'goldilex v1 (lex)',
-  description: 'patent-protected legal analysis chatbot - hallucination-free',
+  description: 'patent-protected legal analysis chatbot - based on your actual course materials',
   icons: {
     icon: [
       { url: '/glex.ico', sizes: 'any' },
