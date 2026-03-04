@@ -288,18 +288,16 @@ export default function HomePage() {
           </div>
 
           <div className="border border-white/10 bg-[#1e1e1e] rounded-2xl p-8">
-            <div className="aspect-video bg-[#2b2b2b] rounded-lg flex items-center justify-center overflow-hidden">
-              <Image
-                src="/b6.png"
-                alt="briefica desktop app"
-                width={600}
-                height={400}
+            <div className="aspect-video bg-[#2b2b2b] rounded-lg overflow-hidden">
+              <video
+                src="/march 2026 briefica teaser.mp4"
+                autoPlay
+                loop
+                muted
+                playsInline
                 className="object-cover w-full h-full"
               />
             </div>
-            <p className="text-center text-sm text-white/60 mt-4">
-              briefica 6
-            </p>
           </div>
         </div>
       </div>
