@@ -52,6 +52,7 @@ export default function ArtifactPage() {
   const [busy, setBusy] = useState(false);
   const [editingVisibility, setEditingVisibility] = useState(false);
   const [newVisibility, setNewVisibility] = useState<Artifact["visibility"]>("public");
+  const [showDownloadConfirm, setShowDownloadConfirm] = useState(false);
 
   const badge = useMemo(() => {
     const t = artifact?.type ?? "bset";
@@ -223,17 +224,15 @@ export default function ArtifactPage() {
     }
   }
 
-  async function download() {
+  function download() {
     if (!artifact) return;
+    setShowDownloadConfirm(true);
+  }
 
-    // Check if artifact is .bset (costs 1 BB) or Free-B (.bmod/.tbank = free)
+  async function executeDownload() {
+    if (!artifact) return;
+    setShowDownloadConfirm(false);
     const isBset = artifact.type === "bset";
-
-    if (isBset) {
-      if (!confirm("Are you sure you want to download this .bset? This will cost 1 BB.")) return;
-    } else {
-      if (!confirm("Are you sure you want to download this file?")) return;
-    }
 
     setBusy(true);
     setMsg(null);
@@ -583,6 +582,38 @@ export default function ArtifactPage() {
         <div className="mt-6">
           <FileTypeTutorial fileType={artifact.type} />
         </div>
+
+        {/* BB Download Confirmation Modal */}
+        {showDownloadConfirm && artifact && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+            <div className="bg-[#1e1e1e] border border-white/20 rounded-2xl p-6 max-w-sm w-full mx-4">
+              <h2 className="text-lg font-semibold mb-2">Confirm Download</h2>
+              {artifact.type === "bset" ? (
+                <p className="text-white/70 text-sm mb-6">
+                  This download will deduct <span className="text-white font-medium">1 BB</span> from your balance. Are you sure?
+                </p>
+              ) : (
+                <p className="text-white/70 text-sm mb-6">
+                  Are you sure you want to download this file? <span className="text-green-400">(Free-B — no BB cost)</span>
+                </p>
+              )}
+              <div className="flex gap-3 justify-end">
+                <button
+                  onClick={() => setShowDownloadConfirm(false)}
+                  className="px-4 py-2 rounded-lg border border-white/20 hover:bg-white/5 transition-colors text-sm"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={executeDownload}
+                  className="px-4 py-2 rounded-lg bg-white text-black font-medium hover:bg-white/90 transition-colors text-sm"
+                >
+                  Download
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* COMMENTS SECTION */}
         <div className="mt-6 border border-white/10 bg-[#1e1e1e] rounded-2xl p-6">

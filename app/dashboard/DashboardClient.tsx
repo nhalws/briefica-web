@@ -51,6 +51,7 @@ export default function DashboardClient() {
   const [searchQuery, setSearchQuery] = useState("");
   const [typeFilter, setTypeFilter] = useState<"all" | "bset" | "bmod" | "tbank">("all");
   const [msg, setMsg] = useState<string | null>(null);
+  const [confirmDownload, setConfirmDownload] = useState<{ artifactId: string; storageKey: string; fileName: string; isBset: boolean } | null>(null);
 
   // SET PAGE TITLE
   useEffect(() => {
@@ -303,46 +304,49 @@ export default function DashboardClient() {
     }
   }
 
-  async function handleDownload(artifactId: string, storageKey: string, fileName: string) {
-  if (!currentUserId) return;
-
-  // Record download in database
-  await supabase.from("artifact_downloads").insert({
-    artifact_id: artifactId,
-    user_id: currentUserId,
-  });
-
-  // Update local count
-  setDownloadCounts((prev) => ({
-    ...prev,
-    [artifactId]: (prev[artifactId] || 0) + 1,
-  }));
-
-  // Get signed URL and download
-  try {
-    const { data, error } = await supabase.storage
-      .from("artifacts")
-      .createSignedUrl(storageKey, 300);
-
-    if (error || !data?.signedUrl) {
-      console.error("Failed to generate download link");
-      return;
-    }
-
-    const response = await fetch(data.signedUrl);
-    const blob = await response.blob();
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = fileName;
-    document.body.appendChild(a);
-    a.click();
-    window.URL.revokeObjectURL(url);
-    document.body.removeChild(a);
-  } catch (e) {
-    console.error("Download failed:", e);
+  function handleDownload(artifactId: string, storageKey: string, fileName: string, type: ArtifactRow["type"]) {
+    if (!currentUserId) return;
+    setConfirmDownload({ artifactId, storageKey, fileName, isBset: type === "bset" });
   }
-}
+
+  async function executeDownload(artifactId: string, storageKey: string, fileName: string) {
+    setConfirmDownload(null);
+    if (!currentUserId) return;
+
+    await supabase.from("artifact_downloads").insert({
+      artifact_id: artifactId,
+      user_id: currentUserId,
+    });
+
+    setDownloadCounts((prev) => ({
+      ...prev,
+      [artifactId]: (prev[artifactId] || 0) + 1,
+    }));
+
+    try {
+      const { data, error } = await supabase.storage
+        .from("artifacts")
+        .createSignedUrl(storageKey, 300);
+
+      if (error || !data?.signedUrl) {
+        console.error("Failed to generate download link");
+        return;
+      }
+
+      const response = await fetch(data.signedUrl);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (e) {
+      console.error("Download failed:", e);
+    }
+  }
 
   async function handleLogout() {
     await supabase.auth.signOut();
@@ -712,7 +716,7 @@ export default function DashboardClient() {
                     </button>
 
                     <button
-                    onClick={() => handleDownload(r.id, r.storage_key, `${r.title}.${r.type}`)}
+                    onClick={() => handleDownload(r.id, r.storage_key, `${r.title}.${r.type}`, r.type)}
                     className="flex items-center gap-1.5 transition-colors text-white/60 hover:text-white/80"
 >
                       <svg
@@ -751,6 +755,38 @@ export default function DashboardClient() {
         {/* Footer */}
         <Footer />
       </div>
+
+      {/* BB Download Confirmation Modal */}
+      {confirmDownload && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+          <div className="bg-[#1e1e1e] border border-white/20 rounded-2xl p-6 max-w-sm w-full mx-4">
+            <h2 className="text-lg font-semibold mb-2">Confirm Download</h2>
+            {confirmDownload.isBset ? (
+              <p className="text-white/70 text-sm mb-6">
+                This download will deduct <span className="text-white font-medium">1 BB</span> from your balance. Are you sure?
+              </p>
+            ) : (
+              <p className="text-white/70 text-sm mb-6">
+                Are you sure you want to download this file? <span className="text-green-400">(Free-B — no BB cost)</span>
+              </p>
+            )}
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => setConfirmDownload(null)}
+                className="px-4 py-2 rounded-lg border border-white/20 hover:bg-white/5 transition-colors text-sm"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => executeDownload(confirmDownload.artifactId, confirmDownload.storageKey, confirmDownload.fileName)}
+                className="px-4 py-2 rounded-lg bg-white text-black font-medium hover:bg-white/90 transition-colors text-sm"
+              >
+                Download
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }
