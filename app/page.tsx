@@ -291,11 +291,9 @@ export default function HomePage() {
             <div className="aspect-video bg-[#2b2b2b] rounded-lg overflow-hidden">
               <video
                 src="/march 2026 briefica teaser.mp4"
-                autoPlay
-                loop
-                muted
+                controls
                 playsInline
-                className="object-cover w-full h-full"
+                className="w-full h-full"
               />
             </div>
           </div>
