@@ -309,40 +309,74 @@ export default function DashboardClient() {
     setConfirmDownload({ artifactId, storageKey, fileName, isBset: type === "bset" });
   }
 
-  async function executeDownload(artifactId: string, storageKey: string, fileName: string) {
+  async function executeDownload(artifactId: string, storageKey: string, fileName: string, isBset: boolean) {
     setConfirmDownload(null);
     if (!currentUserId) return;
 
-    await supabase.from("artifact_downloads").insert({
-      artifact_id: artifactId,
-      user_id: currentUserId,
-    });
-
-    setDownloadCounts((prev) => ({
-      ...prev,
-      [artifactId]: (prev[artifactId] || 0) + 1,
-    }));
-
     try {
-      const { data, error } = await supabase.storage
-        .from("artifacts")
-        .createSignedUrl(storageKey, 300);
+      if (isBset) {
+        // Route through BB API — deducts 1 BB
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) return;
 
-      if (error || !data?.signedUrl) {
-        console.error("Failed to generate download link");
-        return;
+        const response = await fetch(`/api/artifacts/${artifactId}/download`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${session.access_token}` }
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          if (data.code === 'INSUFFICIENT_BBS') {
+            alert(data.error);
+          } else {
+            alert(data.error || 'Failed to download');
+          }
+          return;
+        }
+
+        const fileResponse = await fetch(data.download_url);
+        const blob = await fileResponse.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+      } else {
+        // Free-B files — direct storage, no BB cost
+        await supabase.from("artifact_downloads").insert({
+          artifact_id: artifactId,
+          user_id: currentUserId,
+        });
+
+        const { data, error } = await supabase.storage
+          .from("artifacts")
+          .createSignedUrl(storageKey, 300);
+
+        if (error || !data?.signedUrl) {
+          console.error("Failed to generate download link");
+          return;
+        }
+
+        const response = await fetch(data.signedUrl);
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
       }
 
-      const response = await fetch(data.signedUrl);
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = fileName;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
+      setDownloadCounts((prev) => ({
+        ...prev,
+        [artifactId]: (prev[artifactId] || 0) + 1,
+      }));
     } catch (e) {
       console.error("Download failed:", e);
     }
@@ -778,7 +812,7 @@ export default function DashboardClient() {
                 Cancel
               </button>
               <button
-                onClick={() => executeDownload(confirmDownload.artifactId, confirmDownload.storageKey, confirmDownload.fileName)}
+                onClick={() => executeDownload(confirmDownload.artifactId, confirmDownload.storageKey, confirmDownload.fileName, confirmDownload.isBset)}
                 className="px-4 py-2 rounded-lg bg-white text-black font-medium hover:bg-white/90 transition-colors text-sm"
               >
                 Download
