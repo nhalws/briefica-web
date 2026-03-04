@@ -4,16 +4,12 @@ import Stripe from 'stripe';
 
 export async function POST(request: NextRequest) {
   try {
-    // Initialize Supabase inside the function (not at module level)
     const supabase = createClient(
       process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY!
     );
 
-    // Initialize Stripe inside the function (not at module level)
-    // Remove apiVersion to use account default
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
-
     const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
 
     const body = await request.text();
@@ -47,10 +43,11 @@ export async function POST(request: NextRequest) {
       }
 
       if (purchaseType === 'gold_subscription') {
-        // Handle Gold subscription activation
         console.log('Processing Gold subscription for user:', userId);
 
-        // Check if user already has a goldilex_access record
+        const stripeSubscriptionId = session.subscription as string | null;
+        const stripeCustomerId = session.customer as string | null;
+
         const { data: existing } = await supabase
           .from('goldilex_access')
           .select('id')
@@ -58,23 +55,28 @@ export async function POST(request: NextRequest) {
           .single();
 
         if (existing) {
-          // Update existing record to gold
           const { error: updateError } = await supabase
             .from('goldilex_access')
-            .update({ tier: 'gold', approved: true })
+            .update({
+              tier: 'gold',
+              approved: true,
+              stripe_subscription_id: stripeSubscriptionId,
+              stripe_customer_id: stripeCustomerId,
+            })
             .eq('user_id', userId);
 
           if (updateError) {
             console.error('Error updating goldilex_access:', updateError);
           }
         } else {
-          // Insert new gold record
           const { error: insertError } = await supabase
             .from('goldilex_access')
             .insert({
               user_id: userId,
               tier: 'gold',
               approved: true,
+              stripe_subscription_id: stripeSubscriptionId,
+              stripe_customer_id: stripeCustomerId,
             });
 
           if (insertError) {
@@ -82,15 +84,10 @@ export async function POST(request: NextRequest) {
           }
         }
 
-        // Update user_bbs subscription tier to gold
-        const { error: bbError } = await supabase
+        await supabase
           .from('user_bbs')
           .update({ subscription_tier: 'gold' })
           .eq('user_id', userId);
-
-        if (bbError) {
-          console.error('Error updating user_bbs tier:', bbError);
-        }
 
         console.log('Gold subscription activated for user:', userId);
 
@@ -122,6 +119,33 @@ export async function POST(request: NextRequest) {
         }
 
         console.log('BB purchase successful:', data);
+      }
+    }
+
+    // Handle subscription cancelled/deleted (auto-renewal lapsed or immediate cancel)
+    if (event.type === 'customer.subscription.deleted') {
+      const subscription = event.data.object as Stripe.Subscription;
+      console.log('Subscription deleted:', subscription.id);
+
+      // Find user by stripe_subscription_id or stripe_customer_id
+      const { data: access } = await supabase
+        .from('goldilex_access')
+        .select('user_id')
+        .or(`stripe_subscription_id.eq.${subscription.id},stripe_customer_id.eq.${subscription.customer}`)
+        .single();
+
+      if (access?.user_id) {
+        await supabase
+          .from('goldilex_access')
+          .update({ tier: 'free', approved: false })
+          .eq('user_id', access.user_id);
+
+        await supabase
+          .from('user_bbs')
+          .update({ subscription_tier: 'free' })
+          .eq('user_id', access.user_id);
+
+        console.log('Downgraded user to free:', access.user_id);
       }
     }
 

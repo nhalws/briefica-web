@@ -634,6 +634,15 @@ export default function DashboardPage() {
 
                 <BBCounter refreshKey={bbRefreshKey} />
 
+                {goldilexAccess && (
+                  <button
+                    onClick={() => router.push('/manage-membership')}
+                    className="mt-2 w-full rounded-lg py-2 px-4 text-sm font-medium border border-yellow-600/40 text-yellow-400 hover:bg-yellow-600/10 transition-colors"
+                  >
+                    ⭐ Manage membership
+                  </button>
+                )}
+
                 {userProfile.pending_requests > 0 && (
                   <button
                     onClick={() => router.push("/friends")}
