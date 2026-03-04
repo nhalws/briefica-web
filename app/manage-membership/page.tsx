@@ -22,6 +22,7 @@ export default function ManageMembershipPage() {
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [manualGold, setManualGold] = useState(false);
   const [showUnsubscribeConfirm, setShowUnsubscribeConfirm] = useState(false);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
@@ -45,7 +46,11 @@ export default function ManageMembershipPage() {
 
       if (!res.ok) {
         const data = await res.json();
-        setError(data.error || 'Failed to load subscription info');
+        if (data.error === 'Subscription not found in Stripe') {
+          setManualGold(true);
+        } else {
+          setError(data.error || 'Failed to load subscription info');
+        }
         return;
       }
 
@@ -129,6 +134,21 @@ export default function ManageMembershipPage() {
         {error && !loading && (
           <div className="border border-red-500/30 bg-red-900/10 rounded-2xl p-6">
             <p className="text-red-400 text-sm">{error}</p>
+          </div>
+        )}
+
+        {manualGold && !loading && (
+          <div className="border border-yellow-600/40 bg-[#1e1e1e] rounded-2xl p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <span className="text-2xl">⭐</span>
+              <div>
+                <p className="font-semibold text-yellow-400">briefica gold</p>
+                <p className="text-xs text-white/50">Manually provisioned</p>
+              </div>
+            </div>
+            <p className="text-sm text-white/60">
+              Your Gold membership was set up outside of the standard billing flow and does not have an associated Stripe subscription. To make changes, please contact support.
+            </p>
           </div>
         )}
 
