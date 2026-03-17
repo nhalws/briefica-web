@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import type { BSetFile, BSetItem, GenerationResponse, TaxonomyEntry, TaxonomyNode, Sticky } from '@/types/bset';
+import type { BSetFile, BSetItem, GenerationResponse, TaxonomyEntry, TaxonomyNode } from '@/types/bset';
 
 type Message = {
   role: 'user' | 'assistant';
@@ -46,8 +46,9 @@ export default function GoldilexInterface() {
   const [selectedAuthority, setSelectedAuthority] = useState<BSetItem | null>(null);
   const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set());
 
-  // Sticky (build note) selection
-  const [selectedSticky, setSelectedSticky] = useState<Sticky | null>(null);
+  // Session accuracy tracking (persists across briefset changes, resets on page refresh)
+  const [sessionCorrect, setSessionCorrect] = useState(0);
+  const [sessionTotal, setSessionTotal] = useState(0);
 
   // Quiz state
   const [activeQuiz, setActiveQuiz] = useState<QuizQuestion[] | null>(null);
@@ -368,7 +369,14 @@ Format bold text like this: **text to bold**`,
       setBsetFileName(file.name);
       setShowWelcome(false);
       setSelectedAuthority(null);
+      setMessages([]);
       setError(null);
+      setActiveQuiz(null);
+      setQuizIndex(0);
+      setQuizAnswers([]);
+      setQuizRevealed([]);
+      setQuizCompleted(false);
+      // Session accuracy intentionally NOT reset on briefset change
     } catch {
       setError('Failed to parse .bset file');
     }
@@ -405,19 +413,7 @@ Format bold text like this: **text to bold**`,
       : buildTreeFromHeadings(bsetFile._meta.headings)
     : [];
 
-  const allOrderedIds = bsetFile?._meta.ordering
-    ? new Set(Object.values(bsetFile._meta.ordering).flat())
-    : new Set<string>();
-  const orphanItems = bsetFile?.items.filter(item => !allOrderedIds.has(item.id)) ?? [];
-  const allStickies: Sticky[] = (bsetFile?._meta.stickies as Sticky[] | undefined) ?? [];
-
-  const extractStickyText = (sticky: Sticky): string =>
-    sticky.content.map(seg => seg.text ?? '').join('');
-
-  const getStickyLabel = (sticky: Sticky): string => {
-    const text = extractStickyText(sticky);
-    return text.length > 64 ? text.slice(0, 64) + '…' : text;
-  };
+  const stickyCount = (bsetFile?._meta.stickies as unknown[] | undefined)?.length ?? 0;
 
   const renderAuthorityRow = (item: BSetItem, depth: number) => (
     <button
@@ -453,46 +449,22 @@ Format bold text like this: **text to bold**`,
     </button>
   );
 
-  const renderStickyRow = (sticky: Sticky) => (
-    <button
-      key={sticky.id}
-      onClick={() => { setSelectedSticky(sticky); setSelectedAuthority(null); }}
-      className="w-full text-left py-1.5 text-xs transition-colors leading-snug border-l-2"
-      style={{
-        paddingLeft: '10px',
-        paddingRight: '10px',
-        borderLeftColor: selectedSticky?.id === sticky.id ? '#BF9B30' : 'transparent',
-        backgroundColor: selectedSticky?.id === sticky.id ? '#252525' : 'transparent',
-        color: selectedSticky?.id === sticky.id ? '#fff' : '#9ca3af',
-      }}
-      onMouseEnter={e => {
-        if (selectedSticky?.id !== sticky.id) {
-          e.currentTarget.style.backgroundColor = '#222';
-          e.currentTarget.style.color = '#d1d5db';
-        }
-      }}
-      onMouseLeave={e => {
-        if (selectedSticky?.id !== sticky.id) {
-          e.currentTarget.style.backgroundColor = 'transparent';
-          e.currentTarget.style.color = '#9ca3af';
-        }
-      }}
-    >
-      <span className="italic">{getStickyLabel(sticky)}</span>
-      {sticky.note_type && (
-        <span className="block text-[9px] mt-0.5 not-italic" style={{ color: '#555' }}>
-          {sticky.note_type}
-        </span>
-      )}
-    </button>
-  );
+  const handleNodeDoubleClick = (node: TaxonomyEntry) => {
+    if (!bsetFile || loading || isStreaming) return;
+    const orderedItems = getItemsForNode(node.id);
+    const itemList = orderedItems.map(item => getDisplayName(item)).filter(Boolean);
+    const q = itemList.length > 0
+      ? `Walk me through the authorities under "${node.title}" in this exact briefset order: ${itemList.join(', ')}. Briefly address each one in sequence.`
+      : `Summarize the key rules and concepts under "${node.title}" based on the briefset.`;
+    sendQuery(q);
+  };
 
   const renderTaxonomyNode = (node: TaxonomyEntry, depth: number): React.ReactNode => {
-    const items = getItemsForNode(node.id);
-    const isExpanded = expandedNodes.has(node.id);
     const hasChildren = node.children && node.children.length > 0;
+    const items = getItemsForNode(node.id);
     const hasItems = items.length > 0;
     const hasContent = hasChildren || hasItems;
+    const isExpanded = expandedNodes.has(node.id);
 
     const headingColor = depth === 0 ? '#c9a84c' : depth === 1 ? '#a8896a' : '#7a6e60';
     const headingWeight = depth === 0 ? '600' : '500';
@@ -501,13 +473,15 @@ Format bold text like this: **text to bold**`,
       <div key={node.id}>
         <button
           onClick={() => hasContent && toggleNode(node.id)}
+          onDoubleClick={() => handleNodeDoubleClick(node)}
+          title="Double-click to ask goldilex about this section"
           className="w-full text-left flex items-center gap-1.5 py-1.5 transition-colors"
           style={{
             paddingLeft: `${8 + depth * 14}px`,
             paddingRight: '10px',
-            cursor: hasContent ? 'pointer' : 'default',
+            cursor: 'pointer',
           }}
-          onMouseEnter={e => { if (hasContent) e.currentTarget.style.backgroundColor = '#222'; }}
+          onMouseEnter={e => { e.currentTarget.style.backgroundColor = '#222'; }}
           onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; }}
         >
           <span
@@ -530,10 +504,9 @@ Format bold text like this: **text to bold**`,
           </span>
         </button>
 
-        {isExpanded && (
+        {isExpanded && hasChildren && (
           <div>
-            {items.map(item => renderAuthorityRow(item, depth + 1))}
-            {hasChildren && node.children.map(child => renderTaxonomyNode(child, depth + 1))}
+            {node.children.map(child => renderTaxonomyNode(child, depth + 1))}
           </div>
         )}
       </div>
@@ -566,8 +539,8 @@ Format bold text like this: **text to bold**`,
 
   const similarAuthorities = selectedAuthority ? findSimilarAuthorities(selectedAuthority) : [];
 
-  const showRightPanel = activeQuiz || quizLoading || selectedAuthority || selectedSticky;
-  const showTabs = (activeQuiz || quizLoading) && (selectedAuthority || selectedSticky);
+  const showRightPanel = activeQuiz || quizLoading || selectedAuthority;
+  const showTabs = (activeQuiz || quizLoading) && selectedAuthority;
   const activeTab = showTabs ? rightPanelTab : (activeQuiz || quizLoading) ? 'quiz' : 'authority';
 
   // Current question helpers
@@ -585,6 +558,9 @@ Format bold text like this: **text to bold**`,
   };
   const advanceOrFinish = () => {
     if (isLastQ) {
+      const score = quizAnswers.filter((a, i) => activeQuiz && a === activeQuiz[i]?.correctIndex).length;
+      setSessionCorrect(prev => prev + score);
+      setSessionTotal(prev => prev + (activeQuiz?.length ?? 0));
       setQuizCompleted(true);
     } else {
       setQuizIndex(i => i + 1);
@@ -637,7 +613,7 @@ Format bold text like this: **text to bold**`,
             )}
             {activeTab === 'authority' && (
               <button
-                onClick={() => { setSelectedAuthority(null); setSelectedSticky(null); }}
+                onClick={() => setSelectedAuthority(null)}
                 className="text-gray-600 hover:text-gray-300 transition-colors text-sm"
               >✕</button>
             )}
@@ -873,10 +849,8 @@ Format bold text like this: **text to bold**`,
         )}
 
         {/* ── Authority tab ── */}
-        {activeTab === 'authority' && (selectedAuthority || selectedSticky) && (
+        {activeTab === 'authority' && selectedAuthority && (
           <div className="flex flex-col" style={{ width: '300px' }}>
-
-            {/* Authority detail */}
             {selectedAuthority && (
               <>
                 <div className="px-3 pt-3 pb-1 flex-shrink-0">
@@ -945,57 +919,6 @@ Format bold text like this: **text to bold**`,
               </>
             )}
 
-            {/* Build note detail */}
-            {selectedSticky && !selectedAuthority && (
-              <>
-                <div className="px-3 pt-3 pb-1 flex-shrink-0">
-                  <p className="text-[9px] font-semibold tracking-widest uppercase" style={{ color: '#BF9B30' }}>
-                    Build Note
-                  </p>
-                  {selectedSticky.note_type && (
-                    <span
-                      className="inline-block mt-1 text-[8px] px-1.5 py-0.5 rounded"
-                      style={{ backgroundColor: '#BF9B3015', color: '#BF9B30', border: '1px solid #BF9B3030' }}
-                    >
-                      {selectedSticky.note_type}
-                    </span>
-                  )}
-                </div>
-
-                <div className="px-3 py-3 overflow-y-auto">
-                  <div
-                    className="p-3 rounded-lg text-sm leading-relaxed"
-                    style={{ backgroundColor: '#161616', border: '1px solid #2e2e2e', color: '#d1d5db' }}
-                  >
-                    {selectedSticky.content.map((seg, i) => (
-                      <span
-                        key={i}
-                        style={{
-                          fontWeight: seg.bold ? 700 : 400,
-                          fontStyle: seg.italic ? 'italic' : 'normal',
-                          textDecoration: seg.underline ? 'underline' : 'none',
-                        }}
-                      >
-                        {seg.text}
-                      </span>
-                    ))}
-                  </div>
-
-                  <button
-                    onClick={() => {
-                      sendQuery(`Explain this build note: ${extractStickyText(selectedSticky)}`);
-                    }}
-                    disabled={loading || isStreaming}
-                    className="w-full py-2.5 mt-4 text-xs font-semibold rounded-lg transition-all disabled:opacity-40 disabled:cursor-not-allowed"
-                    style={{ backgroundColor: '#BF9B30', color: '#111827' }}
-                    onMouseEnter={e => { if (!loading && !isStreaming) e.currentTarget.style.backgroundColor = '#A68628'; }}
-                    onMouseLeave={e => { if (!loading && !isStreaming) e.currentTarget.style.backgroundColor = '#BF9B30'; }}
-                  >
-                    Ask goldilex about this →
-                  </button>
-                </div>
-              </>
-            )}
           </div>
         )}
       </div>
@@ -1013,13 +936,13 @@ Format bold text like this: **text to bold**`,
             dismiss quiz
           </button>
           <button
-            onClick={() => { setSelectedAuthority(null); setSelectedSticky(null); }}
+            onClick={() => setSelectedAuthority(null)}
             className="text-[10px] transition-colors"
             style={{ color: '#444' }}
             onMouseEnter={e => { e.currentTarget.style.color = '#777'; }}
             onMouseLeave={e => { e.currentTarget.style.color = '#444'; }}
           >
-            close detail
+            close authority
           </button>
         </div>
       )}
@@ -1032,9 +955,27 @@ Format bold text like this: **text to bold**`,
       {/* Header */}
       <header className="flex-shrink-0 border-b border-[#3a3a3a] bg-[#2a2a2a]">
         <div className="px-4 py-3 flex items-center justify-between">
-          <div>
-            <h1 className="text-base font-semibold" style={{ color: '#BF9B30' }}>goldilex</h1>
-            <p className="text-xs text-gray-400">v2.1.0</p>
+          <div className="flex items-center gap-5">
+            <div>
+              <h1 className="text-base font-semibold" style={{ color: '#BF9B30' }}>goldilex</h1>
+              <p className="text-xs text-gray-400">v2.2.0</p>
+            </div>
+            {sessionTotal > 0 && (
+              <div
+                className="px-3 py-1.5 rounded-lg text-center"
+                style={{ backgroundColor: '#2a2a2a', border: '1px solid #3a3a3a' }}
+              >
+                <p className="text-sm font-bold" style={{ color: '#BF9B30' }}>
+                  {Math.round((sessionCorrect / sessionTotal) * 100)}%
+                </p>
+                <p className="text-[9px] leading-tight" style={{ color: '#555' }}>
+                  session avg
+                </p>
+                <p className="text-[9px] leading-tight" style={{ color: '#444' }}>
+                  {sessionCorrect}/{sessionTotal} correct
+                </p>
+              </div>
+            )}
           </div>
           <div className="flex items-center gap-3">
             <a
@@ -1106,33 +1047,9 @@ Format bold text like this: **text to bold**`,
             <div className="flex-1 overflow-y-auto py-1">
               {taxonomyTree.map(node => renderTaxonomyNode(node, 0))}
 
-              {orphanItems.length > 0 && (
-                <div className="mt-2 pt-2" style={{ borderTop: '1px solid #222' }}>
-                  <p
-                    className="text-[9px] uppercase tracking-widest px-3 pb-1"
-                    style={{ color: '#444' }}
-                  >
-                    Authorities
-                  </p>
-                  {orphanItems.map(item => renderAuthorityRow(item, 0))}
-                </div>
-              )}
-
-              {allStickies.length > 0 && (
-                <div className="mt-2 pt-2" style={{ borderTop: '1px solid #222' }}>
-                  <p
-                    className="text-[9px] uppercase tracking-widest px-3 pb-1"
-                    style={{ color: '#444' }}
-                  >
-                    Build Notes
-                  </p>
-                  {allStickies.map(s => renderStickyRow(s))}
-                </div>
-              )}
-
-              {taxonomyTree.length === 0 && orphanItems.length === 0 && allStickies.length === 0 && (
+              {taxonomyTree.length === 0 && (
                 <p className="text-xs px-3 py-3 italic" style={{ color: '#555' }}>
-                  No content found.
+                  No outline found.
                 </p>
               )}
             </div>
@@ -1168,7 +1085,7 @@ Format bold text like this: **text to bold**`,
                     <p className="text-xs text-gray-500">
                       {bsetFile._meta.headings.length} topics
                       {bsetFile.items.length > 0 && ` • ${bsetFile.items.length} authorities`}
-                      {allStickies.length > 0 && ` • ${allStickies.length} build notes`}
+                      {stickyCount > 0 && ` • ${stickyCount} build notes`}
                     </p>
                     <p className="mt-3 text-gray-400">
                       Click any authority in the outline to inspect it, or ask me anything below.
