@@ -18,6 +18,22 @@
   animation: msgFadeSlideIn 0.3s ease-out forwards;
 }
 
+/* Quiz panel fade-in animation */
+@keyframes quizFadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.quiz-fade-in {
+  animation: quizFadeIn 0.35s ease-out forwards;
+}
+
 /* Spinning node icon for loaded .bset */
 @keyframes spinNode {
   from { transform: rotate(0deg); }
