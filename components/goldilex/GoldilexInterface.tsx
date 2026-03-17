@@ -265,6 +265,11 @@ BUILD PANEL NOTES AND CASE AUTHORITIES ARE EQUALLY AUTHORITATIVE:
 - If a build note defines a test, element, branch, or rule — present it alongside the case metadata, noting any nuance
 - A briefset with only build notes is fully valid: treat those notes as the primary authority set
 
+HEADING/SECTION QUERY PRIORITY (applies whenever the query names or implies a heading or section):
+1. FIRST: Recall and present all build panel notes scoped to that heading — tests, elements, forks, and general notes
+2. THEN: Present the authorities (cases/statutes) mapped to that heading, in briefset order
+3. If the briefset has only build notes for that section and no authorities, that is complete — do not indicate anything is missing
+
 NUANCE HANDLING:
 - Never describe differences between sources as "conflicts" — always frame them as "nuances"
 - When build notes and metadata address the same point differently, say: "⚠ Nuance: [note] — treating both sources as authoritative."
@@ -456,12 +461,7 @@ Format bold text like this: **text to bold**`,
 
   const handleNodeDoubleClick = (node: TaxonomyEntry) => {
     if (!bsetFile || loading || isStreaming) return;
-    const orderedItems = getItemsForNode(node.id);
-    const itemList = orderedItems.map(item => getDisplayName(item)).filter(Boolean);
-    const q = itemList.length > 0
-      ? `Walk me through the authorities under "${node.title}" in this exact briefset order: ${itemList.join(', ')}. Briefly address each one in sequence.`
-      : `Summarize the key rules and concepts under "${node.title}" based on the briefset.`;
-    sendQuery(q);
+    sendQuery(`Summarize ${node.title}`);
   };
 
   const renderTaxonomyNode = (node: TaxonomyEntry, depth: number): React.ReactNode => {
