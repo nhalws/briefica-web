@@ -556,8 +556,8 @@ export function assembleAuthorizedContext(
  * Implements instruction generation (patent §255)
  *
  * Notes are presented BEFORE metadata and are marked as GOVERNING TEXT —
- * if a note contradicts a metadata field the model is instructed to flag
- * the conflict explicitly and defer to the note.
+ * if a note presents a nuance relative to a metadata field the model is
+ * instructed to highlight it as such and defer to the note.
  */
 export function generateStructuredInstructions(
   context: AuthorizedContext,
@@ -584,13 +584,13 @@ export function generateStructuredInstructions(
   instructions += `3. Every legal rule or holding I state MUST map to a rule_of_law or holding field from an authorized authority.\n`;
   instructions += `4. I will use proper legal citation format: Case Name, Citation (Year).\n`;
   instructions += `5. If the authorized context doesn't contain enough information to fully answer the query, I will say so clearly.\n`;
-  instructions += `6. USER NOTES are GOVERNING TEXT. They represent the user's own authoritative understanding of each authority and ALWAYS take precedence over stored metadata fields (facts, holding, rule_of_law, etc.).\n`;
-  instructions += `7. CONFLICT DETECTION IS REQUIRED: For each authority, I must compare the User Notes against the metadata fields. If any User Note contradicts, corrects, or meaningfully diverges from the stored metadata, I MUST flag this by saying exactly: "⚠ Conflict detected in [Authority Name]: Your notes state '[note excerpt]', which differs from the stored metadata '[metadata excerpt]'. I am treating your notes as authoritative."\n`;
+  instructions += `6. USER NOTES are GOVERNING TEXT and carry the same authority as case metadata. They represent the user's own authoritative understanding of each authority and ALWAYS take precedence over stored metadata fields (facts, holding, rule_of_law, etc.).\n`;
+  instructions += `7. NUANCE DETECTION IS REQUIRED: For each authority, I must compare the User Notes against the metadata fields. If any User Note introduces a nuance, refinement, or distinction relative to the stored metadata, I MUST highlight this by saying exactly: "⚠ Nuance in [Authority Name]: Your notes state '[note excerpt]', which adds a nuance to the stored metadata '[metadata excerpt]'. I am treating your notes as authoritative."\n`;
   instructions += `8. The TABLE OF CONTENTS above shows every heading, sub-heading, and which authorities belong to each. Use it to answer any question about the structure of the briefset.\n\n`;
   instructions += `TABLE OF CONTENTS QUERY RULES:\n`;
   instructions += `- "What authorities are under [heading/sub-heading]?" → list every bullet point shown under that heading in the TABLE OF CONTENTS above, with citation and type.\n`;
   instructions += `- "What are the rules under [heading]?" → state the rule_of_law for each authority under that heading.\n`;
-  instructions += `- "Compare the authorities under [heading]" or "find tensions/similarities" → compare rule_of_law and holding fields across the listed authorities; call out direct conflicts and shared principles explicitly.\n`;
+  instructions += `- "Compare the authorities under [heading]" or "find tensions/similarities" → compare rule_of_law and holding fields across the listed authorities; call out nuances, distinctions, and shared principles explicitly.\n`;
   instructions += `- "How many authorities are under [heading]?" → count the bullets under that heading in the TABLE OF CONTENTS.\n\n`;
 
   // Add test/standard constraints
@@ -644,7 +644,7 @@ export function generateStructuredInstructions(
       // ── GOVERNING USER NOTES (highest priority) ──────────────────────
       const rawNotes = (obj.notes || '').trim();
       if (rawNotes) {
-        instructions += `    ┌─ GOVERNING USER NOTES (authoritative — overrides metadata below if conflicting) ─┐\n`;
+        instructions += `    ┌─ GOVERNING USER NOTES (equally authoritative — may present nuances relative to metadata below) ─┐\n`;
         // Indent every line for visual separation
         rawNotes.split('\n').forEach(line => {
           instructions += `    │ ${line}\n`;
@@ -714,7 +714,7 @@ export function generateStructuredInstructions(
   }
 
   instructions += `\nProvide your analysis addressing the query using ONLY the authorized cases listed above.\n`;
-  instructions += `Remember: User Notes are GOVERNING. Always check for conflicts and flag them explicitly before proceeding with your analysis.\n`;
+  instructions += `Remember: User Notes and case metadata are EQUALLY AUTHORITATIVE. Always check for nuances between them and highlight them explicitly before proceeding with your analysis.\n`;
 
   return instructions;
 }

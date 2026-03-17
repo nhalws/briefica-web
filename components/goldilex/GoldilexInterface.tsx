@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import type { BSetFile, BSetItem, GenerationResponse, TaxonomyEntry, TaxonomyNode } from '@/types/bset';
+import type { BSetFile, BSetItem, GenerationResponse, TaxonomyEntry, TaxonomyNode, Sticky } from '@/types/bset';
 
 type Message = {
   role: 'user' | 'assistant';
@@ -9,7 +9,7 @@ type Message = {
   response?: GenerationResponse;
 };
 
-type QuizData = {
+type QuizQuestion = {
   question: string;
   options: string[];
   correctIndex: number;
@@ -46,11 +46,16 @@ export default function GoldilexInterface() {
   const [selectedAuthority, setSelectedAuthority] = useState<BSetItem | null>(null);
   const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set());
 
+  // Sticky (build note) selection
+  const [selectedSticky, setSelectedSticky] = useState<Sticky | null>(null);
+
   // Quiz state
-  const [activeQuiz, setActiveQuiz] = useState<QuizData | null>(null);
+  const [activeQuiz, setActiveQuiz] = useState<QuizQuestion[] | null>(null);
   const [quizLoading, setQuizLoading] = useState(false);
-  const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
-  const [quizRevealed, setQuizRevealed] = useState(false);
+  const [quizIndex, setQuizIndex] = useState(0);
+  const [quizAnswers, setQuizAnswers] = useState<(number | null)[]>([]);
+  const [quizRevealed, setQuizRevealed] = useState<boolean[]>([]);
+  const [quizCompleted, setQuizCompleted] = useState(false);
   const [rightPanelTab, setRightPanelTab] = useState<'quiz' | 'authority'>('quiz');
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -111,8 +116,10 @@ export default function GoldilexInterface() {
   const generateQuiz = async (userQuery: string, responseText: string) => {
     setQuizLoading(true);
     setActiveQuiz(null);
-    setSelectedAnswer(null);
-    setQuizRevealed(false);
+    setQuizIndex(0);
+    setQuizAnswers([]);
+    setQuizRevealed([]);
+    setQuizCompleted(false);
     setRightPanelTab('quiz');
     try {
       const res = await fetch('/api/goldilex-quiz', {
@@ -121,13 +128,33 @@ export default function GoldilexInterface() {
         body: JSON.stringify({ query: userQuery, response_text: responseText }),
       });
       if (!res.ok) throw new Error('Quiz generation failed');
-      const quiz: QuizData = await res.json();
-      setActiveQuiz(quiz);
+      const data = await res.json();
+      const questions: QuizQuestion[] = data.questions ?? [];
+      setActiveQuiz(questions);
+      setQuizAnswers(new Array(questions.length).fill(null));
+      setQuizRevealed(new Array(questions.length).fill(false));
     } catch {
       // Silently fail — quiz is supplemental
     } finally {
       setQuizLoading(false);
     }
+  };
+
+  const dismissQuiz = () => {
+    setActiveQuiz(null);
+    setQuizIndex(0);
+    setQuizAnswers([]);
+    setQuizRevealed([]);
+    setQuizCompleted(false);
+  };
+
+  const getQuizRating = (score: number, total: number) => {
+    const pct = score / total;
+    if (pct === 1)   return { label: 'Excellent',      color: '#22c55e', msg: 'Perfect score — you\'ve mastered this topic.' };
+    if (pct >= 0.8)  return { label: 'Proficient',     color: '#86efac', msg: 'Strong grasp. Review the question(s) you missed.' };
+    if (pct >= 0.6)  return { label: 'Developing',     color: '#facc15', msg: 'Solid foundation. Revisit the key concepts.' };
+    if (pct >= 0.4)  return { label: 'Needs Review',   color: '#fb923c', msg: 'Read back through the material carefully.' };
+    return             { label: 'Study Required',    color: '#f87171', msg: 'This topic needs more attention.' };
   };
 
   const toggleNode = (nodeId: string) => {
@@ -230,11 +257,16 @@ TONE AND STYLE:
 - When citing cases, use **bold** for case names
 - When stating rules, use **bold** for key legal principles
 
-BUILD PANEL NOTES (b-line) ARE HIGHEST PRIORITY:
-- BUILD PANEL NOTES are the analyst's own governing instructions scoped to this section
-- They ALWAYS take precedence over metadata fields (rule_of_law, holding, facts, etc.)
-- Follow them precisely and completely — they contain critical nuances, distinctions, and instructions that override everything else
-- If a build note defines a test, element, branch, or rule — use THAT definition, not what the case metadata says
+BUILD PANEL NOTES AND CASE AUTHORITIES ARE EQUALLY AUTHORITATIVE:
+- Build panel notes are the analyst's own governing instructions scoped to this section
+- They carry the same weight as case metadata fields (rule_of_law, holding, facts, etc.)
+- When a build note and case metadata address the same point, highlight the nuance between them — do not discard either
+- If a build note defines a test, element, branch, or rule — present it alongside the case metadata, noting any nuance
+- A briefset with only build notes is fully valid: treat those notes as the primary authority set
+
+NUANCE HANDLING:
+- Never describe differences between sources as "conflicts" — always frame them as "nuances"
+- When build notes and metadata address the same point differently, say: "⚠ Nuance: [note] — treating both sources as authoritative."
 
 CRITICAL RULE REQUEST BEHAVIOR:
 When a user asks "what is the rule in [case name]?" or "what's the rule from [case name]?" or any variant asking ONLY for the rule:
@@ -377,6 +409,15 @@ Format bold text like this: **text to bold**`,
     ? new Set(Object.values(bsetFile._meta.ordering).flat())
     : new Set<string>();
   const orphanItems = bsetFile?.items.filter(item => !allOrderedIds.has(item.id)) ?? [];
+  const allStickies: Sticky[] = (bsetFile?._meta.stickies as Sticky[] | undefined) ?? [];
+
+  const extractStickyText = (sticky: Sticky): string =>
+    sticky.content.map(seg => seg.text ?? '').join('');
+
+  const getStickyLabel = (sticky: Sticky): string => {
+    const text = extractStickyText(sticky);
+    return text.length > 64 ? text.slice(0, 64) + '…' : text;
+  };
 
   const renderAuthorityRow = (item: BSetItem, depth: number) => (
     <button
@@ -407,6 +448,40 @@ Format bold text like this: **text to bold**`,
       {item.citation && (
         <span className="block text-[9px] mt-0.5 not-italic" style={{ color: '#555' }}>
           {item.citation}
+        </span>
+      )}
+    </button>
+  );
+
+  const renderStickyRow = (sticky: Sticky) => (
+    <button
+      key={sticky.id}
+      onClick={() => { setSelectedSticky(sticky); setSelectedAuthority(null); }}
+      className="w-full text-left py-1.5 text-xs transition-colors leading-snug border-l-2"
+      style={{
+        paddingLeft: '10px',
+        paddingRight: '10px',
+        borderLeftColor: selectedSticky?.id === sticky.id ? '#BF9B30' : 'transparent',
+        backgroundColor: selectedSticky?.id === sticky.id ? '#252525' : 'transparent',
+        color: selectedSticky?.id === sticky.id ? '#fff' : '#9ca3af',
+      }}
+      onMouseEnter={e => {
+        if (selectedSticky?.id !== sticky.id) {
+          e.currentTarget.style.backgroundColor = '#222';
+          e.currentTarget.style.color = '#d1d5db';
+        }
+      }}
+      onMouseLeave={e => {
+        if (selectedSticky?.id !== sticky.id) {
+          e.currentTarget.style.backgroundColor = 'transparent';
+          e.currentTarget.style.color = '#9ca3af';
+        }
+      }}
+    >
+      <span className="italic">{getStickyLabel(sticky)}</span>
+      {sticky.note_type && (
+        <span className="block text-[9px] mt-0.5 not-italic" style={{ color: '#555' }}>
+          {sticky.note_type}
         </span>
       )}
     </button>
@@ -491,13 +566,40 @@ Format bold text like this: **text to bold**`,
 
   const similarAuthorities = selectedAuthority ? findSimilarAuthorities(selectedAuthority) : [];
 
-  const showRightPanel = activeQuiz || quizLoading || selectedAuthority;
-  const showTabs = (activeQuiz || quizLoading) && selectedAuthority;
+  const showRightPanel = activeQuiz || quizLoading || selectedAuthority || selectedSticky;
+  const showTabs = (activeQuiz || quizLoading) && (selectedAuthority || selectedSticky);
   const activeTab = showTabs ? rightPanelTab : (activeQuiz || quizLoading) ? 'quiz' : 'authority';
+
+  // Current question helpers
+  const currentQ = activeQuiz?.[quizIndex] ?? null;
+  const currentAnswer = quizAnswers[quizIndex] ?? null;
+  const currentRevealed = quizRevealed[quizIndex] ?? false;
+  const totalQ = activeQuiz?.length ?? 0;
+  const isLastQ = quizIndex === totalQ - 1;
+
+  const setAnswer = (idx: number) => {
+    setQuizAnswers(prev => { const next = [...prev]; next[quizIndex] = idx; return next; });
+  };
+  const revealCurrent = () => {
+    setQuizRevealed(prev => { const next = [...prev]; next[quizIndex] = true; return next; });
+  };
+  const advanceOrFinish = () => {
+    if (isLastQ) {
+      setQuizCompleted(true);
+    } else {
+      setQuizIndex(i => i + 1);
+    }
+  };
+
+  const finalScore = activeQuiz
+    ? quizAnswers.filter((a, i) => a === activeQuiz[i]?.correctIndex).length
+    : 0;
+  const accuracy = totalQ > 0 ? Math.round((finalScore / totalQ) * 100) : 0;
 
   const renderQuizPanel = () => (
     <div className="flex flex-col h-full quiz-fade-in" style={{ width: '300px' }}>
-      {/* Panel header with optional tabs */}
+
+      {/* Panel header */}
       <div
         className="px-3 py-2.5 border-b flex-shrink-0"
         style={{ borderColor: '#2e2e2e' }}
@@ -527,27 +629,17 @@ Format bold text like this: **text to bold**`,
           </div>
         ) : (
           <div className="flex items-center justify-between">
-            <span
-              className="text-[10px] font-semibold tracking-widest uppercase"
-              style={{ color: '#BF9B30' }}
-            >
+            <span className="text-[10px] font-semibold tracking-widest uppercase" style={{ color: '#BF9B30' }}>
               {activeTab === 'quiz' ? 'Comprehension Check' : 'Authority'}
             </span>
             {activeTab === 'quiz' && (
-              <button
-                onClick={() => { setActiveQuiz(null); setSelectedAnswer(null); setQuizRevealed(false); }}
-                className="text-gray-600 hover:text-gray-300 transition-colors text-sm"
-              >
-                ✕
-              </button>
+              <button onClick={dismissQuiz} className="text-gray-600 hover:text-gray-300 transition-colors text-sm">✕</button>
             )}
             {activeTab === 'authority' && (
               <button
-                onClick={() => setSelectedAuthority(null)}
+                onClick={() => { setSelectedAuthority(null); setSelectedSticky(null); }}
                 className="text-gray-600 hover:text-gray-300 transition-colors text-sm"
-              >
-                ✕
-              </button>
+              >✕</button>
             )}
           </div>
         )}
@@ -555,144 +647,220 @@ Format bold text like this: **text to bold**`,
 
       {/* Panel content */}
       <div className="flex-1 overflow-y-auto">
-        {/* Quiz tab */}
+
+        {/* ── Quiz tab ── */}
         {activeTab === 'quiz' && (
           <div className="px-3 py-4">
+
+            {/* Loading */}
             {quizLoading && !activeQuiz && (
-              <div className="flex flex-col items-center justify-center py-8 gap-3">
+              <div className="flex flex-col items-center justify-center py-10 gap-3">
                 <div
                   className="spin-node"
-                  style={{
-                    width: '20px',
-                    height: '20px',
-                    borderRadius: '50%',
-                    border: '2px solid #BF9B30',
-                    borderTopColor: 'transparent',
-                  }}
+                  style={{ width: '20px', height: '20px', borderRadius: '50%', border: '2px solid #BF9B30', borderTopColor: 'transparent' }}
                 />
-                <p className="text-xs italic" style={{ color: '#555' }}>generating question...</p>
+                <p className="text-xs italic" style={{ color: '#555' }}>generating questions...</p>
               </div>
             )}
 
-            {activeQuiz && (
+            {/* Results screen */}
+            {activeQuiz && quizCompleted && (
               <div className="quiz-fade-in">
-                {/* Question */}
-                <p
-                  className="text-sm leading-relaxed mb-5"
-                  style={{ color: '#e5e7eb' }}
+                {/* Score */}
+                <div
+                  className="rounded-xl p-4 mb-4 text-center"
+                  style={{ backgroundColor: '#161616', border: '1px solid #2e2e2e' }}
                 >
-                  {activeQuiz.question}
+                  <div className="text-4xl font-bold mb-1" style={{ color: '#BF9B30' }}>
+                    {finalScore}/{totalQ}
+                  </div>
+                  <div className="text-xs mb-3" style={{ color: '#6b7280' }}>
+                    {accuracy}% accuracy
+                  </div>
+                  {/* Rating badge */}
+                  <div
+                    className="inline-block px-3 py-1 rounded-full text-xs font-semibold mb-2"
+                    style={{
+                      backgroundColor: `${getQuizRating(finalScore, totalQ).color}18`,
+                      color: getQuizRating(finalScore, totalQ).color,
+                      border: `1px solid ${getQuizRating(finalScore, totalQ).color}40`,
+                    }}
+                  >
+                    {getQuizRating(finalScore, totalQ).label}
+                  </div>
+                  <p className="text-xs leading-relaxed" style={{ color: '#9ca3af' }}>
+                    {getQuizRating(finalScore, totalQ).msg}
+                  </p>
+                </div>
+
+                {/* Target */}
+                <div
+                  className="rounded-lg px-3 py-2 mb-5 flex items-center gap-2"
+                  style={{ backgroundColor: '#BF9B3010', border: '1px solid #BF9B3025' }}
+                >
+                  <span style={{ color: '#BF9B30' }}>◎</span>
+                  <p className="text-[10px] leading-relaxed" style={{ color: '#BF9B30' }}>
+                    Target: 4/{totalQ} or above (80%+)
+                  </p>
+                </div>
+
+                {/* Per-question breakdown */}
+                <div className="mb-4">
+                  <p className="text-[9px] uppercase tracking-widest mb-2 font-semibold" style={{ color: '#555' }}>
+                    Review
+                  </p>
+                  <div className="flex flex-col gap-2">
+                    {activeQuiz.map((q, i) => {
+                      const userAns = quizAnswers[i];
+                      const correct = userAns === q.correctIndex;
+                      return (
+                        <div
+                          key={i}
+                          className="rounded-lg p-2.5"
+                          style={{
+                            backgroundColor: '#161616',
+                            border: `1px solid ${correct ? '#22c55e25' : '#ef444425'}`,
+                          }}
+                        >
+                          <div className="flex items-start gap-2">
+                            <span className="flex-shrink-0 mt-0.5" style={{ color: correct ? '#22c55e' : '#ef4444', fontSize: '10px' }}>
+                              {correct ? '✓' : '✗'}
+                            </span>
+                            <div>
+                              <p className="text-[10px] leading-snug mb-1" style={{ color: '#d1d5db' }}>{q.question}</p>
+                              {!correct && (
+                                <p className="text-[9px] leading-snug" style={{ color: '#6b7280' }}>
+                                  Correct: {q.options[q.correctIndex]}
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Dismiss */}
+                <button
+                  onClick={dismissQuiz}
+                  className="w-full py-1.5 rounded-lg text-[10px] transition-colors"
+                  style={{ color: '#444', backgroundColor: 'transparent' }}
+                  onMouseEnter={e => { e.currentTarget.style.color = '#777'; }}
+                  onMouseLeave={e => { e.currentTarget.style.color = '#444'; }}
+                >
+                  dismiss
+                </button>
+              </div>
+            )}
+
+            {/* Active question */}
+            {activeQuiz && !quizCompleted && currentQ && (
+              <div className="quiz-fade-in">
+
+                {/* Progress bar */}
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="flex-1 h-1 rounded-full" style={{ backgroundColor: '#2e2e2e' }}>
+                    <div
+                      className="h-1 rounded-full transition-all duration-300"
+                      style={{ backgroundColor: '#BF9B30', width: `${((quizIndex + 1) / totalQ) * 100}%` }}
+                    />
+                  </div>
+                  <span className="text-[10px] flex-shrink-0" style={{ color: '#555' }}>
+                    {quizIndex + 1}/{totalQ}
+                  </span>
+                </div>
+
+                {/* Question */}
+                <p className="text-sm leading-relaxed mb-4" style={{ color: '#e5e7eb' }}>
+                  {currentQ.question}
                 </p>
 
                 {/* Options */}
-                <div className="flex flex-col gap-2 mb-5">
-                  {activeQuiz.options.map((opt, i) => {
-                    const isSelected = selectedAnswer === i;
-                    const isCorrect = i === activeQuiz.correctIndex;
+                <div className="flex flex-col gap-2 mb-4">
+                  {currentQ.options.map((opt, i) => {
+                    const isSelected = currentAnswer === i;
+                    const isCorrect = i === currentQ.correctIndex;
                     let borderColor = '#2e2e2e';
                     let bgColor = '#161616';
                     let textColor = '#9ca3af';
 
-                    if (quizRevealed) {
-                      if (isCorrect) {
-                        borderColor = '#22c55e50';
-                        bgColor = '#14532d20';
-                        textColor = '#86efac';
-                      } else if (isSelected && !isCorrect) {
-                        borderColor = '#ef444450';
-                        bgColor = '#7f1d1d20';
-                        textColor = '#fca5a5';
-                      }
+                    if (currentRevealed) {
+                      if (isCorrect) { borderColor = '#22c55e50'; bgColor = '#14532d20'; textColor = '#86efac'; }
+                      else if (isSelected) { borderColor = '#ef444450'; bgColor = '#7f1d1d20'; textColor = '#fca5a5'; }
                     } else if (isSelected) {
-                      borderColor = '#BF9B3060';
-                      bgColor = '#BF9B3015';
-                      textColor = '#e5e7eb';
+                      borderColor = '#BF9B3060'; bgColor = '#BF9B3015'; textColor = '#e5e7eb';
                     }
 
                     return (
                       <button
                         key={i}
-                        onClick={() => {
-                          if (!quizRevealed) setSelectedAnswer(i);
-                        }}
-                        disabled={quizRevealed}
+                        onClick={() => { if (!currentRevealed) setAnswer(i); }}
+                        disabled={currentRevealed}
                         className="w-full text-left p-2.5 rounded-lg text-xs leading-relaxed transition-all"
-                        style={{
-                          border: `1px solid ${borderColor}`,
-                          backgroundColor: bgColor,
-                          color: textColor,
-                          cursor: quizRevealed ? 'default' : 'pointer',
-                        }}
+                        style={{ border: `1px solid ${borderColor}`, backgroundColor: bgColor, color: textColor, cursor: currentRevealed ? 'default' : 'pointer' }}
                         onMouseEnter={e => {
-                          if (!quizRevealed && selectedAnswer !== i) {
+                          if (!currentRevealed && currentAnswer !== i) {
                             e.currentTarget.style.borderColor = '#3a3a3a';
                             e.currentTarget.style.backgroundColor = '#1e1e1e';
                           }
                         }}
                         onMouseLeave={e => {
-                          if (!quizRevealed && selectedAnswer !== i) {
+                          if (!currentRevealed && currentAnswer !== i) {
                             e.currentTarget.style.borderColor = '#2e2e2e';
                             e.currentTarget.style.backgroundColor = '#161616';
                           }
                         }}
                       >
                         {opt}
-                        {quizRevealed && isCorrect && (
-                          <span className="ml-2 text-green-400">✓</span>
-                        )}
-                        {quizRevealed && isSelected && !isCorrect && (
-                          <span className="ml-2 text-red-400">✗</span>
-                        )}
+                        {currentRevealed && isCorrect && <span className="ml-1.5 text-green-400">✓</span>}
+                        {currentRevealed && isSelected && !isCorrect && <span className="ml-1.5 text-red-400">✗</span>}
                       </button>
                     );
                   })}
                 </div>
 
-                {/* Reveal / explanation */}
-                {!quizRevealed ? (
-                  <button
-                    onClick={() => { if (selectedAnswer !== null) setQuizRevealed(true); }}
-                    disabled={selectedAnswer === null}
-                    className="w-full py-2 rounded-lg text-xs font-semibold transition-all disabled:opacity-30 disabled:cursor-not-allowed"
-                    style={{
-                      backgroundColor: selectedAnswer !== null ? '#BF9B30' : '#2a2a2a',
-                      color: selectedAnswer !== null ? '#111827' : '#555',
-                    }}
-                    onMouseEnter={e => {
-                      if (selectedAnswer !== null)
-                        e.currentTarget.style.backgroundColor = '#A68628';
-                    }}
-                    onMouseLeave={e => {
-                      if (selectedAnswer !== null)
-                        e.currentTarget.style.backgroundColor = '#BF9B30';
-                    }}
+                {/* Explanation (after reveal) */}
+                {currentRevealed && (
+                  <div
+                    className="p-3 rounded-lg text-xs leading-relaxed mb-4 quiz-fade-in"
+                    style={{ backgroundColor: '#161616', border: '1px solid #2e2e2e', color: '#9ca3af' }}
                   >
-                    Reveal Answer
+                    <span style={{ color: currentAnswer === currentQ.correctIndex ? '#86efac' : '#fca5a5', fontWeight: 600 }}>
+                      {currentAnswer === currentQ.correctIndex ? 'Correct! ' : 'Not quite. '}
+                    </span>
+                    {currentQ.explanation}
+                  </div>
+                )}
+
+                {/* Action button */}
+                {!currentRevealed ? (
+                  <button
+                    onClick={() => { if (currentAnswer !== null) revealCurrent(); }}
+                    disabled={currentAnswer === null}
+                    className="w-full py-2 rounded-lg text-xs font-semibold transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                    style={{ backgroundColor: currentAnswer !== null ? '#BF9B30' : '#2a2a2a', color: currentAnswer !== null ? '#111827' : '#555' }}
+                    onMouseEnter={e => { if (currentAnswer !== null) e.currentTarget.style.backgroundColor = '#A68628'; }}
+                    onMouseLeave={e => { if (currentAnswer !== null) e.currentTarget.style.backgroundColor = '#BF9B30'; }}
+                  >
+                    Check Answer
                   </button>
                 ) : (
-                  <div
-                    className="p-3 rounded-lg text-xs leading-relaxed quiz-fade-in"
-                    style={{
-                      backgroundColor: '#161616',
-                      border: '1px solid #2e2e2e',
-                      color: '#9ca3af',
-                    }}
+                  <button
+                    onClick={advanceOrFinish}
+                    className="w-full py-2 rounded-lg text-xs font-semibold transition-colors"
+                    style={{ backgroundColor: '#BF9B30', color: '#111827' }}
+                    onMouseEnter={e => { e.currentTarget.style.backgroundColor = '#A68628'; }}
+                    onMouseLeave={e => { e.currentTarget.style.backgroundColor = '#BF9B30'; }}
                   >
-                    <span style={{ color: selectedAnswer === activeQuiz.correctIndex ? '#86efac' : '#fca5a5', fontWeight: 600 }}>
-                      {selectedAnswer === activeQuiz.correctIndex ? 'Correct! ' : 'Not quite. '}
-                    </span>
-                    {activeQuiz.explanation}
-                  </div>
+                    {isLastQ ? 'See Results →' : 'Next Question →'}
+                  </button>
                 )}
 
                 {/* Dismiss */}
                 <button
-                  onClick={() => {
-                    setActiveQuiz(null);
-                    setSelectedAnswer(null);
-                    setQuizRevealed(false);
-                  }}
-                  className="w-full mt-4 py-1.5 rounded-lg text-[10px] transition-colors"
+                  onClick={dismissQuiz}
+                  className="w-full mt-3 py-1.5 rounded-lg text-[10px] transition-colors"
                   style={{ color: '#444', backgroundColor: 'transparent' }}
                   onMouseEnter={e => { e.currentTarget.style.color = '#777'; }}
                   onMouseLeave={e => { e.currentTarget.style.color = '#444'; }}
@@ -704,134 +872,139 @@ Format bold text like this: **text to bold**`,
           </div>
         )}
 
-        {/* Authority tab */}
-        {activeTab === 'authority' && selectedAuthority && (
+        {/* ── Authority tab ── */}
+        {activeTab === 'authority' && (selectedAuthority || selectedSticky) && (
           <div className="flex flex-col" style={{ width: '300px' }}>
-            {/* Authority header */}
-            <div className="px-3 pt-3 pb-1 flex-shrink-0">
-              <p
-                className="text-[9px] font-semibold tracking-widest uppercase"
-                style={{ color: '#BF9B30' }}
-              >
-                {selectedAuthority.type === 'case'
-                  ? 'Case'
-                  : selectedAuthority.type === 'statute'
-                  ? 'Statute'
-                  : 'Authority'}
-              </p>
-              <p className="text-xs text-gray-200 mt-1 leading-snug">
-                <em>{getDisplayName(selectedAuthority)}</em>
-              </p>
-              {selectedAuthority.citation && (
-                <p className="text-[10px] mt-0.5 mb-3" style={{ color: '#666' }}>
-                  {selectedAuthority.citation}
-                </p>
-              )}
-            </div>
 
-            <div className="px-3 py-2 overflow-y-auto">
-              {renderField(
-                'Facts',
-                selectedAuthority.facts ||
-                  (selectedAuthority.type === 'statute'
-                    ? selectedAuthority.statute_text
-                    : undefined)
-              )}
-              {renderField('Issue / Question', selectedAuthority.question)}
-              {renderField(
-                'Rule',
-                selectedAuthority.rule_of_law || selectedAuthority.rule
-              )}
-              {renderField('Holding', selectedAuthority.holding)}
-              {renderField(
-                'Extra Notes',
-                selectedAuthority.notes || selectedAuthority.authority_summary
-              )}
+            {/* Authority detail */}
+            {selectedAuthority && (
+              <>
+                <div className="px-3 pt-3 pb-1 flex-shrink-0">
+                  <p className="text-[9px] font-semibold tracking-widest uppercase" style={{ color: '#BF9B30' }}>
+                    {selectedAuthority.type === 'case' ? 'Case' : selectedAuthority.type === 'statute' ? 'Statute' : 'Authority'}
+                  </p>
+                  <p className="text-xs text-gray-200 mt-1 leading-snug"><em>{getDisplayName(selectedAuthority)}</em></p>
+                  {selectedAuthority.citation && (
+                    <p className="text-[10px] mt-0.5 mb-3" style={{ color: '#666' }}>{selectedAuthority.citation}</p>
+                  )}
+                </div>
 
-              <button
-                onClick={() => {
-                  sendQuery(`What is ${getDisplayName(selectedAuthority)} about?`);
-                }}
-                disabled={loading || isStreaming}
-                className="w-full py-2.5 mt-1 mb-5 text-xs font-semibold rounded-lg transition-all disabled:opacity-40 disabled:cursor-not-allowed"
-                style={{ backgroundColor: '#BF9B30', color: '#111827' }}
-                onMouseEnter={e => {
-                  if (!loading && !isStreaming)
-                    e.currentTarget.style.backgroundColor = '#A68628';
-                }}
-                onMouseLeave={e => {
-                  if (!loading && !isStreaming)
-                    e.currentTarget.style.backgroundColor = '#BF9B30';
-                }}
-              >
-                Ask goldilex about this →
-              </button>
+                <div className="px-3 py-2 overflow-y-auto">
+                  {renderField('Facts', selectedAuthority.facts || (selectedAuthority.type === 'statute' ? selectedAuthority.statute_text : undefined))}
+                  {renderField('Issue / Question', selectedAuthority.question)}
+                  {renderField('Rule', selectedAuthority.rule_of_law || selectedAuthority.rule)}
+                  {renderField('Holding', selectedAuthority.holding)}
+                  {renderField('Extra Notes', selectedAuthority.notes || selectedAuthority.authority_summary)}
 
-              {similarAuthorities.length > 0 && (
-                <div>
-                  <div
-                    className="text-[9px] uppercase tracking-widest mb-2 font-semibold"
-                    style={{ color: '#555' }}
+                  <button
+                    onClick={() => { sendQuery(`What is ${getDisplayName(selectedAuthority)} about?`); }}
+                    disabled={loading || isStreaming}
+                    className="w-full py-2.5 mt-1 mb-5 text-xs font-semibold rounded-lg transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                    style={{ backgroundColor: '#BF9B30', color: '#111827' }}
+                    onMouseEnter={e => { if (!loading && !isStreaming) e.currentTarget.style.backgroundColor = '#A68628'; }}
+                    onMouseLeave={e => { if (!loading && !isStreaming) e.currentTarget.style.backgroundColor = '#BF9B30'; }}
                   >
-                    Similar in briefset
-                  </div>
-                  <div className="flex flex-col gap-1.5">
-                    {similarAuthorities.map(item => (
-                      <button
-                        key={item.id}
-                        onClick={() => setSelectedAuthority(item)}
-                        className="w-full text-left p-2.5 rounded-lg transition-all"
-                        style={{ backgroundColor: '#1e1e1e', border: '1px solid #2a2a2a' }}
-                        onMouseEnter={e => {
-                          e.currentTarget.style.backgroundColor = '#242424';
-                          e.currentTarget.style.borderColor = '#BF9B3035';
-                        }}
-                        onMouseLeave={e => {
-                          e.currentTarget.style.backgroundColor = '#1e1e1e';
-                          e.currentTarget.style.borderColor = '#2a2a2a';
+                    Ask goldilex about this →
+                  </button>
+
+                  {similarAuthorities.length > 0 && (
+                    <div>
+                      <div className="text-[9px] uppercase tracking-widest mb-2 font-semibold" style={{ color: '#555' }}>
+                        Similar in briefset
+                      </div>
+                      <div className="flex flex-col gap-1.5">
+                        {similarAuthorities.map(item => (
+                          <button
+                            key={item.id}
+                            onClick={() => setSelectedAuthority(item)}
+                            className="w-full text-left p-2.5 rounded-lg transition-all"
+                            style={{ backgroundColor: '#1e1e1e', border: '1px solid #2a2a2a' }}
+                            onMouseEnter={e => { e.currentTarget.style.backgroundColor = '#242424'; e.currentTarget.style.borderColor = '#BF9B3035'; }}
+                            onMouseLeave={e => { e.currentTarget.style.backgroundColor = '#1e1e1e'; e.currentTarget.style.borderColor = '#2a2a2a'; }}
+                          >
+                            <div className="text-xs text-gray-300 leading-snug italic">{getDisplayName(item)}</div>
+                            {item.citation && <div className="text-[9px] mt-0.5" style={{ color: '#555' }}>{item.citation}</div>}
+                            <div className="mt-1.5">
+                              <span
+                                className="text-[8px] px-1.5 py-0.5 rounded"
+                                style={{
+                                  backgroundColor: item.type === 'case' ? '#BF9B3015' : '#222',
+                                  color: item.type === 'case' ? '#BF9B30' : '#555',
+                                  border: `1px solid ${item.type === 'case' ? '#BF9B3030' : '#333'}`,
+                                }}
+                              >
+                                {item.type}
+                              </span>
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
+
+            {/* Build note detail */}
+            {selectedSticky && !selectedAuthority && (
+              <>
+                <div className="px-3 pt-3 pb-1 flex-shrink-0">
+                  <p className="text-[9px] font-semibold tracking-widest uppercase" style={{ color: '#BF9B30' }}>
+                    Build Note
+                  </p>
+                  {selectedSticky.note_type && (
+                    <span
+                      className="inline-block mt-1 text-[8px] px-1.5 py-0.5 rounded"
+                      style={{ backgroundColor: '#BF9B3015', color: '#BF9B30', border: '1px solid #BF9B3030' }}
+                    >
+                      {selectedSticky.note_type}
+                    </span>
+                  )}
+                </div>
+
+                <div className="px-3 py-3 overflow-y-auto">
+                  <div
+                    className="p-3 rounded-lg text-sm leading-relaxed"
+                    style={{ backgroundColor: '#161616', border: '1px solid #2e2e2e', color: '#d1d5db' }}
+                  >
+                    {selectedSticky.content.map((seg, i) => (
+                      <span
+                        key={i}
+                        style={{
+                          fontWeight: seg.bold ? 700 : 400,
+                          fontStyle: seg.italic ? 'italic' : 'normal',
+                          textDecoration: seg.underline ? 'underline' : 'none',
                         }}
                       >
-                        <div className="text-xs text-gray-300 leading-snug italic">
-                          {getDisplayName(item)}
-                        </div>
-                        {item.citation && (
-                          <div className="text-[9px] mt-0.5" style={{ color: '#555' }}>
-                            {item.citation}
-                          </div>
-                        )}
-                        <div className="mt-1.5">
-                          <span
-                            className="text-[8px] px-1.5 py-0.5 rounded"
-                            style={{
-                              backgroundColor:
-                                item.type === 'case' ? '#BF9B3015' : '#222',
-                              color: item.type === 'case' ? '#BF9B30' : '#555',
-                              border: `1px solid ${
-                                item.type === 'case' ? '#BF9B3030' : '#333'
-                              }`,
-                            }}
-                          >
-                            {item.type}
-                          </span>
-                        </div>
-                      </button>
+                        {seg.text}
+                      </span>
                     ))}
                   </div>
+
+                  <button
+                    onClick={() => {
+                      sendQuery(`Explain this build note: ${extractStickyText(selectedSticky)}`);
+                    }}
+                    disabled={loading || isStreaming}
+                    className="w-full py-2.5 mt-4 text-xs font-semibold rounded-lg transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                    style={{ backgroundColor: '#BF9B30', color: '#111827' }}
+                    onMouseEnter={e => { if (!loading && !isStreaming) e.currentTarget.style.backgroundColor = '#A68628'; }}
+                    onMouseLeave={e => { if (!loading && !isStreaming) e.currentTarget.style.backgroundColor = '#BF9B30'; }}
+                  >
+                    Ask goldilex about this →
+                  </button>
                 </div>
-              )}
-            </div>
+              </>
+            )}
           </div>
         )}
       </div>
 
-      {/* Tab-mode close buttons */}
+      {/* Tab-mode footer */}
       {showTabs && (
-        <div
-          className="flex-shrink-0 border-t px-3 py-2 flex justify-between"
-          style={{ borderColor: '#2e2e2e' }}
-        >
+        <div className="flex-shrink-0 border-t px-3 py-2 flex justify-between" style={{ borderColor: '#2e2e2e' }}>
           <button
-            onClick={() => { setActiveQuiz(null); setSelectedAnswer(null); setQuizRevealed(false); setRightPanelTab('authority'); }}
+            onClick={() => { dismissQuiz(); setRightPanelTab('authority'); }}
             className="text-[10px] transition-colors"
             style={{ color: '#444' }}
             onMouseEnter={e => { e.currentTarget.style.color = '#777'; }}
@@ -840,13 +1013,13 @@ Format bold text like this: **text to bold**`,
             dismiss quiz
           </button>
           <button
-            onClick={() => setSelectedAuthority(null)}
+            onClick={() => { setSelectedAuthority(null); setSelectedSticky(null); }}
             className="text-[10px] transition-colors"
             style={{ color: '#444' }}
             onMouseEnter={e => { e.currentTarget.style.color = '#777'; }}
             onMouseLeave={e => { e.currentTarget.style.color = '#444'; }}
           >
-            close authority
+            close detail
           </button>
         </div>
       )}
@@ -861,7 +1034,7 @@ Format bold text like this: **text to bold**`,
         <div className="px-4 py-3 flex items-center justify-between">
           <div>
             <h1 className="text-base font-semibold" style={{ color: '#BF9B30' }}>goldilex</h1>
-            <p className="text-xs text-gray-400">v2.0.0</p>
+            <p className="text-xs text-gray-400">v2.1.0</p>
           </div>
           <div className="flex items-center gap-3">
             <a
@@ -945,7 +1118,19 @@ Format bold text like this: **text to bold**`,
                 </div>
               )}
 
-              {taxonomyTree.length === 0 && orphanItems.length === 0 && (
+              {allStickies.length > 0 && (
+                <div className="mt-2 pt-2" style={{ borderTop: '1px solid #222' }}>
+                  <p
+                    className="text-[9px] uppercase tracking-widest px-3 pb-1"
+                    style={{ color: '#444' }}
+                  >
+                    Build Notes
+                  </p>
+                  {allStickies.map(s => renderStickyRow(s))}
+                </div>
+              )}
+
+              {taxonomyTree.length === 0 && orphanItems.length === 0 && allStickies.length === 0 && (
                 <p className="text-xs px-3 py-3 italic" style={{ color: '#555' }}>
                   No content found.
                 </p>
@@ -981,10 +1166,9 @@ Format bold text like this: **text to bold**`,
                       </span>
                     </p>
                     <p className="text-xs text-gray-500">
-                      {bsetFile._meta.headings.length} topics •{' '}
-                      {bsetFile.items.length > 0
-                        ? `${bsetFile.items.length} authorities`
-                        : `${(bsetFile._meta.stickies as unknown[])?.length ?? 0} notes`}
+                      {bsetFile._meta.headings.length} topics
+                      {bsetFile.items.length > 0 && ` • ${bsetFile.items.length} authorities`}
+                      {allStickies.length > 0 && ` • ${allStickies.length} build notes`}
                     </p>
                     <p className="mt-3 text-gray-400">
                       Click any authority in the outline to inspect it, or ask me anything below.
