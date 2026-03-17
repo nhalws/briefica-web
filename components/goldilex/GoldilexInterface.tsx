@@ -419,6 +419,11 @@ Format bold text like this: **text to bold**`,
     <button
       key={item.id}
       onClick={() => setSelectedAuthority(item)}
+      onDoubleClick={() => {
+        if (!bsetFile || loading || isStreaming) return;
+        sendQuery(`Summarize ${getDisplayName(item)}${item.citation ? ` (${item.citation})` : ''} — what is the key rule, holding, and significance?`);
+      }}
+      title="Double-click to ask goldilex about this authority"
       className="w-full text-left py-1.5 text-xs transition-colors leading-snug border-l-2"
       style={{
         paddingLeft: `${10 + depth * 14}px`,
@@ -504,9 +509,10 @@ Format bold text like this: **text to bold**`,
           </span>
         </button>
 
-        {isExpanded && hasChildren && (
+        {isExpanded && (
           <div>
-            {node.children.map(child => renderTaxonomyNode(child, depth + 1))}
+            {items.map(item => renderAuthorityRow(item, depth + 1))}
+            {hasChildren && node.children.map(child => renderTaxonomyNode(child, depth + 1))}
           </div>
         )}
       </div>
