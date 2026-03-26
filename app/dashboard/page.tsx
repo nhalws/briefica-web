@@ -509,7 +509,7 @@ export default function DashboardPage() {
                     type="rotate"
                     from="0 32 32"
                     to="360 32 32"
-                    dur="32s"
+                    dur="80s"
                     repeatCount="indefinite"
                   />
                   <circle cx="32" cy="32" r="5" fill="#66b2ff" stroke="#e6eaf0" strokeWidth="1.5" />
@@ -517,12 +517,12 @@ export default function DashboardPage() {
                     <circle id="orbit-node" r="4" fill="#66b2ff" stroke="#e6eaf0" strokeWidth="1.5" />
                   </defs>
                   {[
-                    { angle: 0, dur: "18s", sway: "8s" },
-                    { angle: 60, dur: "20s", sway: "7s" },
-                    { angle: 120, dur: "22s", sway: "9s" },
-                    { angle: 180, dur: "19s", sway: "8.5s" },
-                    { angle: 240, dur: "23s", sway: "7.5s" },
-                    { angle: 300, dur: "21s", sway: "9.5s" },
+                    { angle: 0, dur: "36s", sway: "8s" },
+                    { angle: 60, dur: "40s", sway: "7s" },
+                    { angle: 120, dur: "44s", sway: "9s" },
+                    { angle: 180, dur: "38s", sway: "8.5s" },
+                    { angle: 240, dur: "46s", sway: "7.5s" },
+                    { angle: 300, dur: "42s", sway: "9.5s" },
                   ].map(({ angle, dur, sway }) => (
                     <g key={angle} transform={`rotate(${angle} 32 32)`}>
                       <g>

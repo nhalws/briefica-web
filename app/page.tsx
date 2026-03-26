@@ -66,7 +66,7 @@ export default function HomePage() {
   });
 
   return (
-    <main className="min-h-screen bg-[#2b2b2b] text-white overflow-x-hidden">
+    <main className="min-h-screen text-white overflow-x-hidden" style={{ background: "var(--bg)" }}>
       <style>{`
         html { scroll-behavior: smooth; }
         .fade-up { opacity: 0; transform: translateY(20px); transition: opacity 0.65s ease, transform 0.65s ease; }
@@ -122,7 +122,7 @@ export default function HomePage() {
       {/* ── NAV ── */}
       <nav
         className="fixed top-0 left-0 right-0 z-50 border-b border-white/10"
-        style={{ background: "rgba(27,27,27,0.9)", backdropFilter: "blur(20px)" }}
+        style={{ background: "var(--nav-bg)", backdropFilter: "blur(20px)" }}
       >
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -131,18 +131,18 @@ export default function HomePage() {
             <div className="w-14 h-14 text-white/90">
               <svg viewBox="0 0 64 64" className="w-full h-full">
                 <g transform="skewX(-8) skewY(5)">
-                  <animateTransform attributeName="transform" type="rotate" from="0 32 32" to="360 32 32" dur="32s" repeatCount="indefinite" />
+                  <animateTransform attributeName="transform" type="rotate" from="0 32 32" to="360 32 32" dur="80s" repeatCount="indefinite" />
                   <circle cx="32" cy="32" r="5" fill="#66b2ff" stroke="#e6eaf0" strokeWidth="1.5" />
                   <defs>
                     <circle id="orbit-node" r="4" fill="#66b2ff" stroke="#e6eaf0" strokeWidth="1.5" />
                   </defs>
                   {[
-                    { angle: 0, dur: "18s", sway: "8s" },
-                    { angle: 60, dur: "20s", sway: "7s" },
-                    { angle: 120, dur: "22s", sway: "9s" },
-                    { angle: 180, dur: "19s", sway: "8.5s" },
-                    { angle: 240, dur: "23s", sway: "7.5s" },
-                    { angle: 300, dur: "21s", sway: "9.5s" },
+                    { angle: 0, dur: "36s", sway: "8s" },
+                    { angle: 60, dur: "40s", sway: "7s" },
+                    { angle: 120, dur: "44s", sway: "9s" },
+                    { angle: 180, dur: "38s", sway: "8.5s" },
+                    { angle: 240, dur: "46s", sway: "7.5s" },
+                    { angle: 300, dur: "42s", sway: "9.5s" },
                   ].map(({ angle, dur, sway }) => (
                     <g key={angle} transform={`rotate(${angle} 32 32)`}>
                       <g>
@@ -345,7 +345,7 @@ export default function HomePage() {
       </div>
 
       {/* ── VERSIONS ── */}
-      <section id="versions" className="fade-up py-16 px-6">
+      <section id="versions" className="fade-up py-16 px-6" style={{ background: "var(--nav-bg)" }}>
         <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6">
 
           {/* v6 — Free */}
