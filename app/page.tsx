@@ -43,7 +43,17 @@ export default function HomePage() {
 
   useEffect(() => {
     if (b7Imgs.length < 2) return;
-    const t = setInterval(() => setB7Idx(i => (i + 1) % b7Imgs.length), 3200);
+    const shuffle = (arr: string[]) => [...arr].sort(() => Math.random() - 0.5);
+    const t = setInterval(() => {
+      setB7Idx(i => {
+        const next = i + 1;
+        if (next >= b7Imgs.length) {
+          setB7Imgs(shuffle(b7Imgs));
+          return 0;
+        }
+        return next;
+      });
+    }, 3200);
     return () => clearInterval(t);
   }, [b7Imgs]);
 
