@@ -351,7 +351,7 @@ export default function HomePage() {
           {/* v6 — Free */}
           <div
             className="rounded-2xl p-10 border border-white/10 flex flex-col"
-            style={{ background: "rgba(255,255,255,0.04)", backdropFilter: "blur(12px)" }}
+            style={{ background: "rgba(255,255,255,0.02)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)" }}
           >
             <div
               className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wide px-3 py-1 rounded-full mb-6 self-start"
@@ -399,8 +399,9 @@ export default function HomePage() {
           <div
             className="rounded-2xl p-10 border flex flex-col"
             style={{
-              background: "rgba(240,192,64,0.05)",
-              backdropFilter: "blur(12px)",
+              background: "rgba(240,192,64,0.03)",
+              backdropFilter: "blur(20px)",
+              WebkitBackdropFilter: "blur(20px)",
               borderColor: "rgba(240,192,64,0.2)",
             }}
           >
@@ -546,60 +547,64 @@ export default function HomePage() {
 
       {/* ── HOW IT WORKS ── */}
       <section id="how" className="fade-up max-w-6xl mx-auto px-6 py-20">
-        <div className="grid md:grid-cols-2 gap-16 items-start">
-          <div>
-            <h2 className="font-bold mb-2" style={{ fontSize: "clamp(24px,3vw,36px)" }}>
-              How it works.
-            </h2>
-            <p className="text-sm text-white/70 leading-relaxed mb-9">
-              One file. Everything flows from it. Build your library, construct your outline, study with AI,
-              export and walk into the exam.
-            </p>
-            <div className="flex flex-col">
-              {[
-                {
-                  n: 1,
-                  title: "download briefica",
-                  desc: "Get the native macOS desktop app. Free for all law students. Your briefsets live on your machine.",
-                  tag: "6.5 free",
-                  gold: false,
-                },
-                {
-                  n: 2,
-                  title: "build your library",
-                  desc: "Add cases with their citation, facts, holding, and rule. Everything structured, searchable, saved to one .bset file.",
-                  tag: "6.5 + 7",
-                  gold: false,
-                },
-                {
-                  n: 3,
-                  title: "b-line your outline",
-                  desc: "Switch to the b-line builder and start building. Pull cases in, add headings, write notes. Auto-saves continuously.",
-                  tag: "6.5 + 7",
-                  gold: false,
-                },
-                {
-                  n: 4,
-                  title: "study with goldilex",
-                  desc: "Ask goldilex to summarize, explain, or quiz you — grounded only in your briefset. No outside noise.",
-                  tag: "briefica: gold",
-                  gold: true,
-                },
-                {
-                  n: 5,
-                  title: "export your b-line",
-                  desc: "Export a clean .docx at any point. WYSIWYG — exactly as it looks in the app. Print it, annotate it, bring it in.",
-                  tag: "6.5 + 7",
-                  gold: false,
-                },
-              ].map(({ n, title, desc, tag, gold }, i) => (
-                <div
-                  key={n}
-                  className={`grid gap-5 py-8 ${i < 4 ? "border-b border-white/10" : ""}`}
-                  style={{ gridTemplateColumns: "56px 1fr" }}
-                >
+        <h2 className="font-bold mb-2" style={{ fontSize: "clamp(24px,3vw,36px)" }}>
+          How it works.
+        </h2>
+        <p className="text-sm text-white/70 leading-relaxed mb-10">
+          One file. Everything flows from it. Build your library, construct your outline, study with AI,
+          export and walk into the exam.
+        </p>
+
+        {/* 3-col grid: steps (2 col) + video (1 col) */}
+        <div className="grid md:grid-cols-3 gap-6 items-start">
+
+          {/* Steps — 2-col inner grid spanning first 2 columns */}
+          <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {[
+              {
+                n: 1,
+                title: "download briefica",
+                desc: "Get the native macOS desktop app. Free for all law students.",
+                tag: "v6 free",
+                gold: false,
+              },
+              {
+                n: 2,
+                title: "build your library",
+                desc: "Add cases with citation, facts, holding, and rule — saved to one .bset file.",
+                tag: "v6 + v7",
+                gold: false,
+              },
+              {
+                n: 3,
+                title: "b-line your outline",
+                desc: "Pull cases into the builder, add headings, write notes. Auto-saves continuously.",
+                tag: "v6 + v7",
+                gold: false,
+              },
+              {
+                n: 4,
+                title: "study with goldilex",
+                desc: "Ask goldilex to summarize, explain, or quiz you — grounded only in your briefset.",
+                tag: "gold",
+                gold: true,
+              },
+              {
+                n: 5,
+                title: "export your b-line",
+                desc: "Export a clean .docx at any point. WYSIWYG — exactly as it looks in the app.",
+                tag: "v6 + v7",
+                gold: false,
+              },
+            ].map(({ n, title, desc, tag, gold }) => (
+              <div
+                key={n}
+                className="rounded-xl p-5 border border-white/8 flex flex-col gap-3"
+                style={{ background: "rgba(255,255,255,0.03)" }}
+              >
+                <div className="flex items-center gap-3">
                   <div
-                    className="w-10 h-10 rounded-full flex items-center justify-center text-base font-bold flex-shrink-0"
+                    className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0"
                     style={{
                       background: gold ? "#f0c040" : "#66b2ff",
                       color: gold ? "#1a1200" : "#1e1e1e",
@@ -607,27 +612,25 @@ export default function HomePage() {
                   >
                     {n}
                   </div>
-                  <div>
-                    <div className="text-lg font-semibold mb-2">{title}</div>
-                    <p className="text-sm text-white/70 leading-relaxed">{desc}</p>
-                    <span
-                      className="inline-block mt-2.5 text-[11px] font-semibold px-2.5 py-0.5 rounded-full"
-                      style={{
-                        background: gold ? "rgba(240,192,64,0.12)" : "rgba(255,255,255,0.1)",
-                        color: gold ? "#f0c040" : "rgba(255,255,255,0.7)",
-                      }}
-                    >
-                      {tag}
-                    </span>
-                  </div>
+                  <div className="text-sm font-semibold">{title}</div>
                 </div>
-              ))}
-            </div>
+                <p className="text-xs text-white/60 leading-relaxed">{desc}</p>
+                <span
+                  className="inline-block self-start text-[10px] font-semibold px-2 py-0.5 rounded-full mt-auto"
+                  style={{
+                    background: gold ? "rgba(240,192,64,0.12)" : "rgba(255,255,255,0.08)",
+                    color: gold ? "#f0c040" : "rgba(255,255,255,0.6)",
+                  }}
+                >
+                  {tag}
+                </span>
+              </div>
+            ))}
           </div>
 
-          {/* Video — preserved */}
+          {/* Video */}
           <div className="sticky top-24">
-            <div className="border border-white/10 bg-[#1e1e1e] rounded-2xl p-8">
+            <div className="border border-white/10 bg-[#1e1e1e] rounded-2xl p-4">
               <div className="aspect-video bg-[#2b2b2b] rounded-lg overflow-hidden">
                 <video
                   src="/march 2026 briefica teaser.mp4"
@@ -638,6 +641,7 @@ export default function HomePage() {
               </div>
             </div>
           </div>
+
         </div>
       </section>
 
