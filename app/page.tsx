@@ -29,7 +29,7 @@ export default function HomePage() {
   useEffect(() => {
     const shuffle = (arr: string[]) => [...arr].sort(() => Math.random() - 0.5);
     const all65 = [1,2,3,4,5,6].map(i => `/screencaps/b65/sc${i}.png`);
-    const all7 = [1,2,3,4,5,6,7,8,9].map(i => `/screencaps/b7/sc${i}.png`);
+    const all7 = [1,2,3,4,5,6,7,8,9,10,11].map(i => `/screencaps/b7/sc${i}.png`);
     setB65Imgs(shuffle(all65));
     setB7Imgs(shuffle(all7));
   }, []);
