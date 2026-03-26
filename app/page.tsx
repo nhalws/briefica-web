@@ -337,8 +337,12 @@ export default function HomePage() {
         {/* Hero content */}
         <div className="relative max-w-6xl mx-auto px-6 text-center pt-[120px] pb-20" style={{ zIndex: 1 }}>
           <h1
-            className="hero-title font-extrabold uppercase leading-none mb-6"
-            style={{ fontSize: "clamp(36px,6vw,64px)", letterSpacing: "-1px" }}
+            className="hero-title font-light uppercase leading-none mb-6"
+            style={{
+              fontSize: "clamp(30px,5vw,56px)",
+              letterSpacing: "-1px",
+              textShadow: "0 0 18px rgba(102,178,255,0.55), 0 0 40px rgba(102,178,255,0.25)",
+            }}
           >
             <span className="hero-line1">A NEW WAY TO OUTLINE?</span>
             <span className="hero-line2" style={{ color: "#fff" }}>
