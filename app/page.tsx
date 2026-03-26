@@ -12,6 +12,8 @@ export default function HomePage() {
   const [selectedMcq, setSelectedMcq] = useState(0);
   const [b65Imgs, setB65Imgs] = useState<string[]>([]);
   const [b7Imgs, setB7Imgs] = useState<string[]>([]);
+  const [b65Idx, setB65Idx] = useState(0);
+  const [b7Idx, setB7Idx] = useState(0);
   const vizCanvasRef = useRef<HTMLDivElement>(null);
   const vizSvgRef = useRef<SVGSVGElement>(null);
 
@@ -28,9 +30,22 @@ export default function HomePage() {
     const shuffle = (arr: string[]) => [...arr].sort(() => Math.random() - 0.5);
     const all65 = [1,2,3,4,5,6].map(i => `/screencaps/b65/sc${i}.png`);
     const all7 = [1,2,3,4,5,6,8,9,10,11].map(i => `/screencaps/b7/sc${i}.png`);
-    setB65Imgs(shuffle(all65).slice(0, 4));
-    setB7Imgs(shuffle(all7).slice(0, 4));
+    setB65Imgs(shuffle(all65));
+    setB7Imgs(shuffle(all7));
   }, []);
+
+  // Cycle screencap slideshows
+  useEffect(() => {
+    if (b65Imgs.length < 2) return;
+    const t = setInterval(() => setB65Idx(i => (i + 1) % b65Imgs.length), 3000);
+    return () => clearInterval(t);
+  }, [b65Imgs]);
+
+  useEffect(() => {
+    if (b7Imgs.length < 2) return;
+    const t = setInterval(() => setB7Idx(i => (i + 1) % b7Imgs.length), 3200);
+    return () => clearInterval(t);
+  }, [b7Imgs]);
 
   // Fade-in on scroll
   useEffect(() => {
@@ -371,14 +386,16 @@ export default function HomePage() {
               Free
             </div>
             {b65Imgs.length > 0 && (
-              <div className="-mx-10 mb-8 overflow-x-auto">
-                <div className="flex gap-3 px-10">
-                  {b65Imgs.map((src, i) => (
-                    <div key={i} className="relative flex-shrink-0 overflow-hidden rounded-2xl" style={{ width: 400, height: 400 }}>
-                      <Image src={src} alt={`briefica v6.5 screenshot ${i + 1}`} fill className="object-cover object-top" sizes="400px" />
-                    </div>
-                  ))}
-                </div>
+              <div className="-mx-10 mb-8 relative overflow-hidden rounded-2xl" style={{ height: 400 }}>
+                {b65Imgs.map((src, i) => (
+                  <div
+                    key={src}
+                    className="absolute inset-0"
+                    style={{ opacity: i === b65Idx ? 1 : 0, transition: "opacity 0.8s ease-in-out" }}
+                  >
+                    <Image src={src} alt={`briefica v6.5 screenshot ${i + 1}`} fill className="object-cover object-top" sizes="600px" />
+                  </div>
+                ))}
               </div>
             )}
             <div
@@ -438,14 +455,16 @@ export default function HomePage() {
               ✦ Gold
             </div>
             {b7Imgs.length > 0 && (
-              <div className="-mx-10 mb-8 overflow-x-auto">
-                <div className="flex gap-3 px-10">
-                  {b7Imgs.map((src, i) => (
-                    <div key={i} className="relative flex-shrink-0 overflow-hidden rounded-2xl" style={{ width: 400, height: 400 }}>
-                      <Image src={src} alt={`briefica v7 screenshot ${i + 1}`} fill className="object-cover object-top" sizes="400px" />
-                    </div>
-                  ))}
-                </div>
+              <div className="-mx-10 mb-8 relative overflow-hidden rounded-2xl" style={{ height: 400 }}>
+                {b7Imgs.map((src, i) => (
+                  <div
+                    key={src}
+                    className="absolute inset-0"
+                    style={{ opacity: i === b7Idx ? 1 : 0, transition: "opacity 0.8s ease-in-out" }}
+                  >
+                    <Image src={src} alt={`briefica v7 screenshot ${i + 1}`} fill className="object-cover object-top" sizes="600px" />
+                  </div>
+                ))}
               </div>
             )}
             <div
