@@ -341,7 +341,6 @@ export default function HomePage() {
             style={{
               fontSize: "clamp(30px,5vw,56px)",
               letterSpacing: "-1px",
-              textShadow: "0 0 18px rgba(102,178,255,0.55), 0 0 40px rgba(102,178,255,0.25)",
             }}
           >
             <span className="hero-line1">A NEW WAY TO OUTLINE?</span>

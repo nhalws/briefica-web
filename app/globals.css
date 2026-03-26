@@ -93,3 +93,13 @@ html.light .placeholder-white\/40::placeholder { color: rgba(0,0,0,0.35) !import
 /* Nav button overrides in light mode */
 html.light .bg-white.text-black  { background-color: #1a1a1a !important; color: #ffffff !important; }
 html.light .hover\:bg-white\/90:hover { background-color: rgba(26,26,26,0.85) !important; }
+
+/* Hero title: fade in with glow, then glow dissolves */
+@keyframes heroGlowFade {
+  0%   { opacity: 0; text-shadow: 0 0 18px rgba(102,178,255,0.55), 0 0 40px rgba(102,178,255,0.25); }
+  35%  { opacity: 1; text-shadow: 0 0 18px rgba(102,178,255,0.55), 0 0 40px rgba(102,178,255,0.25); }
+  100% { opacity: 1; text-shadow: 0 0 0px rgba(102,178,255,0),    0 0 0px  rgba(102,178,255,0); }
+}
+.hero-title {
+  animation: heroGlowFade 2.8s ease-out forwards;
+}
