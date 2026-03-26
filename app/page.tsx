@@ -345,32 +345,33 @@ export default function HomePage() {
       </div>
 
       {/* ── VERSIONS ── */}
-      <section
-        id="versions"
-        className="fade-up bg-[#1e1e1e] border-t border-b border-white/10"
-      >
-        <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2">
-          {/* 6.5 sanddollar */}
-          <div className="px-12 py-14 border-b md:border-b-0 md:border-r border-white/10">
+      <section id="versions" className="fade-up py-16 px-6">
+        <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6">
+
+          {/* v6 — Free */}
+          <div
+            className="rounded-2xl p-10 border border-white/10 flex flex-col"
+            style={{ background: "rgba(255,255,255,0.04)", backdropFilter: "blur(12px)" }}
+          >
             <div
-              className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wide px-3 py-1 rounded-full mb-4"
+              className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wide px-3 py-1 rounded-full mb-6 self-start"
               style={{ background: "rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.7)" }}
             >
-              briefica 6.5
+              Free
             </div>
             <div
-              className="font-extrabold mb-1.5 tracking-tight"
-              style={{ fontSize: "clamp(32px,4vw,48px)", letterSpacing: "-1px" }}
+              className="font-extrabold tracking-tight leading-none mb-1"
+              style={{ fontSize: "clamp(48px,6vw,72px)", letterSpacing: "-2px" }}
             >
-              sanddollar
+              v6
             </div>
-            <div className="text-sm text-white/50 italic mb-5">the free foundation</div>
-            <p className="text-sm text-white/70 leading-relaxed mb-7 max-w-md">
+            <div className="text-sm text-white/40 italic mb-6">sanddollar</div>
+            <p className="text-sm text-white/70 leading-relaxed mb-7">
               Everything a law student needs to build a great outline. Add cases, construct your b-line,
               customize with mods, map your authorities with the visualizer, and export a print-ready
               .docx — completely free.
             </p>
-            <div className="text-sm font-semibold text-white/70 mb-6">Free, always.</div>
+            <div className="text-sm font-semibold text-white/60 mb-5">Free, always.</div>
             <ul className="flex flex-col gap-2.5 mb-8">
               {[
                 "Library — unlimited cases & authorities",
@@ -381,71 +382,73 @@ export default function HomePage() {
                 "b-web community access",
               ].map((f) => (
                 <li key={f} className="flex gap-2.5 text-sm text-white/70 items-start">
-                  <span style={{ color: "#66b2ff" }} className="flex-shrink-0">
-                    ✓
-                  </span>{" "}
-                  {f}
+                  <span style={{ color: "#66b2ff" }} className="flex-shrink-0">✓</span>{" "}{f}
                 </li>
               ))}
             </ul>
             <button
               onClick={() => router.push("/downloads")}
-              className="rounded-xl py-3 px-6 font-semibold text-base text-[#1e1e1e] hover:opacity-90 transition-opacity"
+              className="mt-auto rounded-xl py-3 px-6 font-semibold text-base text-[#1e1e1e] hover:opacity-90 transition-opacity"
               style={{ backgroundColor: "#66b2ff" }}
             >
-              Download 6.5 — Free
+              Download — Free
             </button>
           </div>
 
-          {/* Gold horizon */}
-          <div className="px-12 py-14" style={{ background: "rgba(240,192,64,0.08)" }}>
+          {/* v7 — Gold */}
+          <div
+            className="rounded-2xl p-10 border flex flex-col"
+            style={{
+              background: "rgba(240,192,64,0.05)",
+              backdropFilter: "blur(12px)",
+              borderColor: "rgba(240,192,64,0.2)",
+            }}
+          >
             <div
-              className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wide px-3 py-1 rounded-full border mb-4"
+              className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wide px-3 py-1 rounded-full border mb-6 self-start"
               style={{
-                background: "rgba(240,192,64,0.15)",
+                background: "rgba(240,192,64,0.12)",
                 color: "#f0c040",
                 borderColor: "rgba(240,192,64,0.25)",
               }}
             >
-              ✦ briefica: gold
+              ✦ Gold
             </div>
             <div
-              className="font-extrabold mb-1.5 tracking-tight"
-              style={{ fontSize: "clamp(32px,4vw,48px)", letterSpacing: "-1px", color: "#f0c040" }}
+              className="font-extrabold tracking-tight leading-none mb-1"
+              style={{ fontSize: "clamp(48px,6vw,72px)", letterSpacing: "-2px", color: "#f0c040" }}
             >
-              horizon
+              v7
             </div>
-            <div className="text-sm text-white/50 italic mb-5">briefica 7 · the full AI workspace</div>
-            <p className="text-sm text-white/70 leading-relaxed mb-7 max-w-md">
-              Everything in 6.5, plus goldilex AI for grounded Q&amp;A and comprehension checks, advanced
+            <div className="text-sm italic mb-6" style={{ color: "rgba(240,192,64,0.5)" }}>horizon</div>
+            <p className="text-sm text-white/70 leading-relaxed mb-7">
+              Everything in v6, plus goldilex AI for grounded Q&amp;A and comprehension checks, advanced
               custom themes, and unlimited briefsets.
             </p>
-            <div className="text-sm font-semibold mb-6" style={{ color: "#f0c040" }}>
-              From $15 / month · briefica: gold
+            <div className="text-sm font-semibold mb-5" style={{ color: "#f0c040" }}>
+              From $15 / month
             </div>
             <ul className="flex flex-col gap-2.5 mb-8">
               {[
-                "Everything in 6.5",
+                "Everything in v6",
                 "goldilex AI — grounded in your briefset only",
                 "Comprehension check MCQs",
                 "Custom themes & advanced color palettes",
                 "Unlimited briefsets · 500 or 2,000 queries/mo",
               ].map((f) => (
                 <li key={f} className="flex gap-2.5 text-sm text-white/70 items-start">
-                  <span style={{ color: "#f0c040" }} className="flex-shrink-0">
-                    ✓
-                  </span>{" "}
-                  {f}
+                  <span style={{ color: "#f0c040" }} className="flex-shrink-0">✓</span>{" "}{f}
                 </li>
               ))}
             </ul>
             <button
-              className="rounded-xl py-3 px-6 font-bold text-base hover:opacity-90 transition-opacity"
+              className="mt-auto rounded-xl py-3 px-6 font-bold text-base hover:opacity-90 transition-opacity"
               style={{ backgroundColor: "#f0c040", color: "#1a1200" }}
             >
               Explore briefica: gold →
             </button>
           </div>
+
         </div>
       </section>
 
