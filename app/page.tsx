@@ -71,6 +71,56 @@ export default function HomePage() {
         html { scroll-behavior: smooth; }
         .fade-up { opacity: 0; transform: translateY(20px); transition: opacity 0.65s ease, transform 0.65s ease; }
         .fade-up.visible { opacity: 1; transform: translateY(0); }
+
+        @keyframes heroLine1 {
+          from { opacity: 0; transform: translateY(32px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes heroLine2 {
+          from { opacity: 0; transform: translateY(32px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes heroDesc {
+          from { opacity: 0; transform: translateY(20px); }
+          to   { opacity: 0.85; transform: translateY(0); }
+        }
+        @keyframes heroBtns {
+          from { opacity: 0; transform: translateY(16px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes titleGlow {
+          0%, 100% { text-shadow: 0 0 60px rgba(102,178,255,0.0), 0 0 120px rgba(102,178,255,0.0); }
+          50%       { text-shadow: 0 0 60px rgba(102,178,255,0.18), 0 0 120px rgba(102,178,255,0.08); }
+        }
+        @keyframes bgNodeSpin {
+          from { transform: translate(-50%, -50%) rotate(0deg); }
+          to   { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+        @keyframes nodePulse {
+          0%, 100% { opacity: 0.035; }
+          50%       { opacity: 0.06; }
+        }
+
+        .hero-line1 {
+          display: block;
+          animation: heroLine1 0.9s cubic-bezier(0.16,1,0.3,1) 0.1s both;
+        }
+        .hero-line2 {
+          display: block;
+          animation: heroLine2 0.9s cubic-bezier(0.16,1,0.3,1) 0.35s both;
+        }
+        .hero-title {
+          animation: titleGlow 5s ease-in-out 1.4s infinite;
+        }
+        .hero-desc {
+          animation: heroDesc 1s cubic-bezier(0.16,1,0.3,1) 0.65s both;
+        }
+        .hero-btns {
+          animation: heroBtns 0.8s cubic-bezier(0.16,1,0.3,1) 0.9s both;
+        }
+        .bg-node {
+          animation: bgNodeSpin 160s linear infinite, nodePulse 8s ease-in-out infinite;
+        }
       `}</style>
 
       {/* ── NAV ── */}
@@ -171,35 +221,63 @@ export default function HomePage() {
       </nav>
 
       {/* ── HERO ── */}
-      <div className="fade-up max-w-6xl mx-auto px-6 text-center pt-[120px] pb-20">
-        <h1
-          className="font-extrabold uppercase leading-none mb-6"
-          style={{ fontSize: "clamp(36px,6vw,64px)", letterSpacing: "-1px" }}
+      <div className="relative overflow-hidden">
+        {/* Large background spinning node */}
+        <div
+          className="bg-node pointer-events-none select-none"
+          style={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            width: "900px",
+            height: "900px",
+            zIndex: 0,
+          }}
         >
-          A NEW WAY TO OUTLINE?
-          <br />
-          TIME TO MAKE A B-LINE.
-        </h1>
-        <p className="text-xl text-white/80 max-w-2xl mx-auto mb-9 leading-relaxed">
-          briefica is a comprehensive ecosystem for law students. create briefsets with our native desktop app,
-          share with your school community, and study smarter with AI — all in one place.
-        </p>
-        <div className="flex gap-3 justify-center flex-wrap">
-          <button
-            onClick={() => router.push("/downloads")}
-            className="rounded-xl py-3.5 px-8 font-semibold text-lg text-[#1e1e1e] hover:opacity-90 transition-opacity"
-            style={{ backgroundColor: "#66b2ff" }}
+          <svg viewBox="0 0 64 64" width="900" height="900">
+            <circle cx="32" cy="32" r="5" fill="rgba(102,178,255,0.5)" />
+            {[0, 60, 120, 180, 240, 300].map((angle) => (
+              <g key={angle} transform={`rotate(${angle} 32 32)`}>
+                <line x1="32" y1="32" x2="32" y2="4" stroke="rgba(102,178,255,0.35)" strokeWidth="0.6" />
+                <circle cx="32" cy="4" r="3" fill="rgba(102,178,255,0.5)" />
+              </g>
+            ))}
+          </svg>
+        </div>
+
+        {/* Hero content */}
+        <div className="relative max-w-6xl mx-auto px-6 text-center pt-[120px] pb-20" style={{ zIndex: 1 }}>
+          <h1
+            className="hero-title font-extrabold uppercase leading-none mb-6"
+            style={{ fontSize: "clamp(36px,6vw,64px)", letterSpacing: "-1px" }}
           >
-            download briefica
-          </button>
-          {!isLoggedIn && (
+            <span className="hero-line1">A NEW WAY TO OUTLINE?</span>
+            <span className="hero-line2" style={{ color: "#fff" }}>
+              TIME TO MAKE A{" "}
+              <span style={{ color: "#66b2ff" }}>B-LINE.</span>
+            </span>
+          </h1>
+          <p className="hero-desc text-xl max-w-2xl mx-auto mb-9 leading-relaxed" style={{ color: "rgba(255,255,255,0.78)" }}>
+            briefica is a comprehensive ecosystem for law students. create briefsets with our native desktop app,
+            share with your school community, and study smarter with AI — all in one place.
+          </p>
+          <div className="hero-btns flex gap-3 justify-center flex-wrap">
             <button
-              onClick={() => router.push("/auth")}
-              className="border border-white/20 rounded-xl py-3.5 px-8 font-medium text-lg hover:bg-white/5 transition-colors"
+              onClick={() => router.push("/downloads")}
+              className="rounded-xl py-3.5 px-8 font-semibold text-lg text-[#1e1e1e] hover:opacity-90 transition-opacity"
+              style={{ backgroundColor: "#66b2ff" }}
             >
-              join b-web
+              download briefica
             </button>
-          )}
+            {!isLoggedIn && (
+              <button
+                onClick={() => router.push("/auth")}
+                className="border border-white/20 rounded-xl py-3.5 px-8 font-medium text-lg hover:bg-white/5 transition-colors"
+              >
+                join b-web
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
