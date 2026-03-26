@@ -232,79 +232,78 @@ export default function HomePage() {
         >
           <svg viewBox="0 0 64 64" width="900" height="900">
             {/* Central hub */}
-            <circle cx="32" cy="32" r="4.5" fill="rgba(102,178,255,0.7)" />
-            <circle cx="32" cy="32" r="7" fill="none" stroke="rgba(102,178,255,0.2)" strokeWidth="0.3" />
+            <circle cx="32" cy="32" r="4.5" fill="rgba(102,178,255,0.75)" stroke="rgba(230,234,240,0.5)" strokeWidth="0.35" />
 
             {/* Arm 1 — long, clockwise 55s */}
             <g>
               <animateTransform attributeName="transform" type="rotate"
                 from="0 32 32" to="360 32 32" dur="55s" repeatCount="indefinite" />
-              <line x1="32" y1="32" x2="32" y2="5" stroke="rgba(102,178,255,0.3)" strokeWidth="0.5" />
-              <circle cx="32" cy="5" r="3.5" fill="rgba(102,178,255,0.65)" />
+              <line x1="32" y1="32" x2="32" y2="5" stroke="rgba(230,234,240,0.35)" strokeWidth="0.5" />
+              <circle cx="32" cy="5" r="3.5" fill="rgba(102,178,255,0.75)" stroke="rgba(230,234,240,0.5)" strokeWidth="0.3" />
             </g>
 
             {/* Arm 2 — medium, counter-clockwise 38s, offset 48° */}
             <g transform="rotate(48 32 32)">
               <animateTransform attributeName="transform" type="rotate"
                 from="48 32 32" to="-312 32 32" dur="38s" repeatCount="indefinite" />
-              <line x1="32" y1="32" x2="32" y2="10" stroke="rgba(102,178,255,0.25)" strokeWidth="0.4" />
-              <circle cx="32" cy="10" r="2" fill="rgba(102,178,255,0.55)" />
+              <line x1="32" y1="32" x2="32" y2="10" stroke="rgba(230,234,240,0.3)" strokeWidth="0.4" />
+              <circle cx="32" cy="10" r="2" fill="rgba(102,178,255,0.7)" stroke="rgba(230,234,240,0.45)" strokeWidth="0.25" />
             </g>
 
             {/* Arm 3 — medium-long, clockwise 72s, offset 105° */}
             <g transform="rotate(105 32 32)">
               <animateTransform attributeName="transform" type="rotate"
                 from="105 32 32" to="465 32 32" dur="72s" repeatCount="indefinite" />
-              <line x1="32" y1="32" x2="32" y2="7.5" stroke="rgba(102,178,255,0.28)" strokeWidth="0.45" />
-              <circle cx="32" cy="7.5" r="2.8" fill="rgba(102,178,255,0.6)" />
+              <line x1="32" y1="32" x2="32" y2="7.5" stroke="rgba(230,234,240,0.3)" strokeWidth="0.45" />
+              <circle cx="32" cy="7.5" r="2.8" fill="rgba(102,178,255,0.72)" stroke="rgba(230,234,240,0.48)" strokeWidth="0.28" />
             </g>
 
             {/* Arm 4 — very long, counter-clockwise 90s, offset 158° */}
             <g transform="rotate(158 32 32)">
               <animateTransform attributeName="transform" type="rotate"
                 from="158 32 32" to="-202 32 32" dur="90s" repeatCount="indefinite" />
-              <line x1="32" y1="32" x2="32" y2="4.5" stroke="rgba(102,178,255,0.3)" strokeWidth="0.55" />
-              <circle cx="32" cy="4.5" r="3.8" fill="rgba(102,178,255,0.65)" />
+              <line x1="32" y1="32" x2="32" y2="4.5" stroke="rgba(230,234,240,0.35)" strokeWidth="0.55" />
+              <circle cx="32" cy="4.5" r="3.8" fill="rgba(102,178,255,0.75)" stroke="rgba(230,234,240,0.5)" strokeWidth="0.32" />
             </g>
 
             {/* Arm 5 — short, fast clockwise 28s, offset 200° */}
             <g transform="rotate(200 32 32)">
               <animateTransform attributeName="transform" type="rotate"
                 from="200 32 32" to="560 32 32" dur="28s" repeatCount="indefinite" />
-              <line x1="32" y1="32" x2="32" y2="12" stroke="rgba(102,178,255,0.2)" strokeWidth="0.35" />
-              <circle cx="32" cy="12" r="1.8" fill="rgba(102,178,255,0.5)" />
+              <line x1="32" y1="32" x2="32" y2="12" stroke="rgba(230,234,240,0.28)" strokeWidth="0.35" />
+              <circle cx="32" cy="12" r="1.8" fill="rgba(102,178,255,0.68)" stroke="rgba(230,234,240,0.42)" strokeWidth="0.22" />
             </g>
 
             {/* Arm 6 — medium, clockwise 50s, offset 248° */}
             <g transform="rotate(248 32 32)">
               <animateTransform attributeName="transform" type="rotate"
                 from="248 32 32" to="608 32 32" dur="50s" repeatCount="indefinite" />
-              <line x1="32" y1="32" x2="32" y2="8.5" stroke="rgba(102,178,255,0.25)" strokeWidth="0.4" />
-              <circle cx="32" cy="8.5" r="2.4" fill="rgba(102,178,255,0.58)" />
+              <line x1="32" y1="32" x2="32" y2="8.5" stroke="rgba(230,234,240,0.3)" strokeWidth="0.4" />
+              <circle cx="32" cy="8.5" r="2.4" fill="rgba(102,178,255,0.7)" stroke="rgba(230,234,240,0.46)" strokeWidth="0.26" />
             </g>
 
             {/* Arm 7 — medium-long, counter-clockwise 68s, offset 308° */}
             <g transform="rotate(308 32 32)">
               <animateTransform attributeName="transform" type="rotate"
                 from="308 32 32" to="-52 32 32" dur="68s" repeatCount="indefinite" />
-              <line x1="32" y1="32" x2="32" y2="6" stroke="rgba(102,178,255,0.28)" strokeWidth="0.45" />
-              <circle cx="32" cy="6" r="3" fill="rgba(102,178,255,0.62)" />
+              <line x1="32" y1="32" x2="32" y2="6" stroke="rgba(230,234,240,0.32)" strokeWidth="0.45" />
+              <circle cx="32" cy="6" r="3" fill="rgba(102,178,255,0.73)" stroke="rgba(230,234,240,0.48)" strokeWidth="0.28" />
             </g>
 
             {/* Arm 8 — short, counter-clockwise 35s, offset 345° */}
             <g transform="rotate(345 32 32)">
               <animateTransform attributeName="transform" type="rotate"
                 from="345 32 32" to="-15 32 32" dur="35s" repeatCount="indefinite" />
-              <line x1="32" y1="32" x2="32" y2="11" stroke="rgba(102,178,255,0.2)" strokeWidth="0.35" />
-              <circle cx="32" cy="11" r="2" fill="rgba(102,178,255,0.52)" />
+              <line x1="32" y1="32" x2="32" y2="11" stroke="rgba(230,234,240,0.28)" strokeWidth="0.35" />
+              <circle cx="32" cy="11" r="2" fill="rgba(102,178,255,0.68)" stroke="rgba(230,234,240,0.42)" strokeWidth="0.22" />
             </g>
 
             {/* Arm 9 — very short inner, clockwise 22s, offset 130° */}
             <g transform="rotate(130 32 32)">
               <animateTransform attributeName="transform" type="rotate"
                 from="130 32 32" to="490 32 32" dur="22s" repeatCount="indefinite" />
-              <line x1="32" y1="32" x2="32" y2="15" stroke="rgba(102,178,255,0.18)" strokeWidth="0.3" />
-              <circle cx="32" cy="15" r="1.5" fill="rgba(102,178,255,0.45)" />
+              <line x1="32" y1="32" x2="32" y2="15" stroke="rgba(230,234,240,0.25)" strokeWidth="0.3" />
+              <circle cx="32" cy="15" r="1.5" fill="rgba(102,178,255,0.65)" stroke="rgba(230,234,240,0.4)" strokeWidth="0.2" />
             </g>
           </svg>
         </div>
