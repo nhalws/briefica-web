@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "briefica web (b-web)",
+  title: "briefica",
   description: "A true law school workspace.",
   icons: {
     icon: "/favicon.png",
