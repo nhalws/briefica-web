@@ -370,6 +370,17 @@ export default function HomePage() {
             >
               Free
             </div>
+            {b65Imgs.length > 0 && (
+              <div className="-mx-10 mb-8 overflow-x-auto">
+                <div className="flex gap-3 px-10">
+                  {b65Imgs.map((src, i) => (
+                    <div key={i} className="relative flex-shrink-0 overflow-hidden rounded-2xl" style={{ width: 400, height: 400 }}>
+                      <Image src={src} alt={`briefica v6.5 screenshot ${i + 1}`} fill className="object-cover object-top" sizes="400px" />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
             <div
               className="font-extrabold tracking-tight leading-none mb-1"
               style={{ fontSize: "clamp(48px,6vw,72px)", letterSpacing: "-2px" }}
@@ -397,15 +408,6 @@ export default function HomePage() {
                 </li>
               ))}
             </ul>
-            {b65Imgs.length > 0 && (
-              <div className="flex gap-3 mb-6 mt-4 overflow-x-auto pb-1" style={{ scrollSnapType: "x mandatory" }}>
-                {b65Imgs.map((src, i) => (
-                  <div key={i} className="relative flex-shrink-0 overflow-hidden rounded-2xl" style={{ width: 260, height: 160, scrollSnapAlign: "start" }}>
-                    <Image src={src} alt={`briefica v6.5 screenshot ${i + 1}`} fill className="object-cover object-top" sizes="260px" />
-                  </div>
-                ))}
-              </div>
-            )}
             <button
               onClick={() => router.push("/downloads")}
               className="mt-auto rounded-xl py-3 px-6 font-semibold text-base text-[#1e1e1e] hover:opacity-90 transition-opacity"
@@ -435,6 +437,17 @@ export default function HomePage() {
             >
               ✦ Gold
             </div>
+            {b7Imgs.length > 0 && (
+              <div className="-mx-10 mb-8 overflow-x-auto">
+                <div className="flex gap-3 px-10">
+                  {b7Imgs.map((src, i) => (
+                    <div key={i} className="relative flex-shrink-0 overflow-hidden rounded-2xl" style={{ width: 400, height: 400 }}>
+                      <Image src={src} alt={`briefica v7 screenshot ${i + 1}`} fill className="object-cover object-top" sizes="400px" />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
             <div
               className="font-extrabold tracking-tight leading-none mb-1"
               style={{ fontSize: "clamp(48px,6vw,72px)", letterSpacing: "-2px", color: "#f0c040" }}
@@ -462,15 +475,6 @@ export default function HomePage() {
                 </li>
               ))}
             </ul>
-            {b7Imgs.length > 0 && (
-              <div className="flex gap-3 mb-6 mt-4 overflow-x-auto pb-1" style={{ scrollSnapType: "x mandatory" }}>
-                {b7Imgs.map((src, i) => (
-                  <div key={i} className="relative flex-shrink-0 overflow-hidden rounded-2xl" style={{ width: 260, height: 160, scrollSnapAlign: "start" }}>
-                    <Image src={src} alt={`briefica v7 screenshot ${i + 1}`} fill className="object-cover object-top" sizes="260px" />
-                  </div>
-                ))}
-              </div>
-            )}
             <button
               className="mt-auto rounded-xl py-3 px-6 font-bold text-base hover:opacity-90 transition-opacity"
               style={{ backgroundColor: "#f0c040", color: "#1a1200" }}
