@@ -366,15 +366,14 @@ export default function HomePage() {
           <div className="hero-btns flex gap-3 justify-center flex-wrap">
             <button
               onClick={() => router.push("/downloads")}
-              className="rounded-xl py-3.5 px-8 font-semibold text-lg text-[#1e1e1e] hover:opacity-90 transition-opacity"
-              style={{ backgroundColor: "#66b2ff" }}
+              className="btn-hero-primary"
             >
               download briefica
             </button>
             {!isLoggedIn && (
               <button
                 onClick={() => router.push("/auth")}
-                className="border border-white/20 rounded-xl py-3.5 px-8 font-medium text-lg hover:bg-white/5 transition-colors"
+                className="btn-hero-ghost"
               >
                 join b-web
               </button>
