@@ -10,6 +10,8 @@ export default function HomePage() {
   const router = useRouter();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [selectedMcq, setSelectedMcq] = useState(0);
+  const [b65Imgs, setB65Imgs] = useState<string[]>([]);
+  const [b7Imgs, setB7Imgs] = useState<string[]>([]);
   const vizCanvasRef = useRef<HTMLDivElement>(null);
   const vizSvgRef = useRef<SVGSVGElement>(null);
 
@@ -19,6 +21,15 @@ export default function HomePage() {
       setIsLoggedIn(!!data.user);
     }
     checkAuth();
+  }, []);
+
+  // Shuffle screencaps for versions section
+  useEffect(() => {
+    const shuffle = (arr: string[]) => [...arr].sort(() => Math.random() - 0.5);
+    const all65 = [1,2,3,4,5,6].map(i => `/screencaps/b65/sc${i}.png`);
+    const all7 = [1,2,3,4,5,6,7,8,9,10,11].map(i => `/screencaps/b7/sc${i}.png`);
+    setB65Imgs(shuffle(all65).slice(0, 3));
+    setB7Imgs(shuffle(all7).slice(0, 3));
   }, []);
 
   // Fade-in on scroll
@@ -386,6 +397,15 @@ export default function HomePage() {
                 </li>
               ))}
             </ul>
+            {b65Imgs.length > 0 && (
+              <div className="flex gap-2 mb-6 mt-2">
+                {b65Imgs.map((src, i) => (
+                  <div key={i} className="relative flex-1 overflow-hidden rounded-lg" style={{ aspectRatio: "16/10" }}>
+                    <Image src={src} alt={`briefica v6.5 screenshot ${i + 1}`} fill className="object-cover object-top" sizes="200px" />
+                  </div>
+                ))}
+              </div>
+            )}
             <button
               onClick={() => router.push("/downloads")}
               className="mt-auto rounded-xl py-3 px-6 font-semibold text-base text-[#1e1e1e] hover:opacity-90 transition-opacity"
@@ -442,6 +462,15 @@ export default function HomePage() {
                 </li>
               ))}
             </ul>
+            {b7Imgs.length > 0 && (
+              <div className="flex gap-2 mb-6 mt-2">
+                {b7Imgs.map((src, i) => (
+                  <div key={i} className="relative flex-1 overflow-hidden rounded-lg" style={{ aspectRatio: "16/10" }}>
+                    <Image src={src} alt={`briefica v7 screenshot ${i + 1}`} fill className="object-cover object-top" sizes="200px" />
+                  </div>
+                ))}
+              </div>
+            )}
             <button
               className="mt-auto rounded-xl py-3 px-6 font-bold text-base hover:opacity-90 transition-opacity"
               style={{ backgroundColor: "#f0c040", color: "#1a1200" }}
