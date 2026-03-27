@@ -734,7 +734,7 @@ export default function HomePage() {
               />
               {(
                 [
-                  { id: "vn0", label: "Shapira v. Union Nat'l", w: 76, h: 76, top: "50%",  left: "44%", anchor: true,  xform: "translate(-50%,-50%)", fs: "8px" },
+                  { id: "vn0", label: "Shapira v. Union Nat'l", w: 76, h: 76, top: "calc(50% - 38px)", left: "calc(44% - 38px)", anchor: true, xform: undefined, fs: "8px" },
                   { id: "vn1", label: "Lipper v. Weslow",       w: 48, h: 48, top: "6%",   left: "6%",  anchor: false, xform: undefined,              fs: "7.5px" },
                   { id: "vn2", label: "Clark v. Greenhalge",    w: 48, h: 48, top: "5%",   left: "62%", anchor: false, xform: undefined,              fs: "7.5px" },
                   { id: "vn3", label: "In re Searight's",       w: 44, h: 44, top: "68%",  left: "72%", anchor: false, xform: undefined,              fs: "7px" },
