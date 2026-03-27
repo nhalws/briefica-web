@@ -735,11 +735,11 @@ export default function HomePage() {
               {(
                 [
                   { id: "vn0", label: "Shapira v. Union Nat'l", w: 76, h: 76, top: "50%",  left: "44%", anchor: true,  xform: "translate(-50%,-50%)", fs: "8px" },
-                  { id: "vn1", label: "Lipper v. Weslow",       w: 58, h: 58, top: "6%",   left: "6%",  anchor: false, xform: undefined,              fs: "8px" },
-                  { id: "vn2", label: "Clark v. Greenhalge",    w: 58, h: 58, top: "5%",   left: "62%", anchor: false, xform: undefined,              fs: "8px" },
-                  { id: "vn3", label: "In re Searight's",       w: 52, h: 52, top: "68%",  left: "72%", anchor: false, xform: undefined,              fs: "7.5px" },
-                  { id: "vn4", label: "Estate of Russell",      w: 52, h: 52, top: "70%",  left: "8%",  anchor: false, xform: undefined,              fs: "7.5px" },
-                  { id: "vn5", label: "Mahoney v. Grainger",    w: 52, h: 52, top: "28%",  left: "84%", anchor: false, xform: undefined,              fs: "7.5px" },
+                  { id: "vn1", label: "Lipper v. Weslow",       w: 48, h: 48, top: "6%",   left: "6%",  anchor: false, xform: undefined,              fs: "7.5px" },
+                  { id: "vn2", label: "Clark v. Greenhalge",    w: 48, h: 48, top: "5%",   left: "62%", anchor: false, xform: undefined,              fs: "7.5px" },
+                  { id: "vn3", label: "In re Searight's",       w: 44, h: 44, top: "68%",  left: "72%", anchor: false, xform: undefined,              fs: "7px" },
+                  { id: "vn4", label: "Estate of Russell",      w: 44, h: 44, top: "70%",  left: "8%",  anchor: false, xform: undefined,              fs: "7px" },
+                  { id: "vn5", label: "Mahoney v. Grainger",    w: 44, h: 44, top: "28%",  left: "84%", anchor: false, xform: undefined,              fs: "7px" },
                 ] as { id: string; label: string; w: number; h: number; top: string; left: string; anchor: boolean; xform: string | undefined; fs: string }[]
               ).map(({ id, label, w, h, top, left, anchor, xform, fs }) => (
                 <div
@@ -751,10 +751,10 @@ export default function HomePage() {
                     width: w, height: h,
                     transform: xform,
                     borderRadius: "50%",
-                    background: anchor ? "#0d1117" : "rgba(102,178,255,0.72)",
+                    background: "rgba(102,178,255,0.72)",
                     boxShadow: anchor
-                      ? "0 0 0 2px rgba(102,178,255,0.5), 0 0 22px rgba(102,178,255,0.35)"
-                      : "0 0 12px rgba(102,178,255,0.25)",
+                      ? "0 0 22px rgba(102,178,255,0.4)"
+                      : "0 0 10px rgba(102,178,255,0.2)",
                     display: "flex", alignItems: "center", justifyContent: "center",
                     color: "#fff", fontWeight: 600, textAlign: "center",
                     padding: "6px", cursor: "pointer",
