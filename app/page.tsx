@@ -648,17 +648,17 @@ export default function HomePage() {
               },
               {
                 n: 4,
-                title: "study with goldilex",
-                desc: "Ask goldilex to summarize, explain, or quiz you — grounded only in your briefset.",
-                tag: "gold",
-                gold: true,
-              },
-              {
-                n: 5,
                 title: "export your b-line",
                 desc: "Export a clean .docx at any point. WYSIWYG — exactly as it looks in the app.",
                 tag: "v6 + v7",
                 gold: false,
+              },
+              {
+                n: 5,
+                title: "study with goldilex",
+                desc: "Ask goldilex to summarize, explain, or quiz you — grounded only in your briefset.",
+                tag: "gold",
+                gold: true,
               },
             ].map(({ n, title, desc, tag, gold }) => (
               <div
@@ -706,6 +706,233 @@ export default function HomePage() {
             </div>
           </div>
 
+        </div>
+      </section>
+
+      {/* ── VISUALIZER ── */}
+      <section className="fade-up max-w-6xl mx-auto px-6 py-20">
+        <div className="grid md:grid-cols-2 gap-16 items-center">
+          <div className="rounded-2xl overflow-hidden border border-white/10 bg-[#1e1e1e]">
+            <div
+              className="px-5 py-3.5 border-b border-white/10 flex items-center justify-between"
+              style={{ background: "rgba(255,255,255,0.03)" }}
+            >
+              <span className="text-sm font-semibold text-white/70">Visualizer · v2.0</span>
+              <span className="text-[11px] text-white/50">Shapira v. Union National Bank</span>
+            </div>
+            <div
+              ref={vizCanvasRef}
+              id="vizCanvas"
+              className="relative overflow-hidden"
+              style={{ height: "240px", background: "#161616" }}
+            >
+              <svg
+                ref={vizSvgRef}
+                id="vizSvg"
+                className="absolute inset-0 w-full h-full pointer-events-none"
+              />
+              {(
+                [
+                  {
+                    id: "vn0",
+                    label: "Shapira v. Union Nat'l",
+                    w: 70,
+                    h: 70,
+                    top: "50%",
+                    left: "42%",
+                    anchor: true,
+                    xform: "translate(-50%,-50%)",
+                    fs: "8px",
+                  },
+                  {
+                    id: "vn1",
+                    label: "Lipper v. Weslow",
+                    w: 50,
+                    h: 50,
+                    top: "13%",
+                    left: "15%",
+                    anchor: false,
+                    xform: undefined,
+                    fs: "8px",
+                  },
+                  {
+                    id: "vn2",
+                    label: "Clark v. Greenhalge",
+                    w: 50,
+                    h: 50,
+                    top: "11%",
+                    left: "62%",
+                    anchor: false,
+                    xform: undefined,
+                    fs: "8px",
+                  },
+                  {
+                    id: "vn3",
+                    label: "In re Searight's",
+                    w: 36,
+                    h: 36,
+                    top: "73%",
+                    left: "70%",
+                    anchor: false,
+                    xform: undefined,
+                    fs: "7px",
+                  },
+                  {
+                    id: "vn4",
+                    label: "Estate of Russell",
+                    w: 36,
+                    h: 36,
+                    top: "75%",
+                    left: "18%",
+                    anchor: false,
+                    xform: undefined,
+                    fs: "7px",
+                  },
+                  {
+                    id: "vn5",
+                    label: "Mahoney v. Grainger",
+                    w: 36,
+                    h: 36,
+                    top: "35%",
+                    left: "82%",
+                    anchor: false,
+                    xform: undefined,
+                    fs: "7px",
+                  },
+                ] as {
+                  id: string;
+                  label: string;
+                  w: number;
+                  h: number;
+                  top: string;
+                  left: string;
+                  anchor: boolean;
+                  xform: string | undefined;
+                  fs: string;
+                }[]
+              ).map(({ id, label, w, h, top, left, anchor, xform, fs }) => (
+                <div
+                  key={id}
+                  id={id}
+                  style={{
+                    position: "absolute",
+                    top,
+                    left,
+                    width: w,
+                    height: h,
+                    transform: xform,
+                    borderRadius: "50%",
+                    background: anchor ? "#161616" : "rgba(102,178,255,0.7)",
+                    boxShadow: anchor ? "0 0 24px rgba(102,178,255,0.5), 0 0 6px rgba(102,178,255,0.3)" : undefined,
+                    border: anchor ? "1.5px solid rgba(102,178,255,0.4)" : undefined,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    color: "#fff",
+                    fontWeight: 600,
+                    textAlign: "center",
+                    padding: anchor ? "0" : "5px",
+                    cursor: "pointer",
+                    fontSize: fs,
+                    lineHeight: 1.2,
+                    overflow: "hidden",
+                  }}
+                >
+                  {anchor ? (
+                    <svg viewBox="0 0 64 64" style={{ width: "100%", height: "100%" }}>
+                      <g transform="skewX(-8) skewY(5)">
+                        <animateTransform attributeName="transform" type="rotate" from="0 32 32" to="360 32 32" dur="80s" repeatCount="indefinite" />
+                        <circle cx="32" cy="32" r="5" fill="#66b2ff" stroke="#e6eaf0" strokeWidth="1.5" />
+                        <defs>
+                          <circle id="viz-orbit-node" r="4" fill="#66b2ff" stroke="#e6eaf0" strokeWidth="1.5" />
+                        </defs>
+                        {[
+                          { angle: 0, dur: "36s", sway: "8s" },
+                          { angle: 60, dur: "40s", sway: "7s" },
+                          { angle: 120, dur: "44s", sway: "9s" },
+                          { angle: 180, dur: "38s", sway: "8.5s" },
+                          { angle: 240, dur: "46s", sway: "7.5s" },
+                          { angle: 300, dur: "42s", sway: "9.5s" },
+                        ].map(({ angle, dur, sway }) => (
+                          <g key={angle} transform={`rotate(${angle} 32 32)`}>
+                            <g>
+                              <line x1="32" y1="32" x2="32" y2="8" stroke="#e6eaf0" strokeWidth="1.25">
+                                <animate attributeName="y2" dur={sway} repeatCount="indefinite" keyTimes="0;0.5;1" values="8;6;8" />
+                              </line>
+                              <use href="#viz-orbit-node" x="32" y="8">
+                                <animate attributeName="y" dur={sway} repeatCount="indefinite" keyTimes="0;0.5;1" values="8;6;8" />
+                              </use>
+                            </g>
+                            <animateTransform
+                              attributeName="transform"
+                              type="rotate"
+                              dur={dur}
+                              repeatCount="indefinite"
+                              keyTimes="0;0.33;0.66;1"
+                              values={`${angle} 32 32; ${angle + 360} 32 32; ${angle - 360} 32 32; ${angle + 360} 32 32`}
+                            />
+                          </g>
+                        ))}
+                      </g>
+                    </svg>
+                  ) : label}
+                </div>
+              ))}
+            </div>
+            <div>
+              <div className="text-[11px] font-semibold uppercase tracking-wide text-white/50 px-5 pt-2.5 pb-1">
+                related authorities
+              </div>
+              {[
+                ["Lipper v. Weslow", "46%"],
+                ["Clark v. Greenhalge", "41%"],
+                ["In re Searight's Estate", "39%"],
+                ["Estate of Russell", "38%"],
+                ["Mahoney v. Grainger", "35%"],
+              ].map(([name, pct]) => (
+                <div
+                  key={name}
+                  className="flex justify-between px-5 py-2.5 border-b border-white/5 last:border-0 text-sm text-white/70"
+                >
+                  <span>{name}</span>
+                  <span style={{ color: "#66b2ff" }} className="font-semibold">
+                    {pct}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <div
+              className="inline-flex items-center gap-1.5 text-xs font-semibold px-3.5 py-1 rounded-full border mb-4"
+              style={{
+                background: "rgba(102,178,255,0.1)",
+                color: "#66b2ff",
+                borderColor: "rgba(102,178,255,0.25)",
+              }}
+            >
+              6.5 + briefica: gold
+            </div>
+            <h2 className="font-bold mb-3.5 leading-snug" style={{ fontSize: "clamp(24px,3vw,36px)" }}>
+              See how your cases connect.
+            </h2>
+            <p className="text-sm text-white/70 leading-relaxed mb-3">
+              Select any authority and the visualizer surfaces which other cases in your briefset share
+              semantic overlap. Cases that cluster together tend to appear together on exam hypotheticals.
+            </p>
+            <p className="text-sm text-white/70 leading-relaxed mb-6">
+              Available in both 6.5 and briefica: gold. Sort by authority or syllabus section —
+              issue-spotting practice, built passively into how you study.
+            </p>
+            <button
+              onClick={() => router.push("/downloads")}
+              className="rounded-xl py-3 px-6 font-semibold text-base text-[#1e1e1e] hover:opacity-90 transition-opacity"
+              style={{ backgroundColor: "#66b2ff" }}
+            >
+              Download briefica →
+            </button>
+          </div>
         </div>
       </section>
 
@@ -860,194 +1087,6 @@ export default function HomePage() {
                 send
               </button>
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── VISUALIZER ── */}
-      <section className="fade-up max-w-6xl mx-auto px-6 py-20">
-        <div className="grid md:grid-cols-2 gap-16 items-center">
-          <div className="rounded-2xl overflow-hidden border border-white/10 bg-[#1e1e1e]">
-            <div
-              className="px-5 py-3.5 border-b border-white/10 flex items-center justify-between"
-              style={{ background: "rgba(255,255,255,0.03)" }}
-            >
-              <span className="text-sm font-semibold text-white/70">Visualizer · v2.0</span>
-              <span className="text-[11px] text-white/50">Shapira v. Union National Bank</span>
-            </div>
-            <div
-              ref={vizCanvasRef}
-              id="vizCanvas"
-              className="relative overflow-hidden"
-              style={{ height: "240px", background: "#161616" }}
-            >
-              <svg
-                ref={vizSvgRef}
-                id="vizSvg"
-                className="absolute inset-0 w-full h-full pointer-events-none"
-              />
-              {(
-                [
-                  {
-                    id: "vn0",
-                    label: "Shapira v. Union Nat'l",
-                    w: 70,
-                    h: 70,
-                    top: "50%",
-                    left: "42%",
-                    anchor: true,
-                    xform: "translate(-50%,-50%)",
-                    fs: "8px",
-                  },
-                  {
-                    id: "vn1",
-                    label: "Lipper v. Weslow",
-                    w: 50,
-                    h: 50,
-                    top: "13%",
-                    left: "15%",
-                    anchor: false,
-                    xform: undefined,
-                    fs: "8px",
-                  },
-                  {
-                    id: "vn2",
-                    label: "Clark v. Greenhalge",
-                    w: 50,
-                    h: 50,
-                    top: "11%",
-                    left: "62%",
-                    anchor: false,
-                    xform: undefined,
-                    fs: "8px",
-                  },
-                  {
-                    id: "vn3",
-                    label: "In re Searight's",
-                    w: 36,
-                    h: 36,
-                    top: "73%",
-                    left: "70%",
-                    anchor: false,
-                    xform: undefined,
-                    fs: "7px",
-                  },
-                  {
-                    id: "vn4",
-                    label: "Estate of Russell",
-                    w: 36,
-                    h: 36,
-                    top: "75%",
-                    left: "18%",
-                    anchor: false,
-                    xform: undefined,
-                    fs: "7px",
-                  },
-                  {
-                    id: "vn5",
-                    label: "Mahoney v. Grainger",
-                    w: 36,
-                    h: 36,
-                    top: "35%",
-                    left: "82%",
-                    anchor: false,
-                    xform: undefined,
-                    fs: "7px",
-                  },
-                ] as {
-                  id: string;
-                  label: string;
-                  w: number;
-                  h: number;
-                  top: string;
-                  left: string;
-                  anchor: boolean;
-                  xform: string | undefined;
-                  fs: string;
-                }[]
-              ).map(({ id, label, w, h, top, left, anchor, xform, fs }) => (
-                <div
-                  key={id}
-                  id={id}
-                  style={{
-                    position: "absolute",
-                    top,
-                    left,
-                    width: w,
-                    height: h,
-                    transform: xform,
-                    borderRadius: "50%",
-                    background: anchor ? "#66b2ff" : "rgba(102,178,255,0.7)",
-                    boxShadow: anchor ? "0 0 20px rgba(102,178,255,0.4)" : undefined,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    color: "#fff",
-                    fontWeight: 600,
-                    textAlign: "center",
-                    padding: "5px",
-                    cursor: "pointer",
-                    fontSize: fs,
-                    lineHeight: 1.2,
-                  }}
-                >
-                  {label}
-                </div>
-              ))}
-            </div>
-            <div>
-              <div className="text-[11px] font-semibold uppercase tracking-wide text-white/50 px-5 pt-2.5 pb-1">
-                related authorities
-              </div>
-              {[
-                ["Lipper v. Weslow", "46%"],
-                ["Clark v. Greenhalge", "41%"],
-                ["In re Searight's Estate", "39%"],
-                ["Estate of Russell", "38%"],
-                ["Mahoney v. Grainger", "35%"],
-              ].map(([name, pct]) => (
-                <div
-                  key={name}
-                  className="flex justify-between px-5 py-2.5 border-b border-white/5 last:border-0 text-sm text-white/70"
-                >
-                  <span>{name}</span>
-                  <span style={{ color: "#66b2ff" }} className="font-semibold">
-                    {pct}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div>
-            <div
-              className="inline-flex items-center gap-1.5 text-xs font-semibold px-3.5 py-1 rounded-full border mb-4"
-              style={{
-                background: "rgba(102,178,255,0.1)",
-                color: "#66b2ff",
-                borderColor: "rgba(102,178,255,0.25)",
-              }}
-            >
-              6.5 + briefica: gold
-            </div>
-            <h2 className="font-bold mb-3.5 leading-snug" style={{ fontSize: "clamp(24px,3vw,36px)" }}>
-              See how your cases connect.
-            </h2>
-            <p className="text-sm text-white/70 leading-relaxed mb-3">
-              Select any authority and the visualizer surfaces which other cases in your briefset share
-              semantic overlap. Cases that cluster together tend to appear together on exam hypotheticals.
-            </p>
-            <p className="text-sm text-white/70 leading-relaxed mb-6">
-              Available in both 6.5 and briefica: gold. Sort by authority or syllabus section —
-              issue-spotting practice, built passively into how you study.
-            </p>
-            <button
-              onClick={() => router.push("/downloads")}
-              className="rounded-xl py-3 px-6 font-semibold text-base text-[#1e1e1e] hover:opacity-90 transition-opacity"
-              style={{ backgroundColor: "#66b2ff" }}
-            >
-              Download briefica →
-            </button>
           </div>
         </div>
       </section>
