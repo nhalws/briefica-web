@@ -90,6 +90,42 @@ html.light .hover\:bg-\[#242424\]:hover { background-color: var(--card-alt) !imp
 
 html.light .placeholder-white\/40::placeholder { color: rgba(0,0,0,0.35) !important; }
 
+/* ── Light mode: border opacity variants ── */
+html.light .border-white\/8  { border-color: rgba(0,0,0,0.07) !important; }
+html.light .border-white\/15 { border-color: rgba(0,0,0,0.1)  !important; }
+
+/* ── Light mode: bg-node (hero background nodes) ── */
+html.light .bg-node { background: rgba(102,178,255,0.06) !important; }
+
+/* ── Light mode: stats bar ── */
+html.light .stat-bar-bg { background: var(--card) !important; }
+
+/* ── Light mode: feature cards ── */
+html.light .hover\:bg-\[#242424\]:hover { background-color: var(--card-alt) !important; }
+
+/* ── Light mode: screencap/slideshow wrappers ── */
+html.light .screencap-bg { background: var(--subtle) !important; }
+
+/* ── Light mode: goldilex chat input ── */
+html.light .bg-white\/5 { background-color: rgba(0,0,0,0.04) !important; }
+
+/* ── Light mode: text inside widgets with inline color vars ── */
+html.light [style*="color: var(--t70)"] { color: var(--t70) !important; }
+html.light [style*="color: var(--t80)"] { color: var(--t80) !important; }
+html.light [style*="color: var(--t60)"] { color: var(--t60) !important; }
+html.light [style*="color: var(--t50)"] { color: var(--t50) !important; }
+
+/* ── Light mode: section/card backgrounds set via inline var() ── */
+html.light [style*="background: var(--card)"]     { background: var(--card)    !important; }
+html.light [style*="background: var(--subtle)"]   { background: var(--subtle)  !important; }
+html.light [style*="background: var(--inlay-sm)"] { background: var(--inlay-sm) !important; }
+html.light [style*="background: var(--inlay)"]    { background: var(--inlay)   !important; }
+html.light [style*="background: var(--hover)"]    { background: var(--hover)   !important; }
+html.light [style*="background: var(--bg)"]       { background: var(--bg)      !important; }
+
+/* ── Light mode: visualizer canvas ── */
+html.light #vizCanvas { background: var(--subtle) !important; }
+
 /* Nav button overrides in light mode */
 html.light .bg-white.text-black  { background-color: #1a1a1a !important; color: #ffffff !important; }
 html.light .hover\:bg-white\/90:hover { background-color: rgba(26,26,26,0.85) !important; }

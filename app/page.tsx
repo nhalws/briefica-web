@@ -360,7 +360,7 @@ export default function HomePage() {
               <span style={{ color: "#66b2ff" }}>B-LINE.</span>
             </span>
           </h1>
-          <p className="hero-desc text-xl max-w-2xl mx-auto mb-9 leading-relaxed" style={{ color: "rgba(255,255,255,0.78)" }}>
+          <p className="hero-desc text-xl max-w-2xl mx-auto mb-9 leading-relaxed" style={{ color: "var(--t80)" }}>
             briefica is a comprehensive ecosystem for law students. create briefsets with our native desktop app,
             share with your school community, and study smarter with AI — all in one place.
           </p>
@@ -394,7 +394,7 @@ export default function HomePage() {
           >
             <div
               className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wide px-3 py-1 rounded-full mb-6 self-start"
-              style={{ background: "rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.7)" }}
+              style={{ background: "var(--inlay)", color: "var(--t70)" }}
             >
               Free
             </div>
@@ -578,7 +578,7 @@ export default function HomePage() {
               key={name}
               className="rounded-2xl p-8 border transition-all hover:bg-[#242424]"
               style={{
-                background: "#1e1e1e",
+                background: "var(--card)",
                 borderColor: gold ? "rgba(240,192,64,0.2)" : "rgba(255,255,255,0.1)",
               }}
             >
@@ -645,12 +645,12 @@ export default function HomePage() {
             <div
               key={n}
               className="rounded-xl p-5 border border-white/8 flex flex-col gap-3"
-              style={{ background: "rgba(255,255,255,0.03)" }}
+              style={{ background: "var(--inlay-sm)" }}
             >
               <div className="flex items-center gap-3">
                 <div
                   className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0"
-                  style={{ background: gold ? "#f0c040" : "#66b2ff", color: gold ? "#1a1200" : "#1e1e1e" }}
+                  style={{ background: gold ? "#f0c040" : "#66b2ff", color: gold ? "#1a1200" : "var(--card)" }}
                 >
                   {n}
                 </div>
@@ -660,7 +660,7 @@ export default function HomePage() {
               <span
                 className="inline-block self-start text-[10px] font-semibold px-2 py-0.5 rounded-full mt-auto"
                 style={{
-                  background: gold ? "rgba(240,192,64,0.12)" : "rgba(255,255,255,0.08)",
+                  background: gold ? "rgba(240,192,64,0.12)" : "var(--inlay)",
                   color: gold ? "#f0c040" : "rgba(255,255,255,0.6)",
                 }}
               >
@@ -678,7 +678,7 @@ export default function HomePage() {
           <div className="rounded-2xl overflow-hidden border border-white/10 bg-[#1e1e1e]">
             <div
               className="px-5 py-3.5 border-b border-white/10 flex items-center justify-between"
-              style={{ background: "rgba(255,255,255,0.03)" }}
+              style={{ background: "var(--inlay-sm)" }}
             >
               <span className="text-sm font-semibold text-white/70">Visualizer · v2.0</span>
               <span className="text-[11px] text-white/50">Shapira v. Union National Bank</span>
@@ -687,7 +687,7 @@ export default function HomePage() {
               ref={vizCanvasRef}
               id="vizCanvas"
               className="relative overflow-hidden"
-              style={{ height: "320px", background: "#161616" }}
+              style={{ height: "320px", background: "var(--subtle)" }}
             >
               <svg
                 ref={vizSvgRef}
@@ -855,11 +855,11 @@ export default function HomePage() {
           {/* Chat mock */}
           <div
             className="rounded-2xl overflow-hidden border border-white/10"
-            style={{ background: "#161616" }}
+            style={{ background: "var(--subtle)" }}
           >
             <div
               className="px-4 py-3 flex items-center gap-2 border-b border-white/10"
-              style={{ background: "rgba(255,255,255,0.04)" }}
+              style={{ background: "var(--inlay)" }}
             >
               <div className="w-2.5 h-2.5 rounded-full bg-[#ff5f57]" />
               <div className="w-2.5 h-2.5 rounded-full bg-[#ffbd2e]" />
@@ -875,13 +875,13 @@ export default function HomePage() {
             <div className="p-4 flex flex-col gap-3.5">
               <div
                 className="self-end max-w-[90%] px-4 py-3 text-sm leading-relaxed rounded-xl rounded-br-sm font-medium"
-                style={{ background: "#66b2ff", color: "#1e1e1e" }}
+                style={{ background: "#66b2ff", color: "var(--card)" }}
               >
                 Summarize Simpson v. Calivas
               </div>
               <div
                 className="self-start max-w-[90%] px-4 py-3 text-sm leading-relaxed rounded-xl rounded-tl-sm text-white/80 border-l-2"
-                style={{ background: "rgba(255,255,255,0.07)", borderColor: "#66b2ff" }}
+                style={{ background: "var(--inlay)", borderColor: "#66b2ff" }}
               >
                 <span style={{ color: "#66b2ff" }} className="font-medium">
                   Simpson v. Calivas, 650 A.2d 318 (1994)
@@ -892,7 +892,7 @@ export default function HomePage() {
               </div>
               <div
                 className="rounded-xl p-3.5 border border-white/10"
-                style={{ background: "rgba(255,255,255,0.05)" }}
+                style={{ background: "var(--hover)" }}
               >
                 <div className="text-[10px] font-semibold uppercase tracking-widest text-white/50 mb-2.5">
                   comprehension check · question 1 of 5
@@ -1050,7 +1050,7 @@ export default function HomePage() {
           <div
             className="border rounded-2xl p-9 relative hover:-translate-y-1 transition-transform"
             style={{
-              background: "linear-gradient(160deg,#1e1e1e 0%,#1c1800 100%)",
+              background: "linear-gradient(160deg,var(--card) 0%,#1c1800 100%)",
               borderColor: "rgba(240,192,64,0.25)",
             }}
           >
@@ -1103,7 +1103,7 @@ export default function HomePage() {
           <div
             className="border rounded-2xl p-9 relative hover:-translate-y-1 transition-transform"
             style={{
-              background: "linear-gradient(160deg,#1e1e1e 0%,#1c1800 100%)",
+              background: "linear-gradient(160deg,var(--card) 0%,#1c1800 100%)",
               borderColor: "rgba(240,192,64,0.25)",
             }}
           >
