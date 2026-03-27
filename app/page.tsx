@@ -462,7 +462,7 @@ export default function HomePage() {
               style={{
                 background: "rgba(240,192,64,0.12)",
                 color: "#f0c040",
-                borderColor: "rgba(240,192,64,0.25)",
+                borderColor: "rgba(102,178,255,0.35)",
               }}
             >
               ✦ Gold
@@ -796,7 +796,7 @@ export default function HomePage() {
               style={{
                 background: "rgba(240,192,64,0.12)",
                 color: "#f0c040",
-                borderColor: "rgba(240,192,64,0.25)",
+                borderColor: "rgba(102,178,255,0.35)",
               }}
             >
               ✦ briefica: gold
@@ -845,7 +845,7 @@ export default function HomePage() {
               style={{
                 background: "rgba(240,192,64,0.08)",
                 color: "#f0c040",
-                borderColor: "rgba(240,192,64,0.25)",
+                borderColor: "rgba(102,178,255,0.35)",
               }}
             >
               ✦ goldilex is part of briefica: gold — starting at $15/month
@@ -975,8 +975,8 @@ export default function HomePage() {
             ].map(({ d, name, desc }) => (
               <div
                 key={name}
-                className="rounded-2xl p-8 border border-white/10 transition-all hover:bg-[#242424]"
-                style={{ background: "#242424" }}
+                className="rounded-2xl p-8 border border-white/10 transition-all"
+                style={{ background: "var(--card-alt)" }}
               >
                 <div
                   className="w-12 h-12 rounded-xl flex items-center justify-center mb-4 border"
@@ -1050,8 +1050,8 @@ export default function HomePage() {
           <div
             className="border rounded-2xl p-9 relative hover:-translate-y-1 transition-transform"
             style={{
-              background: "linear-gradient(160deg,var(--card) 0%,#1c1800 100%)",
-              borderColor: "rgba(240,192,64,0.25)",
+              background: "linear-gradient(160deg, rgba(102,178,255,0.18) 0%, var(--card) 100%)",
+              borderColor: "rgba(102,178,255,0.35)",
             }}
           >
             <div
@@ -1103,8 +1103,8 @@ export default function HomePage() {
           <div
             className="border rounded-2xl p-9 relative hover:-translate-y-1 transition-transform"
             style={{
-              background: "linear-gradient(160deg,var(--card) 0%,#1c1800 100%)",
-              borderColor: "rgba(240,192,64,0.25)",
+              background: "linear-gradient(160deg, rgba(102,178,255,0.18) 0%, var(--card) 100%)",
+              borderColor: "rgba(102,178,255,0.35)",
             }}
           >
             <div
