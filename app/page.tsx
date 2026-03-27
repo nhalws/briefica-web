@@ -75,20 +75,21 @@ export default function HomePage() {
     const canvas = vizCanvasRef.current;
     const svg = vizSvgRef.current;
     if (!canvas || !svg) return;
-    const anchor = document.getElementById("vn0");
-    if (!anchor) return;
-    const ax = anchor.offsetLeft + anchor.offsetWidth / 2;
-    const ay = anchor.offsetTop + anchor.offsetHeight / 2;
     svg.innerHTML = "";
-    ["vn1", "vn2", "vn3", "vn4", "vn5"].forEach((id) => {
-      const n = document.getElementById(id);
-      if (!n) return;
+    const pairs = [
+      ["vn0","vn1"],["vn0","vn2"],["vn0","vn3"],["vn0","vn4"],["vn0","vn5"],
+      ["vn1","vn2"],["vn1","vn4"],["vn2","vn3"],["vn2","vn5"],["vn3","vn5"],["vn4","vn5"],
+    ];
+    pairs.forEach(([aId, bId]) => {
+      const a = document.getElementById(aId);
+      const b = document.getElementById(bId);
+      if (!a || !b) return;
       const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
-      line.setAttribute("x1", String(ax));
-      line.setAttribute("y1", String(ay));
-      line.setAttribute("x2", String(n.offsetLeft + n.offsetWidth / 2));
-      line.setAttribute("y2", String(n.offsetTop + n.offsetHeight / 2));
-      line.setAttribute("stroke", "rgba(102,178,255,0.3)");
+      line.setAttribute("x1", String(a.offsetLeft + a.offsetWidth / 2));
+      line.setAttribute("y1", String(a.offsetTop + a.offsetHeight / 2));
+      line.setAttribute("x2", String(b.offsetLeft + b.offsetWidth / 2));
+      line.setAttribute("y2", String(b.offsetTop + b.offsetHeight / 2));
+      line.setAttribute("stroke", "rgba(102,178,255,0.28)");
       line.setAttribute("stroke-width", "1.5");
       line.setAttribute("stroke-dasharray", "4 3");
       svg.appendChild(line);
@@ -724,7 +725,7 @@ export default function HomePage() {
               ref={vizCanvasRef}
               id="vizCanvas"
               className="relative overflow-hidden"
-              style={{ height: "240px", background: "#161616" }}
+              style={{ height: "320px", background: "#161616" }}
             >
               <svg
                 ref={vizSvgRef}
@@ -733,149 +734,34 @@ export default function HomePage() {
               />
               {(
                 [
-                  {
-                    id: "vn0",
-                    label: "Shapira v. Union Nat'l",
-                    w: 70,
-                    h: 70,
-                    top: "50%",
-                    left: "42%",
-                    anchor: true,
-                    xform: "translate(-50%,-50%)",
-                    fs: "8px",
-                  },
-                  {
-                    id: "vn1",
-                    label: "Lipper v. Weslow",
-                    w: 50,
-                    h: 50,
-                    top: "13%",
-                    left: "15%",
-                    anchor: false,
-                    xform: undefined,
-                    fs: "8px",
-                  },
-                  {
-                    id: "vn2",
-                    label: "Clark v. Greenhalge",
-                    w: 50,
-                    h: 50,
-                    top: "11%",
-                    left: "62%",
-                    anchor: false,
-                    xform: undefined,
-                    fs: "8px",
-                  },
-                  {
-                    id: "vn3",
-                    label: "In re Searight's",
-                    w: 36,
-                    h: 36,
-                    top: "73%",
-                    left: "70%",
-                    anchor: false,
-                    xform: undefined,
-                    fs: "7px",
-                  },
-                  {
-                    id: "vn4",
-                    label: "Estate of Russell",
-                    w: 36,
-                    h: 36,
-                    top: "75%",
-                    left: "18%",
-                    anchor: false,
-                    xform: undefined,
-                    fs: "7px",
-                  },
-                  {
-                    id: "vn5",
-                    label: "Mahoney v. Grainger",
-                    w: 36,
-                    h: 36,
-                    top: "35%",
-                    left: "82%",
-                    anchor: false,
-                    xform: undefined,
-                    fs: "7px",
-                  },
-                ] as {
-                  id: string;
-                  label: string;
-                  w: number;
-                  h: number;
-                  top: string;
-                  left: string;
-                  anchor: boolean;
-                  xform: string | undefined;
-                  fs: string;
-                }[]
+                  { id: "vn0", label: "Shapira v. Union Nat'l", w: 76, h: 76, top: "50%",  left: "44%", anchor: true,  xform: "translate(-50%,-50%)", fs: "8px" },
+                  { id: "vn1", label: "Lipper v. Weslow",       w: 58, h: 58, top: "6%",   left: "6%",  anchor: false, xform: undefined,              fs: "8px" },
+                  { id: "vn2", label: "Clark v. Greenhalge",    w: 58, h: 58, top: "5%",   left: "62%", anchor: false, xform: undefined,              fs: "8px" },
+                  { id: "vn3", label: "In re Searight's",       w: 52, h: 52, top: "68%",  left: "72%", anchor: false, xform: undefined,              fs: "7.5px" },
+                  { id: "vn4", label: "Estate of Russell",      w: 52, h: 52, top: "70%",  left: "8%",  anchor: false, xform: undefined,              fs: "7.5px" },
+                  { id: "vn5", label: "Mahoney v. Grainger",    w: 52, h: 52, top: "28%",  left: "84%", anchor: false, xform: undefined,              fs: "7.5px" },
+                ] as { id: string; label: string; w: number; h: number; top: string; left: string; anchor: boolean; xform: string | undefined; fs: string }[]
               ).map(({ id, label, w, h, top, left, anchor, xform, fs }) => (
                 <div
                   key={id}
                   id={id}
                   style={{
                     position: "absolute",
-                    top,
-                    left,
-                    width: w,
-                    height: h,
+                    top, left,
+                    width: w, height: h,
                     transform: xform,
                     borderRadius: "50%",
-                    background: anchor ? "#161616" : "rgba(102,178,255,0.7)",
-                    boxShadow: anchor ? "0 0 24px rgba(102,178,255,0.5), 0 0 6px rgba(102,178,255,0.3)" : undefined,
-                    border: anchor ? "1.5px solid rgba(102,178,255,0.4)" : undefined,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    color: "#fff",
-                    fontWeight: 600,
-                    textAlign: "center",
-                    padding: anchor ? "0" : "5px",
-                    cursor: "pointer",
-                    fontSize: fs,
-                    lineHeight: 1.2,
-                    overflow: "hidden",
+                    background: anchor ? "#0d1117" : "rgba(102,178,255,0.72)",
+                    boxShadow: anchor
+                      ? "0 0 0 2px rgba(102,178,255,0.5), 0 0 22px rgba(102,178,255,0.35)"
+                      : "0 0 12px rgba(102,178,255,0.25)",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    color: "#fff", fontWeight: 600, textAlign: "center",
+                    padding: "6px", cursor: "pointer",
+                    fontSize: fs, lineHeight: 1.25,
                   }}
                 >
-                  {anchor ? (
-                    <svg viewBox="0 0 64 64" style={{ width: "100%", height: "100%" }}>
-                      <g transform="skewX(-8) skewY(5)">
-                        <animateTransform attributeName="transform" type="rotate" from="0 32 32" to="360 32 32" dur="80s" repeatCount="indefinite" />
-                        <circle cx="32" cy="32" r="5" fill="#66b2ff" stroke="#e6eaf0" strokeWidth="1.5" />
-                        <defs>
-                          <circle id="viz-orbit-node" r="4" fill="#66b2ff" stroke="#e6eaf0" strokeWidth="1.5" />
-                        </defs>
-                        {[
-                          { angle: 0, dur: "36s", sway: "8s" },
-                          { angle: 60, dur: "40s", sway: "7s" },
-                          { angle: 120, dur: "44s", sway: "9s" },
-                          { angle: 180, dur: "38s", sway: "8.5s" },
-                          { angle: 240, dur: "46s", sway: "7.5s" },
-                          { angle: 300, dur: "42s", sway: "9.5s" },
-                        ].map(({ angle, dur, sway }) => (
-                          <g key={angle} transform={`rotate(${angle} 32 32)`}>
-                            <g>
-                              <line x1="32" y1="32" x2="32" y2="8" stroke="#e6eaf0" strokeWidth="1.25">
-                                <animate attributeName="y2" dur={sway} repeatCount="indefinite" keyTimes="0;0.5;1" values="8;6;8" />
-                              </line>
-                              <use href="#viz-orbit-node" x="32" y="8">
-                                <animate attributeName="y" dur={sway} repeatCount="indefinite" keyTimes="0;0.5;1" values="8;6;8" />
-                              </use>
-                            </g>
-                            <animateTransform
-                              attributeName="transform"
-                              type="rotate"
-                              dur={dur}
-                              repeatCount="indefinite"
-                              keyTimes="0;0.33;0.66;1"
-                              values={`${angle} 32 32; ${angle + 360} 32 32; ${angle - 360} 32 32; ${angle + 360} 32 32`}
-                            />
-                          </g>
-                        ))}
-                      </g>
-                    </svg>
-                  ) : label}
+                  {label}
                 </div>
               ))}
             </div>
