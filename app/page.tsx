@@ -620,93 +620,53 @@ export default function HomePage() {
           export and walk into the exam.
         </p>
 
-        {/* 3-col grid: steps (2 col) + video (1 col) */}
-        <div className="grid md:grid-cols-3 gap-6 items-start">
+        {/* Video — full width, on top */}
+        <div className="rounded-2xl overflow-hidden border border-white/10 bg-[#1e1e1e] mb-10">
+          <div className="aspect-video">
+            <video
+              src="/march 2026 briefica teaser.mp4"
+              controls
+              playsInline
+              className="w-full h-full object-cover"
+            />
+          </div>
+        </div>
 
-          {/* Steps — 2-col inner grid spanning first 2 columns */}
-          <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {[
-              {
-                n: 1,
-                title: "download briefica",
-                desc: "Get the native macOS desktop app. Free for all law students.",
-                tag: "v6 free",
-                gold: false,
-              },
-              {
-                n: 2,
-                title: "build your library",
-                desc: "Add cases with citation, facts, holding, and rule — saved to one .bset file.",
-                tag: "v6 + v7",
-                gold: false,
-              },
-              {
-                n: 3,
-                title: "b-line your outline",
-                desc: "Pull cases into the builder, add headings, write notes. Auto-saves continuously.",
-                tag: "v6 + v7",
-                gold: false,
-              },
-              {
-                n: 4,
-                title: "export your b-line",
-                desc: "Export a clean .docx at any point. WYSIWYG — exactly as it looks in the app.",
-                tag: "v6 + v7",
-                gold: false,
-              },
-              {
-                n: 5,
-                title: "study with goldilex",
-                desc: "Ask goldilex to summarize, explain, or quiz you — grounded only in your briefset.",
-                tag: "gold",
-                gold: true,
-              },
-            ].map(({ n, title, desc, tag, gold }) => (
-              <div
-                key={n}
-                className="rounded-xl p-5 border border-white/8 flex flex-col gap-3"
-                style={{ background: "rgba(255,255,255,0.03)" }}
-              >
-                <div className="flex items-center gap-3">
-                  <div
-                    className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0"
-                    style={{
-                      background: gold ? "#f0c040" : "#66b2ff",
-                      color: gold ? "#1a1200" : "#1e1e1e",
-                    }}
-                  >
-                    {n}
-                  </div>
-                  <div className="text-sm font-semibold">{title}</div>
-                </div>
-                <p className="text-xs text-white/60 leading-relaxed">{desc}</p>
-                <span
-                  className="inline-block self-start text-[10px] font-semibold px-2 py-0.5 rounded-full mt-auto"
-                  style={{
-                    background: gold ? "rgba(240,192,64,0.12)" : "rgba(255,255,255,0.08)",
-                    color: gold ? "#f0c040" : "rgba(255,255,255,0.6)",
-                  }}
+        {/* Steps — 3-col grid below */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {[
+            { n: 1, title: "download briefica",  desc: "Get the native macOS desktop app. Free for all law students.",                                   tag: "v6 free", gold: false },
+            { n: 2, title: "build your library",  desc: "Add cases with citation, facts, holding, and rule — saved to one .bset file.",                  tag: "v6 + v7", gold: false },
+            { n: 3, title: "b-line your outline", desc: "Pull cases into the builder, add headings, write notes. Auto-saves continuously.",               tag: "v6 + v7", gold: false },
+            { n: 4, title: "export your b-line",  desc: "Export a clean .docx at any point. WYSIWYG — exactly as it looks in the app.",                  tag: "v6 + v7", gold: false },
+            { n: 5, title: "study with goldilex", desc: "Ask goldilex to summarize, explain, or quiz you — grounded only in your briefset.",              tag: "gold",    gold: true  },
+          ].map(({ n, title, desc, tag, gold }) => (
+            <div
+              key={n}
+              className="rounded-xl p-5 border border-white/8 flex flex-col gap-3"
+              style={{ background: "rgba(255,255,255,0.03)" }}
+            >
+              <div className="flex items-center gap-3">
+                <div
+                  className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0"
+                  style={{ background: gold ? "#f0c040" : "#66b2ff", color: gold ? "#1a1200" : "#1e1e1e" }}
                 >
-                  {tag}
-                </span>
+                  {n}
+                </div>
+                <div className="text-sm font-semibold">{title}</div>
               </div>
-            ))}
-          </div>
-
-          {/* Video */}
-          <div className="sticky top-24">
-            <div className="border border-white/10 bg-[#1e1e1e] rounded-2xl p-4">
-              <div className="aspect-video bg-[#2b2b2b] rounded-lg overflow-hidden">
-                <video
-                  src="/march 2026 briefica teaser.mp4"
-                  controls
-                  playsInline
-                  className="w-full h-full"
-                />
-              </div>
+              <p className="text-xs text-white/60 leading-relaxed">{desc}</p>
+              <span
+                className="inline-block self-start text-[10px] font-semibold px-2 py-0.5 rounded-full mt-auto"
+                style={{
+                  background: gold ? "rgba(240,192,64,0.12)" : "rgba(255,255,255,0.08)",
+                  color: gold ? "#f0c040" : "rgba(255,255,255,0.6)",
+                }}
+              >
+                {tag}
+              </span>
             </div>
-          </div>
-
+          ))}
         </div>
       </section>
 
