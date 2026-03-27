@@ -611,7 +611,7 @@ export default function HomePage() {
       </div>
 
       {/* ── HOW IT WORKS ── */}
-      <section id="how" className="fade-up bg-[#1e1e1e] border-t border-b border-white/10">
+      <section id="how" className="fade-up bg-card border-t border-b border-white/10">
       <div className="max-w-6xl mx-auto px-6 py-20">
         <h2 className="font-bold mb-2" style={{ fontSize: "clamp(24px,3vw,36px)" }}>
           How it works.
@@ -622,7 +622,7 @@ export default function HomePage() {
         </p>
 
         {/* Video — constrained width, on top */}
-        <div className="max-w-2xl mx-auto rounded-2xl overflow-hidden border border-white/10 bg-[#161616] mb-10">
+        <div className="max-w-2xl mx-auto rounded-2xl overflow-hidden border border-white/10 bg-subtle mb-10">
           <div className="aspect-video">
             <video
               src="/march 2026 briefica teaser.mp4"
@@ -675,7 +675,7 @@ export default function HomePage() {
       {/* ── VISUALIZER ── */}
       <section className="fade-up max-w-6xl mx-auto px-6 py-20">
         <div className="grid md:grid-cols-2 gap-16 items-center">
-          <div className="rounded-2xl overflow-hidden border border-white/10 bg-[#1e1e1e]">
+          <div className="rounded-2xl overflow-hidden border border-white/10 bg-card">
             <div
               className="px-5 py-3.5 border-b border-white/10 flex items-center justify-between"
               style={{ background: "var(--inlay-sm)" }}
@@ -787,7 +787,7 @@ export default function HomePage() {
       {/* ── GOLDILEX ── */}
       <section
         id="goldilex"
-        className="fade-up bg-[#1e1e1e] border-t border-b border-white/10"
+        className="fade-up bg-card border-t border-b border-white/10"
       >
         <div className="max-w-6xl mx-auto px-6 py-20 grid md:grid-cols-2 gap-16 items-center">
           <div>
@@ -942,7 +942,7 @@ export default function HomePage() {
       {/* ── B-WEB ── */}
       <section
         id="bweb"
-        className="fade-up bg-[#1e1e1e] border-t border-b border-white/10"
+        className="fade-up bg-card border-t border-b border-white/10"
       >
         <div className="max-w-6xl mx-auto px-6 py-20">
           <h2
@@ -1009,7 +1009,7 @@ export default function HomePage() {
         </p>
         <div className="grid md:grid-cols-3 gap-5">
           {/* Free */}
-          <div className="bg-[#1e1e1e] border border-white/10 rounded-2xl p-9 relative hover:-translate-y-1 transition-transform">
+          <div className="bg-card border border-white/10 rounded-2xl p-9 relative hover:-translate-y-1 transition-transform">
             <span className="block text-xs font-semibold uppercase tracking-wide text-white/50 mb-4">
               briefica 6.5 · sanddollar
             </span>
@@ -1161,7 +1161,7 @@ export default function HomePage() {
       {/* ── STATS ── */}
       <div className="fade-up max-w-6xl mx-auto px-6 pb-20">
         <div
-          className="grid grid-cols-2 md:grid-cols-4 border border-white/10 rounded-2xl overflow-hidden bg-[#1e1e1e]"
+          className="grid grid-cols-2 md:grid-cols-4 border border-white/10 rounded-2xl overflow-hidden bg-card"
         >
           {[
             { num: "200+", lbl: "ABA law schools" },
@@ -1188,7 +1188,7 @@ export default function HomePage() {
 
       {/* ── CTA ── */}
       <div className="fade-up max-w-6xl mx-auto px-6 pb-20">
-        <div className="border border-white/10 bg-[#1e1e1e] rounded-2xl p-20 text-center">
+        <div className="border border-white/10 bg-card rounded-2xl p-20 text-center">
           <h2
             className="font-extrabold uppercase mb-4"
             style={{ fontSize: "clamp(32px,4vw,52px)", letterSpacing: "-1px" }}

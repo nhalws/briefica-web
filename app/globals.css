@@ -63,10 +63,7 @@ body {
 }
 
 /* ── Light mode Tailwind class overrides ── */
-html.light .bg-\[#2b2b2b\]    { background-color: var(--bg)      !important; }
-html.light .bg-\[#1e1e1e\]    { background-color: var(--card)    !important; }
 html.light .bg-\[#242424\]    { background-color: var(--card-alt) !important; }
-html.light .bg-\[#161616\]    { background-color: var(--subtle)  !important; }
 
 html.light .text-white        { color: var(--t)   !important; }
 html.light .text-white\/80    { color: var(--t80) !important; }
@@ -89,6 +86,11 @@ html.light .hover\:text-white:hover   { color: var(--t) !important; }
 html.light .hover\:bg-\[#242424\]:hover { background-color: var(--card-alt) !important; }
 
 html.light .placeholder-white\/40::placeholder { color: rgba(0,0,0,0.35) !important; }
+
+/* ── Themed background utilities (CSS variable based, work in both modes) ── */
+.bg-card   { background: var(--card); }
+.bg-subtle { background: var(--subtle); }
+.bg-section-bg { background: var(--bg); }
 
 /* ── Light mode: border opacity variants ── */
 html.light .border-white\/8  { border-color: rgba(0,0,0,0.07) !important; }
