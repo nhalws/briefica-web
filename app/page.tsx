@@ -611,7 +611,8 @@ export default function HomePage() {
       </div>
 
       {/* ── HOW IT WORKS ── */}
-      <section id="how" className="fade-up max-w-6xl mx-auto px-6 py-20">
+      <section id="how" className="fade-up bg-[#1e1e1e] border-t border-b border-white/10">
+      <div className="max-w-6xl mx-auto px-6 py-20">
         <h2 className="font-bold mb-2" style={{ fontSize: "clamp(24px,3vw,36px)" }}>
           How it works.
         </h2>
@@ -620,8 +621,8 @@ export default function HomePage() {
           export and walk into the exam.
         </p>
 
-        {/* Video — full width, on top */}
-        <div className="rounded-2xl overflow-hidden border border-white/10 bg-[#1e1e1e] mb-10">
+        {/* Video — constrained width, on top */}
+        <div className="max-w-2xl mx-auto rounded-2xl overflow-hidden border border-white/10 bg-[#161616] mb-10">
           <div className="aspect-video">
             <video
               src="/march 2026 briefica teaser.mp4"
@@ -668,6 +669,7 @@ export default function HomePage() {
             </div>
           ))}
         </div>
+      </div>
       </section>
 
       {/* ── VISUALIZER ── */}
