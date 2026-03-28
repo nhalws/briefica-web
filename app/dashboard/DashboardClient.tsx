@@ -9,6 +9,7 @@ import SchoolCommunity from "../components/SchoolCommunity";
 import LiveChat from "../components/LiveChat";
 import Footer from "../components/Footer";
 import ConfirmedBanner from "./Confirmedbanner";
+import { useTheme } from "../context/ThemeContext";
 
 type ArtifactRow = {
   id: string;
@@ -38,6 +39,7 @@ type UserProfile = {
 
 export default function DashboardClient() {
   const router = useRouter();
+  const { theme, toggle } = useTheme();
   const [rows, setRows] = useState<ArtifactRow[]>([]);
   const [filteredRows, setFilteredRows] = useState<ArtifactRow[]>([]);
   const [usernamesByOwner, setUsernamesByOwner] = useState<Record<string, string>>({});
@@ -427,7 +429,7 @@ export default function DashboardClient() {
   }
 
   return (
-    <main className="min-h-screen bg-[#2b2b2b] text-white p-6">
+    <main className="min-h-screen bg-section-bg text-[var(--t)] p-6">
       <div className="max-w-6xl mx-auto">
         <ConfirmedBanner />
         <div className="flex items-center justify-between mb-6">
@@ -501,8 +503,14 @@ export default function DashboardClient() {
             </div>
           </div>
 
-          <div className="flex gap-3">
-
+          <div className="flex gap-3 items-center">
+            <button
+              onClick={toggle}
+              className="inline-flex items-center justify-center rounded-lg border border-white/20 bg-white/10 px-3 py-2 hover:bg-white/15 transition-colors text-sm"
+              aria-label="Toggle theme"
+            >
+              {theme === "dark" ? "☀️" : "🌙"}
+            </button>
             <button
               onClick={() => router.push("/upload")}
               className="bg-white text-black rounded-lg py-2 px-4 font-medium hover:bg-white/90 transition-colors"
@@ -537,7 +545,7 @@ export default function DashboardClient() {
           <aside className="w-72 flex-shrink-0 space-y-4">
             {/* PROFILE WIDGET */}
             {userProfile && currentUserId && (
-              <div className="border border-white/10 bg-[#1e1e1e] rounded-2xl p-4">
+              <div className="border border-white/10 bg-card rounded-2xl p-4">
                 <div className="flex items-center gap-3 mb-3">
                   <ProfilePicture
                     userId={currentUserId}
@@ -624,7 +632,7 @@ export default function DashboardClient() {
                 placeholder="Search by title, description, or username..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="flex-1 px-4 py-2 rounded-lg bg-[#1e1e1e] border border-white/20 focus:border-white/40 focus:outline-none"
+                className="flex-1 px-4 py-2 rounded-lg bg-card border border-white/20 focus:border-white/40 focus:outline-none text-[var(--t)] placeholder:text-[var(--t50)]"
               />
 
               <div className="flex gap-2 flex-wrap justify-end">
@@ -633,7 +641,7 @@ export default function DashboardClient() {
                   className={`px-4 py-2 rounded-lg border transition-colors ${
                     typeFilter === "all"
                       ? "bg-white text-black border-white"
-                      : "bg-[#1e1e1e] border-white/20 hover:bg-white/5"
+                      : "bg-card border-white/20 hover:bg-white/5"
                   }`}
                 >
                   All
@@ -643,7 +651,7 @@ export default function DashboardClient() {
                   className={`px-4 py-2 rounded-lg border transition-colors ${
                     typeFilter === "bset"
                       ? "bg-white text-black border-white"
-                      : "bg-[#1e1e1e] border-white/20 hover:bg-white/5"
+                      : "bg-card border-white/20 hover:bg-white/5"
                   }`}
                 >
                   .bset
@@ -653,7 +661,7 @@ export default function DashboardClient() {
                   className={`px-4 py-2 rounded-lg border transition-colors ${
                     typeFilter === "bmod"
                       ? "bg-white text-black border-white"
-                      : "bg-[#1e1e1e] border-white/20 hover:bg-white/5"
+                      : "bg-card border-white/20 hover:bg-white/5"
                   }`}
                 >
                   .bmod
@@ -663,7 +671,7 @@ export default function DashboardClient() {
                   className={`px-4 py-2 rounded-lg border transition-colors ${
                     typeFilter === "tbank"
                       ? "bg-white text-black border-white"
-                      : "bg-[#1e1e1e] border-white/20 hover:bg-white/5"
+                      : "bg-card border-white/20 hover:bg-white/5"
                   }`}
                 >
                   .tbank
@@ -678,7 +686,7 @@ export default function DashboardClient() {
               {filteredRows.map((r) => (
                 <div
                   key={r.id}
-                  className="border border-white/10 bg-[#1e1e1e] rounded-2xl p-4 flex flex-col"
+                  className="border border-white/10 bg-card rounded-2xl p-4 flex flex-col"
                 >
                   <div className="flex items-center justify-between gap-3">
                     <div className="text-xs text-white/60">
@@ -716,7 +724,7 @@ export default function DashboardClient() {
                   {commentPreviews[r.id]?.length > 0 && (
                     <div className="mt-3 space-y-2 text-xs text-white/70">
                       {commentPreviews[r.id].map((c) => (
-                        <div key={c.id} className="border border-white/10 rounded-lg p-2 bg-[#2b2b2b] line-clamp-2">
+                        <div key={c.id} className="border border-white/10 rounded-lg p-2 line-clamp-2" style={{ background: "var(--inlay)" }}>
                           <span className="text-white">@{c.username}</span>: {c.content}
                         </div>
                       ))}
@@ -773,13 +781,13 @@ export default function DashboardClient() {
               ))}
 
               {!filteredRows.length && rows.length > 0 && (
-                <div className="text-white/60 border border-white/10 bg-[#1e1e1e] rounded-2xl p-6">
+                <div className="text-[var(--t60)] border border-white/10 bg-card rounded-2xl p-6">
                   No results found for your search.
                 </div>
               )}
 
               {!rows.length && (
-                <div className="text-white/60 border border-white/10 bg-[#1e1e1e] rounded-2xl p-6">
+                <div className="text-[var(--t60)] border border-white/10 bg-card rounded-2xl p-6">
                   No public uploads yet. Upload your first artifact.
                 </div>
               )}
@@ -793,7 +801,7 @@ export default function DashboardClient() {
       {/* BB Download Confirmation Modal */}
       {confirmDownload && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
-          <div className="bg-[#1e1e1e] border border-white/20 rounded-2xl p-6 max-w-sm w-full mx-4">
+          <div className="bg-card border border-white/20 rounded-2xl p-6 max-w-sm w-full mx-4">
             <h2 className="text-lg font-semibold mb-2">Confirm Download</h2>
             {confirmDownload.isBset ? (
               <p className="text-white/70 text-sm mb-6">

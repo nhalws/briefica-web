@@ -6,6 +6,7 @@ import Image from "next/image";
 import { supabase } from "../../lib/supabaseClient";
 import ProfilePicture from "../../components/ProfilePicture";
 import { ABA_LAW_SCHOOLS } from "../../lib/lawschools";
+import { useTheme } from "../../context/ThemeContext";
 
 interface UserProfile {
   user_id: string;
@@ -52,6 +53,7 @@ export default function UserProfilePage() {
   const [sortBy, setSortBy] = useState<"likes" | "downloads" | "name">("likes");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { theme, toggle } = useTheme();
 
   // Edit profile state
   const [isEditingProfile, setIsEditingProfile] = useState(false);
@@ -312,7 +314,7 @@ export default function UserProfilePage() {
 
   if (loading) {
     return (
-      <main className="min-h-screen bg-[#2b2b2b] text-white p-6">
+      <main className="min-h-screen bg-section-bg text-[var(--t)] p-6">
         <div className="max-w-4xl mx-auto">
           <p className="text-white/70">Loading...</p>
         </div>
@@ -322,7 +324,7 @@ export default function UserProfilePage() {
 
   if (error || !profile) {
     return (
-      <main className="min-h-screen bg-[#2b2b2b] text-white p-6">
+      <main className="min-h-screen bg-section-bg text-[var(--t)] p-6">
         <div className="max-w-4xl mx-auto">
           <button
             onClick={() => router.push("/dashboard")}
@@ -342,7 +344,7 @@ export default function UserProfilePage() {
   const schoolLogo = profile.law_school ? SCHOOL_LOGOS[profile.law_school] : null;
 
   return (
-    <main className="min-h-screen bg-[#2b2b2b] text-white p-6">
+    <main className="min-h-screen bg-section-bg text-[var(--t)] p-6">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
@@ -356,20 +358,29 @@ export default function UserProfilePage() {
             Back to dashboard
           </button>
 
-          <Image
+          <div className="flex items-center gap-3">
+            <button
+              onClick={toggle}
+              className="inline-flex items-center justify-center rounded-lg border border-white/20 bg-white/10 px-3 py-2 hover:bg-white/15 transition-colors text-sm"
+              aria-label="Toggle theme"
+            >
+              {theme === "dark" ? "☀️" : "🌙"}
+            </button>
+            <Image
             src="/logo_6.png"
             alt="briefica"
             width={140}
             height={42}
             className="object-contain"
-          />
+            />
+          </div>
         </div>
 
         {/* Profile Section */}
         <div className="grid md:grid-cols-3 gap-6 mb-8">
           {/* Left Column - Profile Info */}
           <div className="md:col-span-2">
-            <div className="border border-white/10 bg-[#1e1e1e] rounded-2xl p-6">
+            <div className="border border-white/10 bg-card rounded-2xl p-6">
               <div className="flex items-start gap-4 mb-4">
                 <ProfilePicture
                   userId={profile.user_id}
@@ -433,7 +444,7 @@ export default function UserProfilePage() {
           </div>
 
           {/* Right Column - Bio */}
-          <div className="border border-white/10 bg-[#1e1e1e] rounded-2xl p-6">
+          <div className="border border-white/10 bg-card rounded-2xl p-6">
             <h2 className="font-semibold mb-3">Bio</h2>
             {profile.bio ? (
               <p className="text-sm text-white/80 whitespace-pre-wrap">{profile.bio}</p>
@@ -453,7 +464,7 @@ export default function UserProfilePage() {
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value as "likes" | "downloads" | "name")}
-                  className="px-3 py-1 rounded-lg bg-[#1e1e1e] border border-white/20 focus:border-white/40 focus:outline-none text-sm"
+                  className="px-3 py-1 rounded-lg bg-card border border-white/20 focus:border-white/40 focus:outline-none text-sm text-[var(--t)]"
                 >
                   <option value="likes">Likes</option>
                   <option value="downloads">Downloads</option>
@@ -464,7 +475,7 @@ export default function UserProfilePage() {
           </div>
 
           {artifacts.length === 0 ? (
-            <div className="border border-white/10 bg-[#1e1e1e] rounded-2xl p-8 text-center text-white/60">
+            <div className="border border-white/10 bg-card rounded-2xl p-8 text-center text-[var(--t60)]">
               {isOwnProfile ? "You haven't uploaded any artifacts yet." : "No public uploads yet."}
             </div>
           ) : (
@@ -482,7 +493,7 @@ export default function UserProfilePage() {
                 .map((artifact) => (
                   <div
                     key={artifact.id}
-                    className="border border-white/10 bg-[#1e1e1e] rounded-2xl p-4"
+                    className="border border-white/10 bg-card rounded-2xl p-4"
                   >
                     <div className="flex items-center justify-between mb-3">
                       <div className="flex items-center gap-3">
@@ -550,7 +561,7 @@ export default function UserProfilePage() {
       {/* Edit Profile Modal */}
       {isEditingProfile && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-[#1e1e1e] rounded-2xl p-6 max-w-md w-full border border-white/10">
+          <div className="bg-card rounded-2xl p-6 max-w-md w-full border border-white/10">
             <h2 className="text-xl font-bold mb-4">Edit Profile</h2>
             
             <div className="space-y-4 mb-6">
@@ -561,7 +572,7 @@ export default function UserProfilePage() {
                   onChange={(e) => setEditBio(e.target.value)}
                   placeholder="Tell us about yourself..."
                   rows={4}
-                  className="w-full px-3 py-2 rounded-lg bg-[#2b2b2b] border border-white/20 focus:border-white/40 focus:outline-none resize-none"
+                  className="w-full px-3 py-2 rounded-lg border border-white/20 focus:border-white/40 focus:outline-none resize-none text-[var(--t)]" style={{ background: "var(--inlay)" }}
                 />
               </div>
 
@@ -570,7 +581,7 @@ export default function UserProfilePage() {
                 <select
                   value={editSchool}
                   onChange={(e) => setEditSchool(e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg bg-[#2b2b2b] border border-white/20 focus:border-white/40 focus:outline-none"
+                  className="w-full px-3 py-2 rounded-lg border border-white/20 focus:border-white/40 focus:outline-none text-[var(--t)]" style={{ background: "var(--inlay)" }}
                 >
                   <option value="">Select a school</option>
                   {ABA_LAW_SCHOOLS.map((school) => (
@@ -603,7 +614,7 @@ export default function UserProfilePage() {
       {/* Edit Artifact Visibility Modal */}
       {editingArtifact && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-[#1e1e1e] rounded-2xl p-6 max-w-md w-full border border-white/10">
+          <div className="bg-card rounded-2xl p-6 max-w-md w-full border border-white/10">
             <h2 className="text-xl font-bold mb-4">Edit Artifact Visibility</h2>
             <p className="text-sm text-white/70 mb-4">{editingArtifact.title}</p>
             

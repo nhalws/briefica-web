@@ -7,6 +7,7 @@ import { supabase } from "../../lib/supabaseClient";
 import SubjectPreferences from "../../components/SubjectPreferences";
 import LiveChat from "../../components/LiveChat";
 import ProfilePicture from "../../components/ProfilePicture";
+import { useTheme } from "../../context/ThemeContext";
 
 interface SchoolMember {
   user_id: string;
@@ -78,6 +79,7 @@ export default function SchoolDirectoryPage() {
   const [typeFilter, setTypeFilter] = useState<"all" | "bset" | "bmod" | "tbank">("all");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { theme, toggle } = useTheme();
 
   // Collapsible widget states
 const [topUsersExpanded, setTopUsersExpanded] = useState(false);
@@ -349,7 +351,7 @@ const [mostDownloadedExpanded, setMostDownloadedExpanded] = useState(false);
 
   if (loading) {
     return (
-      <main className="min-h-screen bg-[#2b2b2b] text-white p-6">
+      <main className="min-h-screen bg-section-bg text-[var(--t)] p-6">
         <div className="max-w-6xl mx-auto">
           <p className="text-white/70">Loading...</p>
         </div>
@@ -359,7 +361,7 @@ const [mostDownloadedExpanded, setMostDownloadedExpanded] = useState(false);
 
   if (error) {
     return (
-      <main className="min-h-screen bg-[#2b2b2b] text-white p-6">
+      <main className="min-h-screen bg-section-bg text-[var(--t)] p-6">
         <div className="max-w-6xl mx-auto">
           <button
             onClick={() => router.push("/dashboard")}
@@ -379,7 +381,7 @@ const [mostDownloadedExpanded, setMostDownloadedExpanded] = useState(false);
   const schoolLogo = SCHOOL_LOGOS[schoolName];
 
   return (
-    <main className="min-h-screen bg-[#2b2b2b] text-white p-6">
+    <main className="min-h-screen bg-section-bg text-[var(--t)] p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
@@ -393,13 +395,22 @@ const [mostDownloadedExpanded, setMostDownloadedExpanded] = useState(false);
             Back to dashboard
           </button>
 
-          <Image
-            src="/logo_6.png"
-            alt="briefica"
-            width={140}
-            height={42}
-            className="object-contain"
-          />
+          <div className="flex items-center gap-3">
+            <button
+              onClick={toggle}
+              className="inline-flex items-center justify-center rounded-lg border border-white/20 bg-white/10 px-3 py-2 hover:bg-white/15 transition-colors text-sm"
+              aria-label="Toggle theme"
+            >
+              {theme === "dark" ? "☀️" : "🌙"}
+            </button>
+            <Image
+              src="/logo_6.png"
+              alt="briefica"
+              width={140}
+              height={42}
+              className="object-contain"
+            />
+          </div>
         </div>
 
         {/* School Header with Logo */}
@@ -423,7 +434,7 @@ const [mostDownloadedExpanded, setMostDownloadedExpanded] = useState(false);
           {/* Left Column - Main Content */}
           <div className="lg:col-span-3 space-y-4">
             {/* Member Directory - FIXED WITH PROFILEPICTURE */}
-            <div className="border border-white/10 bg-[#1e1e1e] rounded-xl p-4">
+            <div className="border border-white/10 bg-card rounded-xl p-4">
               <h2 className="text-lg font-bold mb-3">Members</h2>
               <div className="grid md:grid-cols-3 gap-2">
                 {members.slice(0, 6).map((member) => (
@@ -473,7 +484,7 @@ const [mostDownloadedExpanded, setMostDownloadedExpanded] = useState(false);
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search artifacts by title, description, or username..."
-                className="flex-1 px-4 py-2 rounded-lg bg-[#1e1e1e] border border-white/20 focus:border-white/40 focus:outline-none text-sm"
+                className="flex-1 px-4 py-2 rounded-lg bg-card border border-white/20 focus:border-white/40 focus:outline-none text-sm text-[var(--t)] placeholder:text-[var(--t50)]"
               />
               <div className="flex gap-2 justify-end">
                 <button
@@ -522,7 +533,7 @@ const [mostDownloadedExpanded, setMostDownloadedExpanded] = useState(false);
             {/* Artifacts Grid */}
             <div className="space-y-3">
               {filteredArtifacts.length === 0 ? (
-                <div className="border border-white/10 bg-[#1e1e1e] rounded-xl p-6 text-center text-sm text-white/60">
+                <div className="border border-white/10 bg-card rounded-xl p-6 text-center text-sm text-[var(--t60)]">
                   No artifacts found
                 </div>
               ) : (
@@ -530,7 +541,7 @@ const [mostDownloadedExpanded, setMostDownloadedExpanded] = useState(false);
                   {filteredArtifacts.map((artifact) => (
                     <div
                       key={artifact.id}
-                      className="border border-white/10 bg-[#1e1e1e] rounded-xl p-3 hover:bg-white/5 transition-colors aspect-square flex flex-col"
+                      className="border border-white/10 bg-card rounded-xl p-3 hover:bg-white/5 transition-colors aspect-square flex flex-col"
                     >
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-2">
@@ -612,7 +623,7 @@ const [mostDownloadedExpanded, setMostDownloadedExpanded] = useState(false);
           <div className="space-y-3">
             <div className="text-xs text-white/60 font-semibold px-1">Leaderboard</div>
             {/* Top Users - FIXED WITH PROFILEPICTURE */}
-            <div className="border border-white/10 bg-[#1e1e1e] rounded-xl overflow-hidden">
+            <div className="border border-white/10 bg-card rounded-xl overflow-hidden">
               <button
                 onClick={() => setTopUsersExpanded(!topUsersExpanded)}
                 className="w-full flex items-center justify-between p-2.5 hover:bg-white/5 transition-colors"
@@ -665,7 +676,7 @@ const [mostDownloadedExpanded, setMostDownloadedExpanded] = useState(false);
             </div>
 
             {/* Top Rated */}
-            <div className="border border-white/10 bg-[#1e1e1e] rounded-xl overflow-hidden">
+            <div className="border border-white/10 bg-card rounded-xl overflow-hidden">
               <button
                 onClick={() => setTopRatedExpanded(!topRatedExpanded)}
                 className="w-full flex items-center justify-between p-2.5 hover:bg-white/5 transition-colors"
@@ -721,7 +732,7 @@ const [mostDownloadedExpanded, setMostDownloadedExpanded] = useState(false);
             </div>
 
             {/* Most Downloaded */}
-            <div className="border border-white/10 bg-[#1e1e1e] rounded-xl overflow-hidden">
+            <div className="border border-white/10 bg-card rounded-xl overflow-hidden">
               <button
                 onClick={() => setMostDownloadedExpanded(!mostDownloadedExpanded)}
                 className="w-full flex items-center justify-between p-2.5 hover:bg-white/5 transition-colors"
