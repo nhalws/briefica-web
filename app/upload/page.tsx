@@ -31,7 +31,7 @@ export default function UploadPage() {
 
   // Set page title
   useEffect(() => {
-    document.title = 'Upload - briefica';
+    document.title = 'upload - briefica';
   }, []);
 
   useEffect(() => {

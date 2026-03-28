@@ -14,6 +14,8 @@ function PricingContent() {
   const [isGold, setIsGold] = useState(false);
   const [username, setUsername] = useState("");
 
+  useEffect(() => { document.title = "pricing - briefica"; }, []);
+
   useEffect(() => {
     checkAuth();
   }, []);

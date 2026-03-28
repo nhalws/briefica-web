@@ -33,6 +33,8 @@ function AuthPageContent() {
     [username]
   );
 
+  useEffect(() => { document.title = "sign in - briefica"; }, []);
+
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
       if (data.session) {

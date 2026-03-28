@@ -1,10 +1,12 @@
 "use client";
 
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 
 export default function PrivacyPolicyPage() {
   const router = useRouter();
+  useEffect(() => { document.title = "privacy policy - briefica"; }, []);
 
   return (
     <main className="min-h-screen bg-[#2b2b2b] text-white p-6">

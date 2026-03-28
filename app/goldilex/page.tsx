@@ -10,6 +10,8 @@ export default function GoldilexPage() {
   const [checking, setChecking] = useState(true);
   const [canAccess, setCanAccess] = useState(false);
 
+  useEffect(() => { document.title = "goldilex - briefica"; }, []);
+
   useEffect(() => {
     let cancelled = false;
 

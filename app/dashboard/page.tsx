@@ -67,7 +67,7 @@ export default function DashboardPage() {
   const [bbRefreshKey, setBbRefreshKey] = useState(0);
 
   useEffect(() => {
-    document.title = "briefica";
+    document.title = "briefica: web";
   }, []);
 
   useEffect(() => {

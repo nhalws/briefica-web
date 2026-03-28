@@ -28,7 +28,7 @@ export default function FriendsPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    document.title = "Friends - briefica";
+    document.title = "friends - briefica";
   }, []);
 
   useEffect(() => {

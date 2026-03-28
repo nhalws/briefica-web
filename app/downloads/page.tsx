@@ -13,7 +13,7 @@ export default function DownloadsPage() {
   const [checking, setChecking] = useState(true);
 
   useEffect(() => {
-    document.title = "Download — briefica";
+    document.title = "downloads - briefica";
   }, []);
 
   useEffect(() => {

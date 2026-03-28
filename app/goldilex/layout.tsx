@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'goldilex v1 (lex)',
+  title: 'goldilex - briefica',
   description: 'patent-protected legal analysis chatbot - based on your actual course materials',
   icons: {
     icon: [

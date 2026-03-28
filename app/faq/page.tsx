@@ -2,11 +2,12 @@
 
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Footer from "../components/Footer";
 
 export default function FAQPage() {
   const router = useRouter();
+  useEffect(() => { document.title = "faq - briefica"; }, []);
   const [openSection, setOpenSection] = useState<string | null>(null);
   const [openSubsection, setOpenSubsection] = useState<string | null>(null);
   const [openQuestion, setOpenQuestion] = useState<string | null>(null);

@@ -87,6 +87,7 @@ export default function ArtifactPage() {
         return;
       }
       setArtifact(a);
+      document.title = `${a.title} - briefica`;
       setNewVisibility(a.visibility);
 
       const { data: p, error: pErr } = await supabase
