@@ -24,6 +24,9 @@
   --inlay:   rgba(255,255,255,0.06);
   --inlay-sm: rgba(255,255,255,0.03);
   --hover:   rgba(255,255,255,0.05);
+
+  --stripe-hi: #353535;
+  --stripe-lo: #181818;
 }
 
 /* ── Light theme ── */
@@ -47,6 +50,9 @@ html.light {
   --inlay:   rgba(0,0,0,0.05);
   --inlay-sm: rgba(0,0,0,0.03);
   --hover:   rgba(0,0,0,0.04);
+
+  --stripe-hi: #ffffff;
+  --stripe-lo: #e9e9ec;
 }
 
 @theme inline {

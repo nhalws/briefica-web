@@ -993,7 +993,8 @@ export default function HomePage() {
       {/* ── B-WEB ── */}
       <section
         id="bweb"
-        className="fade-up bg-card border-t border-b border-white/10"
+        className="fade-up border-t border-b border-white/10"
+        style={{ background: "var(--stripe-hi)" }}
       >
         <div className="max-w-6xl mx-auto px-6 py-20">
           <h2
@@ -1050,7 +1051,8 @@ export default function HomePage() {
       </section>
 
       {/* ── PRICING ── */}
-      <div id="pricing" className="fade-up max-w-6xl mx-auto px-6 py-20">
+      <section id="pricing" className="fade-up border-t border-b border-white/10" style={{ background: "var(--stripe-lo)" }}>
+      <div className="max-w-6xl mx-auto px-6 py-20">
         <h2 className="font-bold text-center mb-3" style={{ fontSize: "clamp(24px,3vw,36px)" }}>
           Simple pricing.
         </h2>
@@ -1208,9 +1210,11 @@ export default function HomePage() {
           <span style={{ color: "#f0c040" }}>briefica 7 · horizon</span> — the full AI-powered workspace.
         </p>
       </div>
+      </section>
 
-      {/* ── STATS ── */}
-      <div className="fade-up max-w-6xl mx-auto px-6 pb-20">
+      {/* ── STATS + CTA ── */}
+      <section className="fade-up border-t border-b border-white/10" style={{ background: "var(--stripe-hi)" }}>
+      <div className="max-w-6xl mx-auto px-6 pb-20 pt-20">
         <div
           className="grid grid-cols-2 md:grid-cols-4 border border-white/10 rounded-2xl overflow-hidden bg-card"
         >
@@ -1238,8 +1242,8 @@ export default function HomePage() {
       </div>
 
       {/* ── CTA ── */}
-      <div className="fade-up max-w-6xl mx-auto px-6 pb-20">
-        <div className="border border-white/10 bg-card rounded-2xl p-20 text-center">
+      <div className="max-w-6xl mx-auto px-6 pb-20">
+        <div className="border border-white/10 rounded-2xl p-20 text-center" style={{ background: "var(--card)" }}>
           <h2
             className="font-extrabold uppercase mb-4"
             style={{ fontSize: "clamp(32px,4vw,52px)", letterSpacing: "-1px" }}
@@ -1266,6 +1270,7 @@ export default function HomePage() {
           </div>
         </div>
       </div>
+      </section>
 
       <Footer />
     </main>
