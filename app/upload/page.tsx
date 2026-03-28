@@ -410,7 +410,7 @@ export default function UploadPage() {
             onClick={handleUpload}
             disabled={uploading || !title.trim() || !file}
             className="w-full py-3 rounded-lg text-white font-medium hover:opacity-90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            style={{ backgroundColor: "#66b2ff" }}
+            style={{ backgroundColor: "#66b2ff", color: "white" }}
           >
             {uploading ? "Uploading..." : "Upload Artifact"}
           </button>

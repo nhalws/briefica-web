@@ -82,7 +82,9 @@ html.light .bg-white\/8       { background-color: rgba(0,0,0,0.05)  !important; 
 html.light .bg-white\/10      { background-color: rgba(0,0,0,0.06)  !important; }
 
 html.light .hover\:bg-white\/5:hover  { background-color: rgba(0,0,0,0.04) !important; }
-html.light .hover\:text-white:hover   { color: var(--t) !important; }
+html.light .hover\:text-white:hover   { color: #66b2ff !important; }
+html.light .hover\:text-white\/80:hover { color: #66b2ff !important; }
+html.light .hover\:text-white\/70:hover { color: #66b2ff !important; }
 html.light .hover\:bg-\[#242424\]:hover { background-color: var(--card-alt) !important; }
 
 html.light .placeholder-white\/40::placeholder { color: rgba(0,0,0,0.35) !important; }
