@@ -393,7 +393,7 @@ export default function ArtifactPage() {
 
   if (!artifactId) {
     return (
-      <main className="min-h-screen bg-[#2b2b2b] text-white p-6">
+      <main className="min-h-screen bg-section-bg text-[var(--t)] p-6">
         <p className="text-white/70">Loading...</p>
       </main>
     );
@@ -401,7 +401,7 @@ export default function ArtifactPage() {
 
   if (!artifact) {
     return (
-      <main className="min-h-screen bg-[#2b2b2b] text-white p-6">
+      <main className="min-h-screen bg-section-bg text-[var(--t)] p-6">
         <p className="text-white/70">{msg ?? "Loading..."}</p>
         <button
           className="mt-4 border border-white/20 rounded px-3 py-2 hover:bg-white/5 transition-colors"
@@ -414,7 +414,7 @@ export default function ArtifactPage() {
   }
 
   return (
-    <main className="min-h-screen bg-[#2b2b2b] text-white p-6">
+    <main className="min-h-screen bg-section-bg text-[var(--t)] p-6">
       <div className="max-w-5xl mx-auto">
         <button
           className="mb-4 text-white/70 hover:text-white flex items-center gap-2"
@@ -425,7 +425,7 @@ export default function ArtifactPage() {
           </svg>
           Back to dashboard
         </button>
-        <div className="border border-white/10 bg-[#1e1e1e] rounded-2xl p-6">
+        <div className="border border-white/10 bg-card rounded-2xl p-6">
           {/* Header with author info - fully stacked vertically */}
           {uploader?.username ? (
             <div className="flex flex-col items-start gap-2 mb-4">
@@ -549,7 +549,7 @@ export default function ArtifactPage() {
               <select
                 value={newVisibility}
                 onChange={(e) => setNewVisibility(e.target.value as Artifact["visibility"])}
-                className="px-3 py-2 rounded-lg bg-[#2b2b2b] border border-white/20 focus:border-white/40 focus:outline-none"
+                className="px-3 py-2 rounded-lg border border-white/20 focus:border-white/40 focus:outline-none text-[var(--t)]" style={{ background: "var(--inlay)" }}
               >
                 <option value="public">Public</option>
                 <option value="friends">Friends only</option>
@@ -586,7 +586,7 @@ export default function ArtifactPage() {
         {/* BB Download Confirmation Modal */}
         {showDownloadConfirm && artifact && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
-            <div className="bg-[#1e1e1e] border border-white/20 rounded-2xl p-6 max-w-sm w-full mx-4">
+            <div className="bg-card border border-white/20 rounded-2xl p-6 max-w-sm w-full mx-4">
               <h2 className="text-lg font-semibold mb-2">Confirm Download</h2>
               {artifact.type === "bset" ? (
                 <p className="text-white/70 text-sm mb-6">
@@ -629,7 +629,7 @@ export default function ArtifactPage() {
                 onChange={(e) => setNewComment(e.target.value)}
                 placeholder="Add a comment..."
                 rows={3}
-                className="w-full px-4 py-2 rounded-lg bg-[#2b2b2b] border border-white/20 focus:border-white/40 focus:outline-none resize-none"
+                className="w-full px-4 py-2 rounded-lg border border-white/20 focus:border-white/40 focus:outline-none resize-none text-[var(--t)]" style={{ background: "var(--inlay)" }}
               />
               <button
                 onClick={postComment}
@@ -650,7 +650,7 @@ export default function ArtifactPage() {
             {comments.map((comment) => (
               <div
                 key={comment.id}
-                className="border border-white/10 rounded-lg p-4 bg-[#2b2b2b]"
+                className="border border-white/10 rounded-lg p-4" style={{ background: "var(--inlay)" }}
               >
                 <div className="flex items-center justify-between mb-2">
                   <button

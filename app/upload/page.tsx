@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { supabase } from "../lib/supabaseClient";
 import { ABA_LAW_SCHOOLS } from "../lib/lawschools";
+import { useTheme } from "../context/ThemeContext";
 
 type Subject = {
   id: string;
@@ -14,6 +15,7 @@ type Subject = {
 
 export default function UploadPage() {
   const router = useRouter();
+  const { theme, toggle } = useTheme();
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [userSchool, setUserSchool] = useState<string | null>(null);
   const [title, setTitle] = useState("");
@@ -183,7 +185,7 @@ export default function UploadPage() {
   }
 
   return (
-    <main className="min-h-screen bg-[#2b2b2b] text-white p-6">
+    <main className="min-h-screen bg-section-bg text-[var(--t)] p-6">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
@@ -197,17 +199,26 @@ export default function UploadPage() {
             Back to dashboard
           </button>
 
-          <Image
-            src="/logo_6.png"
-            alt="briefica"
-            width={140}
-            height={42}
-            className="object-contain"
-          />
+          <div className="flex items-center gap-3">
+            <button
+              onClick={toggle}
+              className="inline-flex items-center justify-center rounded-lg border border-white/20 bg-white/10 px-3 py-2 hover:bg-white/15 transition-colors text-sm"
+              aria-label="Toggle theme"
+            >
+              {theme === "dark" ? "☀️" : "🌙"}
+            </button>
+            <Image
+              src="/logo_6.png"
+              alt="briefica"
+              width={140}
+              height={42}
+              className="object-contain"
+            />
+          </div>
         </div>
 
         {/* Upload Form */}
-        <div className="border border-white/10 bg-[#1e1e1e] rounded-2xl p-8">
+        <div className="border border-white/10 bg-card rounded-2xl p-8">
           <h1 className="text-3xl font-bold mb-6">upload to briefica</h1>
 
           {error && (
@@ -261,7 +272,7 @@ export default function UploadPage() {
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="e.g., CrimPro Final Outline"
-              className="w-full px-4 py-2 rounded-lg bg-[#2b2b2b] border border-white/20 focus:border-white/40 focus:outline-none"
+              className="w-full px-4 py-2 rounded-lg border border-white/20 focus:border-white/40 focus:outline-none text-[var(--t)]" style={{ background: "var(--inlay)" }}
             />
           </div>
 
@@ -273,7 +284,7 @@ export default function UploadPage() {
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Brief description of your artifact..."
               rows={3}
-              className="w-full px-4 py-2 rounded-lg bg-[#2b2b2b] border border-white/20 focus:border-white/40 focus:outline-none resize-none"
+              className="w-full px-4 py-2 rounded-lg border border-white/20 focus:border-white/40 focus:outline-none resize-none text-[var(--t)]" style={{ background: "var(--inlay)" }}
             />
           </div>
 
@@ -285,7 +296,7 @@ export default function UploadPage() {
             <select
               value={school}
               onChange={(e) => handleSchoolChange(e.target.value)}
-              className="w-full px-4 py-2 rounded-lg bg-[#2b2b2b] border border-white/20 focus:border-white/40 focus:outline-none"
+              className="w-full px-4 py-2 rounded-lg border border-white/20 focus:border-white/40 focus:outline-none text-[var(--t)]" style={{ background: "var(--inlay)" }}
             >
               <option value="">Select school (optional)</option>
               {ABA_LAW_SCHOOLS.map((schoolName) => (
@@ -341,7 +352,7 @@ export default function UploadPage() {
               value={tags}
               onChange={(e) => setTags(e.target.value)}
               placeholder="e.g., fall 2025, langer, final exam"
-              className="w-full px-4 py-2 rounded-lg bg-[#2b2b2b] border border-white/20 focus:border-white/40 focus:outline-none"
+              className="w-full px-4 py-2 rounded-lg border border-white/20 focus:border-white/40 focus:outline-none text-[var(--t)]" style={{ background: "var(--inlay)" }}
             />
             <p className="text-xs text-white/50 mt-1">
               Comma-separated tags to help others find your artifact
@@ -355,7 +366,7 @@ export default function UploadPage() {
               type="file"
               onChange={(e) => setFile(e.target.files?.[0] || null)}
               accept=".bset,.bmod,.tbank"
-              className="w-full px-4 py-2 rounded-lg bg-[#2b2b2b] border border-white/20 focus:border-white/40 focus:outline-none"
+              className="w-full px-4 py-2 rounded-lg border border-white/20 focus:border-white/40 focus:outline-none text-[var(--t)]" style={{ background: "var(--inlay)" }}
             />
             <p className="text-xs text-white/50 mt-1">
               Accepted formats: .bset, .bmod, .tbank

@@ -4,9 +4,11 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { useState } from "react";
 import Footer from "../components/Footer";
+import { useTheme } from "../context/ThemeContext";
 
 export default function FAQPage() {
   const router = useRouter();
+  const { theme, toggle } = useTheme();
   const [openSection, setOpenSection] = useState<string | null>(null);
   const [openSubsection, setOpenSubsection] = useState<string | null>(null);
   const [openQuestion, setOpenQuestion] = useState<string | null>(null);
@@ -46,7 +48,7 @@ export default function FAQPage() {
   ];
 
   return (
-    <main className="min-h-screen bg-[#2b2b2b] text-white p-6">
+    <main className="min-h-screen bg-section-bg text-[var(--t)] p-6">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
@@ -60,13 +62,22 @@ export default function FAQPage() {
             Back to dashboard
           </button>
 
-          <Image
-            src="/logo_6.png"
-            alt="briefica"
-            width={140}
-            height={42}
-            className="object-contain"
-          />
+          <div className="flex items-center gap-3">
+            <button
+              onClick={toggle}
+              className="inline-flex items-center justify-center rounded-lg border border-white/20 bg-white/10 px-3 py-2 hover:bg-white/15 transition-colors text-sm"
+              aria-label="Toggle theme"
+            >
+              {theme === "dark" ? "☀️" : "🌙"}
+            </button>
+            <Image
+              src="/logo_6.png"
+              alt="briefica"
+              width={140}
+              height={42}
+              className="object-contain"
+            />
+          </div>
         </div>
 
         <h1 className="text-4xl font-bold mb-2">manual</h1>
@@ -74,7 +85,7 @@ export default function FAQPage() {
 
         <div className="space-y-3">
           {/* SECTION 1: What is briefica? */}
-          <div className="border border-white/10 bg-[#1e1e1e] rounded-xl overflow-hidden">
+          <div className="border border-white/10 bg-card rounded-xl overflow-hidden">
             <button
               onClick={() => toggleSection("what-is-briefica")}
               className="w-full flex items-center justify-between p-4 text-left hover:bg-white/5 transition-colors"
@@ -563,7 +574,7 @@ export default function FAQPage() {
           </div>
 
           {/* SECTION 2: What is a .bset? */}
-          <div className="border border-white/10 bg-[#1e1e1e] rounded-xl overflow-hidden">
+          <div className="border border-white/10 bg-card rounded-xl overflow-hidden">
             <button
               onClick={() => toggleSection("what-is-bset")}
               className="w-full flex items-center justify-between p-4 text-left hover:bg-white/5 transition-colors"
@@ -609,7 +620,7 @@ export default function FAQPage() {
                         <input
                           type="text"
                           placeholder="347 U.S. 483 (1954)"
-                          className="w-full bg-[#1e1e1e] border border-white/20 rounded px-3 py-2 text-white text-sm placeholder-white/40 focus:outline-none focus:border-white/40"
+                          className="w-full bg-card border border-white/20 rounded px-3 py-2 text-white text-sm placeholder-white/40 focus:outline-none focus:border-white/40"
                         />
                       </div>
 
@@ -621,7 +632,7 @@ export default function FAQPage() {
                         <input
                           type="text"
                           placeholder="Brown v. Board of Education"
-                          className="w-full bg-[#1e1e1e] border border-white/20 rounded px-3 py-2 text-white text-sm placeholder-white/40 focus:outline-none focus:border-white/40"
+                          className="w-full bg-card border border-white/20 rounded px-3 py-2 text-white text-sm placeholder-white/40 focus:outline-none focus:border-white/40"
                         />
                       </div>
 
@@ -633,7 +644,7 @@ export default function FAQPage() {
                         <input
                           type="text"
                           placeholder="Constitutional Law"
-                          className="w-full bg-[#1e1e1e] border border-white/20 rounded px-3 py-2 text-white text-sm placeholder-white/40 focus:outline-none focus:border-white/40"
+                          className="w-full bg-card border border-white/20 rounded px-3 py-2 text-white text-sm placeholder-white/40 focus:outline-none focus:border-white/40"
                         />
                       </div>
 
@@ -645,7 +656,7 @@ export default function FAQPage() {
                         <textarea
                           placeholder="Black children were denied admission to public schools attended by white children under state laws requiring or permitting racial segregation in public education."
                           rows={3}
-                          className="w-full bg-[#1e1e1e] border border-white/20 rounded px-3 py-2 text-white text-sm placeholder-white/40 focus:outline-none focus:border-white/40 resize-none"
+                          className="w-full bg-card border border-white/20 rounded px-3 py-2 text-white text-sm placeholder-white/40 focus:outline-none focus:border-white/40 resize-none"
                         />
                       </div>
 
@@ -657,7 +668,7 @@ export default function FAQPage() {
                         <textarea
                           placeholder="Does racial segregation in public schools violate the Equal Protection Clause of the Fourteenth Amendment?"
                           rows={2}
-                          className="w-full bg-[#1e1e1e] border border-white/20 rounded px-3 py-2 text-white text-sm placeholder-white/40 focus:outline-none focus:border-white/40 resize-none"
+                          className="w-full bg-card border border-white/20 rounded px-3 py-2 text-white text-sm placeholder-white/40 focus:outline-none focus:border-white/40 resize-none"
                         />
                       </div>
 
@@ -669,7 +680,7 @@ export default function FAQPage() {
                         <textarea
                           placeholder="Yes. Racial segregation in public schools violates the Equal Protection Clause."
                           rows={2}
-                          className="w-full bg-[#1e1e1e] border border-white/20 rounded px-3 py-2 text-white text-sm placeholder-white/40 focus:outline-none focus:border-white/40 resize-none"
+                          className="w-full bg-card border border-white/20 rounded px-3 py-2 text-white text-sm placeholder-white/40 focus:outline-none focus:border-white/40 resize-none"
                         />
                       </div>
 
@@ -681,7 +692,7 @@ export default function FAQPage() {
                         <textarea
                           placeholder="State-imposed segregation in public education is unconstitutional when it denies students equal protection of the laws."
                           rows={2}
-                          className="w-full bg-[#1e1e1e] border border-white/20 rounded px-3 py-2 text-white text-sm placeholder-white/40 focus:outline-none focus:border-white/40 resize-none"
+                          className="w-full bg-card border border-white/20 rounded px-3 py-2 text-white text-sm placeholder-white/40 focus:outline-none focus:border-white/40 resize-none"
                         />
                       </div>
                     </div>
@@ -767,7 +778,7 @@ export default function FAQPage() {
                               
                               {/* Color Picker Dropdown */}
                               {showColorPicker && (
-                                <div className="absolute top-14 left-0 z-50 bg-[#1e1e1e] border border-white/20 rounded-lg p-3 shadow-2xl">
+                                <div className="absolute top-14 left-0 z-50 bg-card border border-white/20 rounded-lg p-3 shadow-2xl">
                                   <div className="mb-2 text-xs text-white/70">Choose a color:</div>
                                   <div className="grid grid-cols-5 gap-2 mb-3">
                                     {presetColors.map((color) => (
@@ -851,7 +862,7 @@ export default function FAQPage() {
           </div>
         </div>
 
-        <div className="mt-8 border border-white/10 bg-[#1e1e1e] rounded-xl p-6 text-center">
+        <div className="mt-8 border border-white/10 bg-card rounded-xl p-6 text-center">
           <h2 className="text-xl font-bold mb-2">Still have questions?</h2>
           <p className="text-white/70 mb-4">We're here to help!</p>
           <p className="text-sm text-white/60">Contact us at: <a href="mailto:support@briefica.com" className="text-blue-400 hover:underline">support@briefica.com</a></p>

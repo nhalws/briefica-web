@@ -53,7 +53,7 @@ export default function GoldilexPage() {
 
   if (checking) {
     return (
-      <main className="min-h-screen flex items-center justify-center bg-[#1e1e1e] text-white">
+      <main className="min-h-screen flex items-center justify-center bg-section-bg text-[var(--t)]">
         Checking access...
       </main>
     );
