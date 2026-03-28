@@ -122,7 +122,7 @@ export default function SubjectPreferences({
 
   if (!userSchool) {
     return (
-      <div className="border border-white/10 bg-[#1e1e1e] rounded-2xl p-4">
+      <div className="border border-white/10 bg-card rounded-2xl p-4">
         <h2 className="font-semibold mb-2">Subject Preferences</h2>
         <p className="text-sm text-white/60">
           Set your law school in your profile to select subject preferences.
@@ -133,7 +133,7 @@ export default function SubjectPreferences({
 
   if (loading) {
     return (
-      <div className="border border-white/10 bg-[#1e1e1e] rounded-2xl p-4">
+      <div className="border border-white/10 bg-card rounded-2xl p-4">
         <h2 className="font-semibold mb-2">Subject Preferences</h2>
         <p className="text-sm text-white/60">Loading...</p>
       </div>
@@ -141,7 +141,7 @@ export default function SubjectPreferences({
   }
 
   return (
-    <div className="border border-white/10 bg-[#1e1e1e] rounded-2xl p-4">
+    <div className="border border-white/10 bg-card rounded-2xl p-4">
       <div className="flex items-center justify-between mb-3">
         <h2 className="font-semibold">Subject Preferences</h2>
         {!isEditing && (

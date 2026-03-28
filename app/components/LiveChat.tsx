@@ -165,7 +165,7 @@ export default function LiveChat({ currentUserId, username, userSchool, large = 
 
   if (!isJoined) {
     return (
-      <div className="border border-white/10 bg-[#1e1e1e] rounded-2xl p-4">
+      <div className="border border-white/10 bg-card rounded-2xl p-4">
         <div className="flex items-center justify-between mb-3">
           <h2 className="font-semibold">Live Chat</h2>
         </div>
@@ -184,7 +184,7 @@ export default function LiveChat({ currentUserId, username, userSchool, large = 
   }
 
   return (
-    <div className="border border-white/10 bg-[#1e1e1e] rounded-2xl overflow-hidden flex flex-col" style={{ height: chatHeight }}>
+    <div className="border border-white/10 bg-card rounded-2xl overflow-hidden flex flex-col" style={{ height: chatHeight }}>
       {/* Header */}
       <div className="p-3 border-b border-white/10 flex items-center justify-between">
         <h2 className="font-semibold">Live Chat</h2>
@@ -207,7 +207,7 @@ export default function LiveChat({ currentUserId, username, userSchool, large = 
               @{msg.username}
             </span>
             <span className="text-white/60 mx-2">·</span>
-            <span className="text-white/90">{msg.message}</span>
+            <span className="text-[var(--t80)]">{msg.message}</span>
           </div>
         ))}
         <div ref={messagesEndRef} />
@@ -222,7 +222,7 @@ export default function LiveChat({ currentUserId, username, userSchool, large = 
             onChange={(e) => setNewMessage(e.target.value)}
             onKeyPress={handleKeyPress}
             placeholder={`Message ${channels.find(c => c.id === activeTab)?.label || '#main'}...`}
-            className="flex-1 px-3 py-2 rounded-lg bg-[#2b2b2b] border border-white/20 focus:border-white/40 focus:outline-none text-sm"
+            className="flex-1 px-3 py-2 rounded-lg border border-white/20 focus:border-white/40 focus:outline-none text-sm text-[var(--t)]" style={{ background: "var(--inlay)" }}
           />
           <button
             onClick={sendMessage}
