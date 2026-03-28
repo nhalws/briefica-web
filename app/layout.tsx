@@ -14,14 +14,14 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "briefica",
+  title: "briefica: a true law school workspace",
   description: "A true law school workspace.",
   icons: {
     icon: "/favicon.png",
     apple: "/apple-touch-icon.png", // optional but recommended
   },
   openGraph: {
-    title: "briefica",
+    title: "briefica: a true law school workspace",
     description: "A true law school workspace.",
     url: "https://briefica.com",
     siteName: "briefica",
@@ -37,7 +37,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary",
-    title: "briefica",
+    title: "briefica: a true law school workspace",
     description: "A true law school workspace.",
     images: ["https://briefica.com/favicon.png"],
   },
