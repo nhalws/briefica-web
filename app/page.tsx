@@ -17,6 +17,35 @@ export default function HomePage() {
   const vizCanvasRef = useRef<HTMLDivElement>(null);
   const vizSvgRef = useRef<SVGSVGElement>(null);
 
+  // Typewriter for goldilex headline
+  const GOLDILEX_FULL = "meet goldilex, the legal AI that knows\nyour materials.";
+  const [goldilexTyped, setGoldilexTyped] = useState("");
+  const [goldilexStarted, setGoldilexStarted] = useState(false);
+  const goldilexSectionRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    const el = goldilexSectionRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { setGoldilexStarted(true); observer.disconnect(); } },
+      { threshold: 0.3 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (!goldilexStarted) return;
+    let i = 0;
+    setGoldilexTyped("");
+    const id = setInterval(() => {
+      i++;
+      setGoldilexTyped(GOLDILEX_FULL.slice(0, i));
+      if (i >= GOLDILEX_FULL.length) clearInterval(id);
+    }, 38);
+    return () => clearInterval(id);
+  }, [goldilexStarted]);
+
   useEffect(() => {
     async function checkAuth() {
       const { data } = await supabase.auth.getUser();
@@ -613,10 +642,10 @@ export default function HomePage() {
       {/* ── HOW IT WORKS ── */}
       <section id="how" className="fade-up bg-card border-t border-b border-white/10">
       <div className="max-w-6xl mx-auto px-6 py-20">
-        <h2 className="font-bold mb-2" style={{ fontSize: "clamp(24px,3vw,36px)" }}>
+        <h2 className="font-bold mb-2 text-center" style={{ fontSize: "clamp(24px,3vw,36px)" }}>
           How it works.
         </h2>
-        <p className="text-sm text-white/70 leading-relaxed mb-10">
+        <p className="text-sm text-white/70 leading-relaxed mb-10 text-center max-w-xl mx-auto">
           One file. Everything flows from it. Build your library, construct your outline, study with AI,
           export and walk into the exam.
         </p>
@@ -787,8 +816,30 @@ export default function HomePage() {
       {/* ── GOLDILEX ── */}
       <section
         id="goldilex"
+        ref={goldilexSectionRef}
         className="fade-up bg-card border-t border-b border-white/10"
       >
+        {/* Typewriter headline */}
+        <div className="max-w-6xl mx-auto px-6 pt-16 pb-2 text-center">
+          <p
+            className="font-light leading-snug"
+            style={{ fontSize: "clamp(22px,3vw,38px)", minHeight: "2.8em" }}
+          >
+            {goldilexTyped.split("goldilex").map((part, i, arr) => (
+              <span key={i}>
+                {part}
+                {i < arr.length - 1 && (
+                  <span style={{ fontFamily: "'Courier New', Courier, monospace", color: "#f0c040" }}>
+                    goldilex
+                  </span>
+                )}
+              </span>
+            ))}
+            {goldilexTyped.length < GOLDILEX_FULL.length && (
+              <span className="animate-pulse" style={{ color: "#f0c040" }}>|</span>
+            )}
+          </p>
+        </div>
         <div className="max-w-6xl mx-auto px-6 py-20 grid md:grid-cols-2 gap-16 items-center">
           <div>
             <div
