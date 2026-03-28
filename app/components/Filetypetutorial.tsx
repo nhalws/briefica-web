@@ -94,7 +94,7 @@ export default function FileTypeTutorial({ fileType }: FileTypeTutorialProps) {
   if (!tutorial) return null;
 
   return (
-    <div className="border border-white/10 bg-[#1e1e1e] rounded-xl overflow-hidden mb-4">
+    <div className="border border-white/10 bg-card rounded-xl overflow-hidden mb-4">
       <button
         onClick={() => setIsExpanded(!isExpanded)}
         className="w-full flex items-center justify-between p-4 hover:bg-white/5 transition-colors text-left"

@@ -616,7 +616,7 @@ export default function ArtifactPage() {
         )}
 
         {/* COMMENTS SECTION */}
-        <div className="mt-6 border border-white/10 bg-[#1e1e1e] rounded-2xl p-6">
+        <div className="mt-6 border border-white/10 bg-card rounded-2xl p-6">
           <h2 className="text-lg font-semibold mb-4">
             Comments ({comments.length})
           </h2>
