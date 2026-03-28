@@ -743,6 +743,7 @@ export default function HomePage() {
                     transform: xform,
                     borderRadius: "50%",
                     background: "rgba(102,178,255,0.72)",
+                    border: anchor ? "2px solid rgba(255,255,255,0.85)" : "1.5px solid rgba(255,255,255,0.65)",
                     boxShadow: anchor
                       ? "0 0 22px rgba(102,178,255,0.4)"
                       : "0 0 10px rgba(102,178,255,0.2)",
@@ -792,7 +793,7 @@ export default function HomePage() {
               6.5 + briefica: gold
             </div>
             <h2 className="font-bold mb-3.5 leading-snug" style={{ fontSize: "clamp(24px,3vw,36px)" }}>
-              See how your cases connect.
+              See how legal authorities connect.
             </h2>
             <p className="text-sm text-white/70 leading-relaxed mb-3">
               Select any authority and the visualizer surfaces which other cases in your briefset share
