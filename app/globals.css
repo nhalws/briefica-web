@@ -51,8 +51,8 @@ html.light {
   --inlay-sm: rgba(0,0,0,0.03);
   --hover:   rgba(0,0,0,0.04);
 
-  --stripe-hi: #ffffff;
-  --stripe-lo: #e9e9ec;
+  --stripe-hi: #e8e8ec;
+  --stripe-lo: #f8f8fb;
 }
 
 @theme inline {
