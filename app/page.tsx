@@ -856,9 +856,9 @@ export default function HomePage() {
               className="font-extrabold leading-tight mb-4"
               style={{ fontSize: "clamp(28px,3.5vw,42px)", letterSpacing: "-0.5px" }}
             >
-              AI that knows
+              Review your study materials
               <br />
-              your materials.
+              with built-in AI.
             </h2>
             <p className="text-sm text-white/70 leading-relaxed mb-7">
               goldilex is briefica&apos;s built-in AI tutor. Unlike general legal AI, goldilex is grounded
