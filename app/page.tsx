@@ -633,8 +633,8 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* Steps — 3-col grid below */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {/* Steps — flex wrap, centered so last row is always centered */}
+        <div className="flex flex-wrap justify-center gap-4">
           {[
             { n: 1, title: "download briefica",  desc: "Get the native macOS desktop app. Free for all law students.",                                   tag: "v6 free", gold: false },
             { n: 2, title: "build your library",  desc: "Add cases with citation, facts, holding, and rule — saved to one .bset file.",                  tag: "v6 + v7", gold: false },
@@ -644,7 +644,7 @@ export default function HomePage() {
           ].map(({ n, title, desc, tag, gold }) => (
             <div
               key={n}
-              className="rounded-xl p-5 border border-white/8 flex flex-col gap-3"
+              className="rounded-xl p-5 border border-white/8 flex flex-col gap-3 w-full sm:w-[calc(50%-8px)] lg:w-[calc(33.333%-11px)]"
               style={{ background: "var(--inlay-sm)" }}
             >
               <div className="flex items-center gap-3">
