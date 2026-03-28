@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import type { BSetFile, BSetItem, GenerationResponse, TaxonomyEntry, TaxonomyNode } from '@/types/bset';
+import { useTheme } from '@/app/context/ThemeContext';
 
 type Message = {
   role: 'user' | 'assistant';
@@ -33,6 +34,7 @@ function buildTreeFromHeadings(headings: TaxonomyNode[]): TaxonomyEntry[] {
 }
 
 export default function GoldilexInterface() {
+  const { theme, toggle } = useTheme();
   const [bsetFile, setBsetFile] = useState<BSetFile | null>(null);
   const [bsetFileName, setBsetFileName] = useState<string>('');
   const [query, setQuery] = useState('');
@@ -990,6 +992,14 @@ Format bold text like this: **text to bold**`,
             >
               ← Back to dashboard
             </a>
+            <button
+              onClick={toggle}
+              className="text-xs px-2 py-1 rounded border border-white/20 hover:bg-white/10 transition-colors"
+              style={{ color: 'var(--t60)' }}
+              aria-label="Toggle theme"
+            >
+              {theme === 'dark' ? '☀️' : '🌙'}
+            </button>
             <input
               ref={fileInputRef}
               type="file"
@@ -1070,7 +1080,7 @@ Format bold text like this: **text to bold**`,
               {/* Welcome */}
               {messages.length === 0 && !bsetFile && (
                 <div className="flex gap-4 mb-6">
-                  <div className="flex-1 text-gray-300 text-sm leading-relaxed pt-1 whitespace-pre-wrap">
+                  <div className="flex-1 text-sm leading-relaxed pt-1 whitespace-pre-wrap" style={{ color: 'var(--t80)' }}>
                     {renderWelcome(welcomeText)}
                     {welcomeText.length > 0 && welcomeText.length < 250 && (
                       <span className="inline-block w-1 h-4 bg-gray-400 ml-0.5 animate-pulse" />
@@ -1082,7 +1092,7 @@ Format bold text like this: **text to bold**`,
               {/* Loaded */}
               {bsetFile && messages.length === 0 && (
                 <div className="flex gap-4 mb-6">
-                  <div className="flex-1 text-gray-300 text-sm leading-relaxed pt-1">
+                  <div className="flex-1 text-sm leading-relaxed pt-1" style={{ color: 'var(--t80)' }}>
                     <p className="mb-1">
                       <span className="font-semibold" style={{ color: '#BF9B30' }}>
                         knowledge base loaded!
@@ -1114,7 +1124,7 @@ Format bold text like this: **text to bold**`,
                     </div>
                   ) : (
                     <div className="flex gap-4">
-                      <div className="flex-1 text-gray-300 text-sm leading-relaxed pt-1 whitespace-pre-wrap">
+                      <div className="flex-1 text-sm leading-relaxed pt-1 whitespace-pre-wrap" style={{ color: 'var(--t80)' }}>
                         {renderBold(msg.content)}
                       </div>
                     </div>
@@ -1126,9 +1136,9 @@ Format bold text like this: **text to bold**`,
               {isStreaming && (
                 <div className="mb-6 msg-fade-in">
                   <div className="flex gap-4">
-                    <div className="flex-1 text-gray-300 text-sm leading-relaxed pt-1 whitespace-pre-wrap">
+                    <div className="flex-1 text-sm leading-relaxed pt-1 whitespace-pre-wrap" style={{ color: 'var(--t80)' }}>
                       {renderBold(displayText)}
-                      <span className="inline-block w-1 h-4 bg-gray-400 ml-0.5 animate-pulse" />
+                      <span className="inline-block w-1 h-4 ml-0.5 animate-pulse" style={{ background: 'var(--t60)' }} />
                     </div>
                   </div>
                 </div>
@@ -1137,7 +1147,7 @@ Format bold text like this: **text to bold**`,
               {/* Thinking */}
               {loading && (
                 <div className="flex gap-4 mb-6">
-                  <div className="flex-1 text-gray-400 text-sm italic pt-1">hmm...</div>
+                  <div className="flex-1 text-sm italic pt-1" style={{ color: 'var(--t60)' }}>hmm...</div>
                 </div>
               )}
 
@@ -1160,7 +1170,7 @@ Format bold text like this: **text to bold**`,
           {bsetFile && (
             <div
               className="flex-shrink-0 border-t"
-              style={{ borderColor: '#3a3a3a', backgroundColor: '#2a2a2a' }}
+              style={{ borderColor: 'var(--border)', background: 'var(--card-alt)' }}
             >
               <div className="max-w-3xl mx-auto px-4 py-4">
                 <form onSubmit={handleSubmit} className="flex gap-3">
@@ -1169,8 +1179,8 @@ Format bold text like this: **text to bold**`,
                     value={query}
                     onChange={e => setQuery(e.target.value)}
                     placeholder="message goldilex..."
-                    className="flex-1 px-4 py-3 bg-[#40414f] border-2 rounded-xl text-white placeholder-gray-500 focus:outline-none text-sm"
-                    style={{ borderColor: '#BF9B30' }}
+                    className="flex-1 px-4 py-3 border-2 rounded-xl focus:outline-none text-sm"
+                    style={{ background: 'var(--inlay)', color: 'var(--t)', borderColor: '#BF9B30' }}
                     disabled={loading || isStreaming}
                   />
                   <button
@@ -1204,7 +1214,7 @@ Format bold text like this: **text to bold**`,
           style={{
             width: showRightPanel ? '300px' : '0',
             transition: 'width 0.28s cubic-bezier(0.4, 0, 0.2, 1)',
-            borderLeft: showRightPanel ? '1px solid #2e2e2e' : 'none',
+            borderLeft: showRightPanel ? '1px solid var(--border)' : 'none',
             backgroundColor: '#1a1a1a',
           }}
         >
