@@ -355,7 +355,7 @@ export default function HomePage() {
             }}
           >
             <span className="hero-line1">A NEW WAY TO OUTLINE?</span>
-            <span className="hero-line2" style={{ color: "#fff" }}>
+            <span className="hero-line2">
               TIME TO MAKE A{" "}
               <span style={{ color: "#66b2ff" }}>B-LINE.</span>
             </span>

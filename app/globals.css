@@ -143,6 +143,8 @@ html.light .hover\:bg-white\/90:hover { background-color: rgba(26,26,26,0.85) !i
 .hero-title {
   animation: heroGlowFade 2.8s ease-out forwards;
 }
+.hero-line1, .hero-line2 { color: #ffffff; }
+html.light .hero-line1, html.light .hero-line2 { color: #1a1a1a !important; }
 
 /* ── Hero buttons ── */
 .btn-hero-primary {
