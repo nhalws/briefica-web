@@ -500,7 +500,7 @@ export default function DashboardPage() {
 
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
-            <Image src="/logo_6.png" alt="briefica" width={160} height={48} className="object-contain" />
+            <Image src="/logo_6.png" alt="briefica" width={160} height={48} className="object-contain cursor-pointer" onClick={() => router.push("/")} />
             <div className="w-14 h-14 text-white/90">
               <svg viewBox="0 0 64 64" className="w-full h-full">
                 <g transform="skewX(-8) skewY(5)">
