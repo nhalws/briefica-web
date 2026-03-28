@@ -9,7 +9,6 @@ import SchoolCommunity from "../components/SchoolCommunity";
 import LiveChat from "../components/LiveChat";
 import Footer from "../components/Footer";
 import ConfirmedBanner from "./Confirmedbanner";
-import { useTheme } from "../context/ThemeContext";
 
 type ArtifactRow = {
   id: string;
@@ -39,7 +38,6 @@ type UserProfile = {
 
 export default function DashboardClient() {
   const router = useRouter();
-  const { theme, toggle } = useTheme();
   const [rows, setRows] = useState<ArtifactRow[]>([]);
   const [filteredRows, setFilteredRows] = useState<ArtifactRow[]>([]);
   const [usernamesByOwner, setUsernamesByOwner] = useState<Record<string, string>>({});
@@ -504,13 +502,6 @@ export default function DashboardClient() {
           </div>
 
           <div className="flex gap-3 items-center">
-            <button
-              onClick={toggle}
-              className="inline-flex items-center justify-center rounded-lg border border-white/20 bg-white/10 px-3 py-2 hover:bg-white/15 transition-colors text-sm"
-              aria-label="Toggle theme"
-            >
-              {theme === "dark" ? "☀️" : "🌙"}
-            </button>
             <button
               onClick={() => router.push("/upload")}
               className="bg-white text-black rounded-lg py-2 px-4 font-medium hover:bg-white/90 transition-colors"

@@ -7,6 +7,7 @@ import { supabase } from "../../lib/supabaseClient";
 import FileTypeTutorial from "../../components/Filetypetutorial";
 import ProfilePicture from "../../components/ProfilePicture";
 import { ArtifactBadges } from "../../components/ArtifactBadges";
+import Footer from "../../components/Footer";
 
 type Artifact = {
   id: string;
@@ -683,6 +684,7 @@ export default function ArtifactPage() {
           </div>
         </div>
       </div>
+      <Footer />
     </main>
   );
 }

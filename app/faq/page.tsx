@@ -4,11 +4,9 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { useState } from "react";
 import Footer from "../components/Footer";
-import { useTheme } from "../context/ThemeContext";
 
 export default function FAQPage() {
   const router = useRouter();
-  const { theme, toggle } = useTheme();
   const [openSection, setOpenSection] = useState<string | null>(null);
   const [openSubsection, setOpenSubsection] = useState<string | null>(null);
   const [openQuestion, setOpenQuestion] = useState<string | null>(null);
@@ -63,13 +61,6 @@ export default function FAQPage() {
           </button>
 
           <div className="flex items-center gap-3">
-            <button
-              onClick={toggle}
-              className="inline-flex items-center justify-center rounded-lg border border-white/20 bg-white/10 px-3 py-2 hover:bg-white/15 transition-colors text-sm"
-              aria-label="Toggle theme"
-            >
-              {theme === "dark" ? "☀️" : "🌙"}
-            </button>
             <Image
               src="/logo_6.png"
               alt="briefica"

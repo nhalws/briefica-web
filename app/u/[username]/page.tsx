@@ -6,7 +6,7 @@ import Image from "next/image";
 import { supabase } from "../../lib/supabaseClient";
 import ProfilePicture from "../../components/ProfilePicture";
 import { ABA_LAW_SCHOOLS } from "../../lib/lawschools";
-import { useTheme } from "../../context/ThemeContext";
+import Footer from "../../components/Footer";
 
 interface UserProfile {
   user_id: string;
@@ -53,7 +53,6 @@ export default function UserProfilePage() {
   const [sortBy, setSortBy] = useState<"likes" | "downloads" | "name">("likes");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { theme, toggle } = useTheme();
 
   // Edit profile state
   const [isEditingProfile, setIsEditingProfile] = useState(false);
@@ -358,22 +357,13 @@ export default function UserProfilePage() {
             Back to dashboard
           </button>
 
-          <div className="flex items-center gap-3">
-            <button
-              onClick={toggle}
-              className="inline-flex items-center justify-center rounded-lg border border-white/20 bg-white/10 px-3 py-2 hover:bg-white/15 transition-colors text-sm"
-              aria-label="Toggle theme"
-            >
-              {theme === "dark" ? "☀️" : "🌙"}
-            </button>
-            <Image
+          <Image
             src="/logo_6.png"
             alt="briefica"
             width={140}
             height={42}
             className="object-contain"
-            />
-          </div>
+          />
         </div>
 
         {/* Profile Section */}
@@ -556,6 +546,7 @@ export default function UserProfilePage() {
             </div>
           )}
         </div>
+        <Footer />
       </div>
 
       {/* Edit Profile Modal */}

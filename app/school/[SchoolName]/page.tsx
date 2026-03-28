@@ -7,7 +7,7 @@ import { supabase } from "../../lib/supabaseClient";
 import SubjectPreferences from "../../components/SubjectPreferences";
 import LiveChat from "../../components/LiveChat";
 import ProfilePicture from "../../components/ProfilePicture";
-import { useTheme } from "../../context/ThemeContext";
+import Footer from "../../components/Footer";
 
 interface SchoolMember {
   user_id: string;
@@ -79,7 +79,6 @@ export default function SchoolDirectoryPage() {
   const [typeFilter, setTypeFilter] = useState<"all" | "bset" | "bmod" | "tbank">("all");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { theme, toggle } = useTheme();
 
   // Collapsible widget states
 const [topUsersExpanded, setTopUsersExpanded] = useState(false);
@@ -395,22 +394,13 @@ const [mostDownloadedExpanded, setMostDownloadedExpanded] = useState(false);
             Back to dashboard
           </button>
 
-          <div className="flex items-center gap-3">
-            <button
-              onClick={toggle}
-              className="inline-flex items-center justify-center rounded-lg border border-white/20 bg-white/10 px-3 py-2 hover:bg-white/15 transition-colors text-sm"
-              aria-label="Toggle theme"
-            >
-              {theme === "dark" ? "☀️" : "🌙"}
-            </button>
-            <Image
-              src="/logo_6.png"
-              alt="briefica"
-              width={140}
-              height={42}
-              className="object-contain"
-            />
-          </div>
+          <Image
+            src="/logo_6.png"
+            alt="briefica"
+            width={140}
+            height={42}
+            className="object-contain"
+          />
         </div>
 
         {/* School Header with Logo */}
@@ -789,6 +779,7 @@ const [mostDownloadedExpanded, setMostDownloadedExpanded] = useState(false);
           </div>
         </div>
       </div>
+      <Footer />
     </main>
   );
 }

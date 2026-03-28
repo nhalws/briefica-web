@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { supabase } from "../lib/supabaseClient";
 import { ABA_LAW_SCHOOLS } from "../lib/lawschools";
-import { useTheme } from "../context/ThemeContext";
+import Footer from "../components/Footer";
 
 type Subject = {
   id: string;
@@ -15,7 +15,6 @@ type Subject = {
 
 export default function UploadPage() {
   const router = useRouter();
-  const { theme, toggle } = useTheme();
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [userSchool, setUserSchool] = useState<string | null>(null);
   const [title, setTitle] = useState("");
@@ -200,13 +199,6 @@ export default function UploadPage() {
           </button>
 
           <div className="flex items-center gap-3">
-            <button
-              onClick={toggle}
-              className="inline-flex items-center justify-center rounded-lg border border-white/20 bg-white/10 px-3 py-2 hover:bg-white/15 transition-colors text-sm"
-              aria-label="Toggle theme"
-            >
-              {theme === "dark" ? "☀️" : "🌙"}
-            </button>
             <Image
               src="/logo_6.png"
               alt="briefica"
@@ -424,6 +416,7 @@ export default function UploadPage() {
           </button>
         </div>
       </div>
+      <Footer />
     </main>
   );
 }
