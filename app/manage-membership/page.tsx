@@ -35,6 +35,11 @@ export default function ManageMembershipPage() {
     fetchSubscription();
   }, []);
 
+  useEffect(() => {
+    if (manualGold || subInfo) fetchGoldilexKey();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [manualGold, subInfo]);
+
   async function fetchSubscription() {
     setLoading(true);
     setError(null);
@@ -208,17 +213,8 @@ export default function ManageMembershipPage() {
               Paste this key into briefica&nbsp;7 → Settings → Master Key to activate Goldilex AI.
             </p>
 
-            {!proxyKey && !keyLoading && (
-              <button
-                onClick={fetchGoldilexKey}
-                className="w-full px-4 py-2 rounded-lg bg-yellow-600 hover:bg-yellow-700 transition-colors text-sm font-medium"
-              >
-                Generate key
-              </button>
-            )}
-
             {keyLoading && (
-              <div className="text-xs text-white/40 py-2">Generating key…</div>
+              <div className="text-xs text-white/40 py-2">Loading key…</div>
             )}
 
             {keyError && (

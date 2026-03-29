@@ -400,14 +400,13 @@ export default function HomePage() {
             >
               download briefica
             </button>
-            {!isLoggedIn && (
-              <button
-                onClick={() => router.push("/auth")}
-                className="btn-hero-ghost"
-              >
-                join b-web
-              </button>
-            )}
+            <button
+              onClick={() => router.push("/downloads#early-access")}
+              className="btn-hero-ghost"
+              style={{ borderColor: "rgba(240,192,64,0.5)", color: "#f0c040" }}
+            >
+              ✦ join early access
+            </button>
           </div>
         </div>
       </div>
@@ -521,7 +520,7 @@ export default function HomePage() {
               custom themes, and unlimited briefsets.
             </p>
             <div className="text-sm font-semibold mb-5" style={{ color: "#f0c040" }}>
-              From $15 / month
+              Early access — free for the first 50 users
             </div>
             <ul className="flex flex-col gap-2.5 mb-8">
               {[
@@ -529,7 +528,7 @@ export default function HomePage() {
                 "goldilex AI — grounded in your briefset only",
                 "Comprehension check MCQs",
                 "Custom themes & advanced color palettes",
-                "Unlimited briefsets · 500 or 2,000 queries/mo",
+                "100 goldilex queries / month",
               ].map((f) => (
                 <li key={f} className="flex gap-2.5 text-sm text-white/70 items-start">
                   <span style={{ color: "#f0c040" }} className="flex-shrink-0">✓</span>{" "}{f}
@@ -537,10 +536,11 @@ export default function HomePage() {
               ))}
             </ul>
             <button
+              onClick={() => router.push("/downloads#early-access")}
               className="mt-auto rounded-xl py-3 px-6 font-bold text-base hover:opacity-90 transition-opacity"
               style={{ backgroundColor: "#f0c040", color: "#1a1200" }}
             >
-              Explore briefica: gold →
+              ✦ join early access — free
             </button>
           </div>
 

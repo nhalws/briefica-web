@@ -15,6 +15,12 @@ export default function DownloadsPage() {
   const [keyLoading, setKeyLoading] = useState(false);
   const [keyError, setKeyError] = useState<string | null>(null);
   const [copiedKey, setCopiedKey] = useState(false);
+  const [keyVisible, setKeyVisible] = useState(false);
+  // Early access signup
+  const [earlyEmail, setEarlyEmail] = useState("");
+  const [earlyLoading, setEarlyLoading] = useState(false);
+  const [earlySent, setEarlySent] = useState(false);
+  const [earlyError, setEarlyError] = useState<string | null>(null);
 
   useEffect(() => {
     document.title = "downloads - briefica";
@@ -35,25 +41,33 @@ export default function DownloadsPage() {
         .select("tier, approved")
         .eq("user_id", session.user.id)
         .single();
-      setIsGold(data?.tier === "gold" && data?.approved === true);
+      const gold = data?.tier === "gold" && data?.approved === true;
+      setIsGold(gold);
       setChecking(false);
+      if (gold) fetchProxyKey();
     }
     checkAccess();
   }, []);
 
-  async function fetchProxyKey(tierVariant: '100' | '500' | '2000') {
+  async function fetchProxyKey() {
     setKeyLoading(true);
     setKeyError(null);
-    const { data: { session } } = await supabase.auth.getSession();
-    const res = await fetch('/api/proxy-key/generate', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session?.access_token}` },
-      body: JSON.stringify({ tier_variant: tierVariant }),
-    });
-    const json = await res.json();
-    if (!res.ok) setKeyError(json.error ?? 'failed to generate key');
-    else setProxyKey(json.key);
-    setKeyLoading(false);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+      const res = await fetch('/api/proxy-key/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
+        body: JSON.stringify({ tier_variant: '100' }),
+      });
+      const json = await res.json();
+      if (!res.ok) setKeyError(json.error ?? 'failed to load key');
+      else setProxyKey(json.key);
+    } catch {
+      setKeyError('failed to load key');
+    } finally {
+      setKeyLoading(false);
+    }
   }
 
   async function copyKey() {
@@ -61,6 +75,30 @@ export default function DownloadsPage() {
     await navigator.clipboard.writeText(proxyKey);
     setCopiedKey(true);
     setTimeout(() => setCopiedKey(false), 2000);
+  }
+
+  async function submitEarlyAccess(e: React.FormEvent) {
+    e.preventDefault();
+    if (!earlyEmail.trim()) return;
+    setEarlyLoading(true);
+    setEarlyError(null);
+    try {
+      const { error } = await supabase.auth.signInWithOtp({
+        email: earlyEmail.trim(),
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth/callback?early_access=1`,
+        },
+      });
+      if (error) {
+        setEarlyError(error.message);
+      } else {
+        setEarlySent(true);
+      }
+    } catch {
+      setEarlyError('Something went wrong. Please try again.');
+    } finally {
+      setEarlyLoading(false);
+    }
   }
 
   return (
@@ -236,7 +274,7 @@ export default function DownloadsPage() {
             </p>
 
             <div className="text-sm font-semibold mb-5" style={{ color: "#f0c040" }}>
-              From $15 / month
+              Early access — free for the first 50 users
             </div>
 
             <ul className="flex flex-col gap-2.5 mb-8">
@@ -245,7 +283,7 @@ export default function DownloadsPage() {
                 "goldilex AI — grounded in your briefset only",
                 "Comprehension check MCQs",
                 "Custom themes & advanced color palettes",
-                "Unlimited briefsets · 500 or 2,000 queries/mo",
+                "100 goldilex queries / month",
               ].map((f) => (
                 <li key={f} className="flex gap-2.5 text-sm items-start" style={{ color: "var(--t70)" }}>
                   <span style={{ color: "#f0c040" }} className="flex-shrink-0">✓</span>
@@ -279,16 +317,14 @@ export default function DownloadsPage() {
             ) : (
               <>
                 <button
-                  onClick={() => router.push("/pricing?upgrade=goldilex")}
+                  onClick={() => document.getElementById("early-access")?.scrollIntoView({ behavior: "smooth" })}
                   className="mt-auto block w-full text-center rounded-xl py-3 px-6 font-bold text-base hover:opacity-90 transition-opacity"
                   style={{ backgroundColor: "#f0c040", color: "#1a1200" }}
                 >
-                  {isLoggedIn ? "Upgrade to Gold to download v7 →" : "Sign in to download v7 →"}
+                  ✦ join early access — free
                 </button>
                 <p className="text-xs text-center mt-3" style={{ color: "rgba(240,192,64,0.4)" }}>
-                  {isLoggedIn
-                    ? "briefica: gold membership required"
-                    : "requires a briefica: gold account"}
+                  free for the first 50 users · no credit card required
                 </p>
               </>
             )}
@@ -297,87 +333,132 @@ export default function DownloadsPage() {
         </div>
       </div>
 
-      {/* ── GOLDILEX KEY ── */}
-      {isGold && (
-        <div className="max-w-6xl mx-auto px-6 pb-16">
-          <div
-            className="rounded-2xl p-10 border"
-            style={{
-              background: "rgba(240,192,64,0.03)",
-              backdropFilter: "blur(20px)",
-              borderColor: "rgba(240,192,64,0.2)",
-            }}
-          >
-            <h3 className="text-xl font-semibold mb-3" style={{ color: "#f0c040" }}>
-              your goldilex key
-            </h3>
-            <p className="text-sm mb-7" style={{ color: "var(--t70)" }}>
-              paste this into the master key field in Settings → goldilex inside briefica 7. each key is tied to your plan&apos;s query limit.
-            </p>
-
-            <div className="flex flex-wrap gap-3 mb-6">
-              {(
-                [
-                  { label: "get 100-query key (beta)", tier: "100" },
-                  { label: "get 500-query key", tier: "500" },
-                  { label: "get 2,000-query key", tier: "2000" },
-                ] as { label: string; tier: '100' | '500' | '2000' }[]
-              ).map(({ label, tier }) => (
-                <button
-                  key={tier}
-                  onClick={() => fetchProxyKey(tier)}
-                  disabled={keyLoading}
-                  className="rounded-xl py-2 px-5 font-semibold text-sm border transition-opacity hover:opacity-80 disabled:opacity-50 disabled:cursor-wait"
-                  style={{
-                    background: "rgba(240,192,64,0.12)",
-                    borderColor: "rgba(240,192,64,0.25)",
-                    color: "#f0c040",
-                  }}
-                >
-                  {keyLoading ? "loading..." : label}
-                </button>
-              ))}
-            </div>
-
-            {keyError && (
-              <p className="text-sm mb-4" style={{ color: "#ff6b6b" }}>
-                {keyError}
+      {/* ── EARLY ACCESS / GOLDILEX KEY ── */}
+      <div id="early-access" className="max-w-6xl mx-auto px-6 pb-16">
+        <div
+          className="rounded-2xl p-10 border"
+          style={{
+            background: "rgba(240,192,64,0.03)",
+            backdropFilter: "blur(20px)",
+            borderColor: "rgba(240,192,64,0.2)",
+          }}
+        >
+          {isGold ? (
+            /* ── Gold user: show key ── */
+            <>
+              <h3 className="text-xl font-semibold mb-2" style={{ color: "#f0c040" }}>
+                your goldilex key
+              </h3>
+              <p className="text-sm mb-6" style={{ color: "var(--t70)" }}>
+                paste this into Settings → Master Key inside briefica 7 to activate goldilex AI.
               </p>
-            )}
 
-            {proxyKey && (
+              {keyLoading && (
+                <p className="text-sm" style={{ color: "rgba(240,192,64,0.5)" }}>loading key…</p>
+              )}
+
+              {keyError && (
+                <p className="text-sm" style={{ color: "#ff6b6b" }}>{keyError}</p>
+              )}
+
+              {proxyKey && (
+                <div
+                  className="rounded-xl p-4 border flex items-center gap-3"
+                  style={{ background: "rgba(0,0,0,0.3)", borderColor: "rgba(240,192,64,0.2)" }}
+                >
+                  <code
+                    className="flex-1 text-sm break-all select-all"
+                    style={{ fontFamily: "Courier New, monospace", color: "#f0c040" }}
+                  >
+                    {keyVisible ? proxyKey : "•".repeat(proxyKey.length)}
+                  </code>
+                  <button
+                    onClick={() => setKeyVisible(v => !v)}
+                    className="flex-shrink-0 transition-opacity hover:opacity-80"
+                    title={keyVisible ? "hide" : "reveal"}
+                    style={{ color: "rgba(240,192,64,0.6)" }}
+                  >
+                    {keyVisible ? (
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                          d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                      </svg>
+                    ) : (
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                      </svg>
+                    )}
+                  </button>
+                  <button
+                    onClick={copyKey}
+                    className="flex-shrink-0 rounded-lg py-1.5 px-3 text-xs font-semibold border transition-opacity hover:opacity-80"
+                    style={{ background: "rgba(240,192,64,0.12)", borderColor: "rgba(240,192,64,0.25)", color: "#f0c040" }}
+                  >
+                    {copiedKey ? "copied!" : "copy"}
+                  </button>
+                </div>
+              )}
+            </>
+          ) : (
+            /* ── Non-gold: early access signup ── */
+            <>
               <div
-                className="rounded-xl p-4 border flex items-center justify-between gap-4"
-                style={{
-                  background: "rgba(0,0,0,0.3)",
-                  borderColor: "rgba(240,192,64,0.2)",
-                }}
+                className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wide px-3 py-1 rounded-full border mb-6"
+                style={{ background: "rgba(240,192,64,0.12)", color: "#f0c040", borderColor: "rgba(240,192,64,0.25)" }}
               >
-                <code
-                  className="text-sm break-all select-all"
-                  style={{
-                    fontFamily: "Courier New, monospace",
-                    color: "#f0c040",
-                  }}
-                >
-                  {proxyKey}
-                </code>
-                <button
-                  onClick={copyKey}
-                  className="flex-shrink-0 rounded-lg py-1.5 px-3 text-xs font-semibold border transition-opacity hover:opacity-80"
-                  style={{
-                    background: "rgba(240,192,64,0.12)",
-                    borderColor: "rgba(240,192,64,0.25)",
-                    color: "#f0c040",
-                  }}
-                >
-                  {copiedKey ? "copied!" : "copy"}
-                </button>
+                ✦ early access — first 50 users
               </div>
-            )}
-          </div>
+              <h3 className="text-2xl font-bold mb-3" style={{ color: "#f0c040" }}>
+                join briefica gold early access
+              </h3>
+              <p className="text-sm mb-7 max-w-lg" style={{ color: "var(--t70)" }}>
+                get free access to briefica v7 and goldilex AI — the legal AI grounded exclusively in your own briefset. enter your email and we&apos;ll send you a confirmation link. once confirmed, your goldilex key will appear in your dashboard.
+              </p>
+
+              {earlySent ? (
+                <div
+                  className="rounded-xl p-5 border text-center"
+                  style={{ borderColor: "rgba(240,192,64,0.3)", background: "rgba(240,192,64,0.06)" }}
+                >
+                  <p className="font-semibold mb-1" style={{ color: "#f0c040" }}>check your email</p>
+                  <p className="text-sm" style={{ color: "var(--t70)" }}>
+                    we sent a confirmation link to <strong style={{ color: "var(--t)" }}>{earlyEmail}</strong>. click it to activate your early access.
+                  </p>
+                </div>
+              ) : (
+                <form onSubmit={submitEarlyAccess} className="flex flex-col sm:flex-row gap-3 max-w-md">
+                  <input
+                    type="email"
+                    required
+                    value={earlyEmail}
+                    onChange={e => setEarlyEmail(e.target.value)}
+                    placeholder="your@email.com"
+                    className="flex-1 rounded-xl px-4 py-3 text-sm outline-none"
+                    style={{
+                      background: "rgba(255,255,255,0.06)",
+                      border: "1px solid rgba(240,192,64,0.25)",
+                      color: "var(--t)",
+                    }}
+                  />
+                  <button
+                    type="submit"
+                    disabled={earlyLoading}
+                    className="rounded-xl py-3 px-6 font-bold text-sm hover:opacity-90 transition-opacity disabled:opacity-50 whitespace-nowrap"
+                    style={{ backgroundColor: "#f0c040", color: "#1a1200" }}
+                  >
+                    {earlyLoading ? "sending…" : "request access →"}
+                  </button>
+                </form>
+              )}
+
+              {earlyError && (
+                <p className="text-sm mt-3" style={{ color: "#ff6b6b" }}>{earlyError}</p>
+              )}
+            </>
+          )}
         </div>
-      )}
+      </div>
 
       {/* ── INSTALLATION ── */}
       <div className="max-w-4xl mx-auto px-6 pb-10">
