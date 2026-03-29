@@ -11,6 +11,10 @@ export default function DownloadsPage() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isGold, setIsGold] = useState(false);
   const [checking, setChecking] = useState(true);
+  const [proxyKey, setProxyKey] = useState<string | null>(null);
+  const [keyLoading, setKeyLoading] = useState(false);
+  const [keyError, setKeyError] = useState<string | null>(null);
+  const [copiedKey, setCopiedKey] = useState(false);
 
   useEffect(() => {
     document.title = "downloads - briefica";
@@ -36,6 +40,28 @@ export default function DownloadsPage() {
     }
     checkAccess();
   }, []);
+
+  async function fetchProxyKey(tierVariant: '100' | '500' | '2000') {
+    setKeyLoading(true);
+    setKeyError(null);
+    const { data: { session } } = await supabase.auth.getSession();
+    const res = await fetch('/api/proxy-key/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session?.access_token}` },
+      body: JSON.stringify({ tier_variant: tierVariant }),
+    });
+    const json = await res.json();
+    if (!res.ok) setKeyError(json.error ?? 'failed to generate key');
+    else setProxyKey(json.key);
+    setKeyLoading(false);
+  }
+
+  async function copyKey() {
+    if (!proxyKey) return;
+    await navigator.clipboard.writeText(proxyKey);
+    setCopiedKey(true);
+    setTimeout(() => setCopiedKey(false), 2000);
+  }
 
   return (
     <main
@@ -270,6 +296,88 @@ export default function DownloadsPage() {
 
         </div>
       </div>
+
+      {/* ── GOLDILEX KEY ── */}
+      {isGold && (
+        <div className="max-w-6xl mx-auto px-6 pb-16">
+          <div
+            className="rounded-2xl p-10 border"
+            style={{
+              background: "rgba(240,192,64,0.03)",
+              backdropFilter: "blur(20px)",
+              borderColor: "rgba(240,192,64,0.2)",
+            }}
+          >
+            <h3 className="text-xl font-semibold mb-3" style={{ color: "#f0c040" }}>
+              your goldilex key
+            </h3>
+            <p className="text-sm mb-7" style={{ color: "var(--t70)" }}>
+              paste this into the master key field in Settings → goldilex inside briefica 7. each key is tied to your plan&apos;s query limit.
+            </p>
+
+            <div className="flex flex-wrap gap-3 mb-6">
+              {(
+                [
+                  { label: "get 100-query key (beta)", tier: "100" },
+                  { label: "get 500-query key", tier: "500" },
+                  { label: "get 2,000-query key", tier: "2000" },
+                ] as { label: string; tier: '100' | '500' | '2000' }[]
+              ).map(({ label, tier }) => (
+                <button
+                  key={tier}
+                  onClick={() => fetchProxyKey(tier)}
+                  disabled={keyLoading}
+                  className="rounded-xl py-2 px-5 font-semibold text-sm border transition-opacity hover:opacity-80 disabled:opacity-50 disabled:cursor-wait"
+                  style={{
+                    background: "rgba(240,192,64,0.12)",
+                    borderColor: "rgba(240,192,64,0.25)",
+                    color: "#f0c040",
+                  }}
+                >
+                  {keyLoading ? "loading..." : label}
+                </button>
+              ))}
+            </div>
+
+            {keyError && (
+              <p className="text-sm mb-4" style={{ color: "#ff6b6b" }}>
+                {keyError}
+              </p>
+            )}
+
+            {proxyKey && (
+              <div
+                className="rounded-xl p-4 border flex items-center justify-between gap-4"
+                style={{
+                  background: "rgba(0,0,0,0.3)",
+                  borderColor: "rgba(240,192,64,0.2)",
+                }}
+              >
+                <code
+                  className="text-sm break-all select-all"
+                  style={{
+                    fontFamily: "Courier New, monospace",
+                    color: "#f0c040",
+                  }}
+                >
+                  {proxyKey}
+                </code>
+                <button
+                  onClick={copyKey}
+                  className="flex-shrink-0 rounded-lg py-1.5 px-3 text-xs font-semibold border transition-opacity hover:opacity-80"
+                  style={{
+                    background: "rgba(240,192,64,0.12)",
+                    borderColor: "rgba(240,192,64,0.25)",
+                    color: "#f0c040",
+                  }}
+                >
+                  {copiedKey ? "copied!" : "copy"}
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* ── INSTALLATION ── */}
       <div className="max-w-4xl mx-auto px-6 pb-10">
