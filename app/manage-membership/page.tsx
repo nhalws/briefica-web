@@ -128,14 +128,15 @@ export default function ManageMembershipPage() {
         },
         body: JSON.stringify({ tier_variant: '100' }),
       });
-      const data = await res.json();
+      let data: Record<string, string> = {};
+      try { data = await res.json(); } catch { /* non-JSON body */ }
       if (!res.ok) {
-        setKeyError(data.error || 'Failed to generate key');
+        setKeyError(`${data.error || 'Failed to load key'} (${res.status})`);
         return;
       }
       setProxyKey(data.key);
-    } catch {
-      setKeyError('Failed to generate key. Please try again.');
+    } catch (err) {
+      setKeyError(`Failed to load key: ${err instanceof Error ? err.message : 'network error'}`);
     } finally {
       setKeyLoading(false);
     }
