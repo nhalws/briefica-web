@@ -10,6 +10,10 @@ export default function HomePage() {
   const router = useRouter();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [selectedMcq, setSelectedMcq] = useState(0);
+  const [earlyEmail, setEarlyEmail] = useState("");
+  const [earlyLoading, setEarlyLoading] = useState(false);
+  const [earlySent, setEarlySent] = useState(false);
+  const [earlyError, setEarlyError] = useState<string | null>(null);
   const [b65Imgs, setB65Imgs] = useState<string[]>([]);
   const [b7Imgs, setB7Imgs] = useState<string[]>([]);
   const [b65Idx, setB65Idx] = useState(0);
@@ -100,6 +104,25 @@ export default function HomePage() {
   }, []);
 
   // Visualizer lines
+  async function submitEarlyAccess(e: React.FormEvent) {
+    e.preventDefault();
+    if (!earlyEmail.trim()) return;
+    setEarlyLoading(true);
+    setEarlyError(null);
+    try {
+      const { error } = await supabase.auth.signInWithOtp({
+        email: earlyEmail.trim(),
+        options: { emailRedirectTo: `${window.location.origin}/auth/callback?early_access=1` },
+      });
+      if (error) setEarlyError(error.message);
+      else setEarlySent(true);
+    } catch {
+      setEarlyError('Something went wrong. Please try again.');
+    } finally {
+      setEarlyLoading(false);
+    }
+  }
+
   function drawVizLines() {
     const canvas = vizCanvasRef.current;
     const svg = vizSvgRef.current;
@@ -900,7 +923,7 @@ export default function HomePage() {
                 borderColor: "rgba(102,178,255,0.35)",
               }}
             >
-              ✦ goldilex is part of briefica: gold — starting at $15/month
+              ✦ goldilex is part of briefica: gold — join the early access waitlist
             </div>
           </div>
 
@@ -1061,7 +1084,7 @@ export default function HomePage() {
           briefica 6.5 is free for every law student. briefica: gold unlocks the full AI suite for students
           who want to go deeper.
         </p>
-        <div className="grid md:grid-cols-3 gap-5">
+        <div className="grid md:grid-cols-2 gap-5">
           {/* Free */}
           <div className="bg-card border border-white/10 rounded-2xl p-9 relative hover:-translate-y-1 transition-transform">
             <span className="block text-xs font-semibold uppercase tracking-wide text-white/50 mb-4">
@@ -1084,10 +1107,7 @@ export default function HomePage() {
                 "Briefset sharing & discovery",
               ].map((f) => (
                 <li key={f} className="flex gap-2.5 text-sm text-white/70 items-start">
-                  <span style={{ color: "#66b2ff" }} className="font-bold flex-shrink-0">
-                    ✓
-                  </span>{" "}
-                  {f}
+                  <span style={{ color: "#66b2ff" }} className="font-bold flex-shrink-0">✓</span>{" "}{f}
                 </li>
               ))}
             </ul>
@@ -1100,19 +1120,19 @@ export default function HomePage() {
             </button>
           </div>
 
-          {/* Gold 500 */}
+          {/* Gold — Early Access */}
           <div
-            className="border rounded-2xl p-9 relative hover:-translate-y-1 transition-transform"
+            className="border rounded-2xl p-9 relative hover:-translate-y-1 transition-transform flex flex-col"
             style={{
-              background: "linear-gradient(160deg, rgba(102,178,255,0.18) 0%, var(--card) 100%)",
-              borderColor: "rgba(102,178,255,0.35)",
+              background: "linear-gradient(160deg, rgba(240,192,64,0.08) 0%, var(--card) 100%)",
+              borderColor: "rgba(240,192,64,0.3)",
             }}
           >
             <div
               className="absolute -top-3 left-1/2 -translate-x-1/2 text-[11px] font-bold tracking-wide px-4 py-1 rounded-full whitespace-nowrap"
               style={{ background: "#f0c040", color: "#1a1200" }}
             >
-              ✦ briefica: gold
+              ✦ briefica: gold · early access
             </div>
             <span className="block text-xs font-semibold uppercase tracking-wide mb-4" style={{ color: "#f0c040" }}>
               briefica 7 · horizon
@@ -1121,94 +1141,74 @@ export default function HomePage() {
               className="font-extrabold leading-none mb-1"
               style={{ fontSize: "64px", letterSpacing: "-2px", color: "#f0c040" }}
             >
-              $15
+              free
             </div>
-            <div className="text-sm text-white/50 mb-1.5">per month</div>
+            <div className="text-sm text-white/50 mb-1.5">first 50 users</div>
             <div className="text-sm font-semibold mb-6" style={{ color: "#f0c040" }}>
-              500 queries / month
+              100 goldilex queries / month
             </div>
             <hr className="border-white/10 mb-6" />
             <ul className="flex flex-col gap-2.5 mb-7">
               {[
                 "Everything in 6.5",
-                "goldilex AI — grounded Q&A",
+                "goldilex AI — grounded in your briefset only",
                 "Comprehension check MCQs",
                 "Custom themes & advanced mods",
                 "Unlimited briefsets",
-                "500 goldilex queries / month",
+                "briefica 7 download access",
               ].map((f) => (
                 <li key={f} className="flex gap-2.5 text-sm text-white/70 items-start">
-                  <span style={{ color: "#f0c040" }} className="font-bold flex-shrink-0">
-                    ✓
-                  </span>{" "}
-                  {f}
+                  <span style={{ color: "#f0c040" }} className="font-bold flex-shrink-0">✓</span>{" "}{f}
                 </li>
               ))}
             </ul>
-            <button
-              className="w-full py-3 rounded-xl font-bold hover:opacity-90 transition-opacity"
-              style={{ background: "#f0c040", color: "#1a1200" }}
-            >
-              Start Gold · 500
-            </button>
-          </div>
 
-          {/* Gold 2000 */}
-          <div
-            className="border rounded-2xl p-9 relative hover:-translate-y-1 transition-transform"
-            style={{
-              background: "linear-gradient(160deg, rgba(102,178,255,0.18) 0%, var(--card) 100%)",
-              borderColor: "rgba(102,178,255,0.35)",
-            }}
-          >
-            <div
-              className="absolute -top-3 left-1/2 -translate-x-1/2 text-[11px] font-bold tracking-wide px-4 py-1 rounded-full whitespace-nowrap"
-              style={{ background: "#f0c040", color: "#1a1200" }}
-            >
-              ✦ briefica: gold
+            <div className="mt-auto">
+              {earlySent ? (
+                <div
+                  className="rounded-xl p-4 text-center border"
+                  style={{ borderColor: "rgba(240,192,64,0.3)", background: "rgba(240,192,64,0.06)" }}
+                >
+                  <p className="font-semibold text-sm mb-1" style={{ color: "#f0c040" }}>check your email</p>
+                  <p className="text-xs text-white/60">
+                    we sent a confirmation link to <strong className="text-white">{earlyEmail}</strong>. click it to activate your early access.
+                  </p>
+                </div>
+              ) : (
+                <form onSubmit={submitEarlyAccess} className="flex flex-col gap-2">
+                  <input
+                    type="email"
+                    required
+                    value={earlyEmail}
+                    onChange={e => setEarlyEmail(e.target.value)}
+                    placeholder="your@email.com"
+                    className="w-full rounded-xl px-4 py-3 text-sm outline-none"
+                    style={{
+                      background: "rgba(255,255,255,0.06)",
+                      border: "1px solid rgba(240,192,64,0.25)",
+                      color: "var(--t)",
+                    }}
+                  />
+                  <button
+                    type="submit"
+                    disabled={earlyLoading}
+                    className="w-full py-3 rounded-xl font-bold text-sm hover:opacity-90 transition-opacity disabled:opacity-50"
+                    style={{ background: "#f0c040", color: "#1a1200" }}
+                  >
+                    {earlyLoading ? "sending…" : "request early access →"}
+                  </button>
+                  {earlyError && <p className="text-xs text-red-400 text-center">{earlyError}</p>}
+                </form>
+              )}
+              <p className="text-xs text-white/30 text-center mt-3">
+                capped at 50 users · no credit card required · paid plans coming soon
+              </p>
             </div>
-            <span className="block text-xs font-semibold uppercase tracking-wide mb-4" style={{ color: "#f0c040" }}>
-              briefica 7 · horizon
-            </span>
-            <div
-              className="font-extrabold leading-none mb-1"
-              style={{ fontSize: "64px", letterSpacing: "-2px", color: "#f0c040" }}
-            >
-              $30
-            </div>
-            <div className="text-sm text-white/50 mb-1.5">per month</div>
-            <div className="text-sm font-semibold mb-6" style={{ color: "#f0c040" }}>
-              2,000 queries / month
-            </div>
-            <hr className="border-white/10 mb-6" />
-            <ul className="flex flex-col gap-2.5 mb-7">
-              {[
-                "Everything in 6.5",
-                "goldilex AI — grounded Q&A",
-                "Comprehension check MCQs",
-                "Custom themes & advanced mods",
-                "Unlimited briefsets",
-                "2,000 goldilex queries / month",
-              ].map((f) => (
-                <li key={f} className="flex gap-2.5 text-sm text-white/70 items-start">
-                  <span style={{ color: "#f0c040" }} className="font-bold flex-shrink-0">
-                    ✓
-                  </span>{" "}
-                  {f}
-                </li>
-              ))}
-            </ul>
-            <button
-              className="w-full py-3 rounded-xl font-bold hover:opacity-90 transition-opacity"
-              style={{ background: "#f0c040", color: "#1a1200" }}
-            >
-              Start Gold · 2,000
-            </button>
           </div>
         </div>
         <p className="text-center mt-6 text-sm text-white/50">
-          briefica: gold plans include{" "}
-          <span style={{ color: "#f0c040" }}>briefica 7 · horizon</span> — the full AI-powered workspace.
+          paid plans with higher query limits are coming after the beta.{" "}
+          <span style={{ color: "#f0c040" }}>early access is free.</span>
         </p>
       </div>
       </section>
