@@ -48,31 +48,43 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Invalid or revoked key' }, { status: 401 });
   }
 
-  // Look up the key
+  // Look up the key — select only guaranteed columns first
   const { data: proxyKey, error: lookupError } = await supabase
     .from('proxy_keys')
-    .select('key, tier, revoked, queries_used, queries_limit')
+    .select('key, tier, revoked')
     .eq('key', key)
     .eq('revoked', false)
     .eq('tier', tier)
     .single();
 
   if (lookupError || !proxyKey) {
+    console.error('[exchange] lookup failed:', lookupError?.message);
     return NextResponse.json({ error: 'Invalid or revoked key' }, { status: 401 });
   }
 
+  // Fetch quota columns separately (may not exist on older schema)
+  const { data: quotaRow } = await supabase
+    .from('proxy_keys')
+    .select('queries_used, queries_limit')
+    .eq('key', key)
+    .single();
+
+  const used = quotaRow?.queries_used ?? 0;
+  const limit = quotaRow?.queries_limit ?? 100;
+
   // Check quota
-  const used = proxyKey.queries_used ?? 0;
-  const limit = proxyKey.queries_limit ?? 100;
   if (used >= limit) {
     return NextResponse.json({ error: 'quota_exceeded', queries_used: used, queries_limit: limit }, { status: 403 });
   }
 
-  // Increment counter
-  await supabase
+  // Increment counter (best-effort — don't block on failure)
+  supabase
     .from('proxy_keys')
     .update({ queries_used: used + 1 })
-    .eq('key', key);
+    .eq('key', key)
+    .then(({ error }) => {
+      if (error) console.error('[exchange] increment failed:', error.message);
+    });
 
   return NextResponse.json({
     api_key: process.env.ANTHROPIC_API_KEY,
