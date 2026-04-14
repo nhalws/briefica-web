@@ -28,15 +28,34 @@ export default function ConfirmedBanner() {
   return (
     <div
       style={{
-        background: "#66b2ff",
+        background: "#BF9B30",
         color: "#fff",
         padding: "12px 16px",
         borderRadius: 12,
         fontWeight: 600,
         marginBottom: 16,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        gap: 12,
       }}
     >
-      Account has been activated.
+      <span>Gold membership activated — you now have access to Goldilex.</span>
+      <button
+        onClick={() => router.push("/goldilex")}
+        style={{
+          background: "rgba(255,255,255,0.2)",
+          border: "1px solid rgba(255,255,255,0.5)",
+          color: "#fff",
+          padding: "4px 14px",
+          borderRadius: 8,
+          fontWeight: 600,
+          cursor: "pointer",
+          whiteSpace: "nowrap",
+        }}
+      >
+        Open Goldilex
+      </button>
     </div>
   );
 }

@@ -112,7 +112,7 @@ export default function HomePage() {
     try {
       const { error } = await supabase.auth.signInWithOtp({
         email: earlyEmail.trim(),
-        options: { emailRedirectTo: `${window.location.origin}/auth/callback?early_access=1` },
+        options: { emailRedirectTo: `${window.location.origin}/auth/early-access` },
       });
       if (error) setEarlyError(error.message);
       else setEarlySent(true);

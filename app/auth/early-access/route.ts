@@ -9,7 +9,6 @@ const EARLY_ACCESS_LIMIT = 50;
 export async function GET(request: NextRequest) {
   const requestUrl = new URL(request.url);
   const code = requestUrl.searchParams.get('code');
-  const earlyAccess = requestUrl.searchParams.get('early_access') === '1';
 
   let userId: string | null = null;
 
@@ -37,8 +36,7 @@ export async function GET(request: NextRequest) {
     userId = session?.user?.id ?? null;
   }
 
-  // Provision early access gold if flag is set and we have a user
-  if (earlyAccess && userId) {
+  if (userId) {
     const admin = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY!
