@@ -98,5 +98,5 @@ export async function GET(request: NextRequest) {
     }
   }
 
-  return NextResponse.redirect(new URL('/dashboard?confirmed=1', request.url));
+  return NextResponse.redirect(new URL('/dashboard?confirmed=gold', request.url));
 }
