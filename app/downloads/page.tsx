@@ -533,7 +533,7 @@ export default function DownloadsPage() {
                       >
                         <option value="briefica v7">briefica v7</option>
                         <option value="briefica v6">briefica v6</option>
-                        <option value="briefica web">briefica web</option>
+                        <option value="other">other</option>
                       </select>
                     </div>
                     <div className="flex flex-col gap-1 flex-1">
