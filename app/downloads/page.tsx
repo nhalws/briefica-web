@@ -86,7 +86,7 @@ export default function DownloadsPage() {
       const { error } = await supabase.auth.signInWithOtp({
         email: earlyEmail.trim(),
         options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback?early_access=1`,
+          emailRedirectTo: `${window.location.origin}/auth/early-access`,
         },
       });
       if (error) {
@@ -149,7 +149,7 @@ export default function DownloadsPage() {
 
       {/* ── TWO-SQUARE VERSION GRID ── */}
       <div className="max-w-6xl mx-auto px-6 pb-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
 
           {/* ── v6 — Free ── */}
           <div
