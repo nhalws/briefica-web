@@ -21,6 +21,14 @@ export default function DownloadsPage() {
   const [earlyLoading, setEarlyLoading] = useState(false);
   const [earlySent, setEarlySent] = useState(false);
   const [earlyError, setEarlyError] = useState<string | null>(null);
+  // Feedback form
+  const [feedbackOpen, setFeedbackOpen] = useState(false);
+  const [feedbackVersion, setFeedbackVersion] = useState("briefica v7");
+  const [feedbackUsername, setFeedbackUsername] = useState("");
+  const [feedbackMessage, setFeedbackMessage] = useState("");
+  const [feedbackLoading, setFeedbackLoading] = useState(false);
+  const [feedbackSent, setFeedbackSent] = useState(false);
+  const [feedbackError, setFeedbackError] = useState<string | null>(null);
 
   useEffect(() => {
     document.title = "downloads - briefica";
@@ -67,6 +75,36 @@ export default function DownloadsPage() {
       setKeyError('failed to load key');
     } finally {
       setKeyLoading(false);
+    }
+  }
+
+  async function submitFeedback(e: React.FormEvent) {
+    e.preventDefault();
+    if (!feedbackUsername.trim() || !feedbackMessage.trim()) return;
+    setFeedbackLoading(true);
+    setFeedbackError(null);
+    try {
+      const res = await fetch('/api/feedback', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          version: feedbackVersion,
+          username: feedbackUsername.trim(),
+          message: feedbackMessage.trim(),
+        }),
+      });
+      if (res.ok) {
+        setFeedbackSent(true);
+        setFeedbackMessage('');
+        setFeedbackUsername('');
+      } else {
+        const json = await res.json();
+        setFeedbackError(json.error ?? 'Something went wrong. Please try again.');
+      }
+    } catch {
+      setFeedbackError('Something went wrong. Please try again.');
+    } finally {
+      setFeedbackLoading(false);
     }
   }
 
@@ -283,7 +321,7 @@ export default function DownloadsPage() {
                 "goldilex AI — grounded in your briefset only",
                 "Comprehension check MCQs",
                 "Custom themes & advanced color palettes",
-                "100 goldilex queries / month",
+                "100 goldilex queries",
               ].map((f) => (
                 <li key={f} className="flex gap-2.5 text-sm items-start" style={{ color: "var(--t70)" }}>
                   <span style={{ color: "#f0c040" }} className="flex-shrink-0">✓</span>
@@ -456,6 +494,87 @@ export default function DownloadsPage() {
                 <p className="text-sm mt-3" style={{ color: "#ff6b6b" }}>{earlyError}</p>
               )}
             </>
+          )}
+        </div>
+      </div>
+
+      {/* ── FEEDBACK ── */}
+      <div className="max-w-6xl mx-auto px-6 pb-10">
+        <div
+          className="rounded-2xl border border-white/10 overflow-hidden"
+          style={{ background: "var(--card)" }}
+        >
+          <button
+            onClick={() => setFeedbackOpen(o => !o)}
+            className="w-full flex items-center justify-between px-8 py-5 text-left hover:bg-white/5 transition-colors"
+          >
+            <span className="font-semibold text-sm" style={{ color: "var(--t)" }}>
+              Have feedback or issues? Let us know!
+            </span>
+            <span style={{ color: "var(--t50)", fontSize: 18 }}>{feedbackOpen ? "−" : "+"}</span>
+          </button>
+
+          {feedbackOpen && (
+            <div className="px-8 pb-8 border-t border-white/10 pt-6">
+              {feedbackSent ? (
+                <p className="text-sm font-semibold" style={{ color: "#66b2ff" }}>
+                  Thanks — your feedback has been sent!
+                </p>
+              ) : (
+                <form onSubmit={submitFeedback} className="flex flex-col gap-4 max-w-lg">
+                  <div className="flex gap-3">
+                    <div className="flex flex-col gap-1 flex-1">
+                      <label className="text-xs font-semibold uppercase tracking-wide" style={{ color: "var(--t50)" }}>Version</label>
+                      <select
+                        value={feedbackVersion}
+                        onChange={e => setFeedbackVersion(e.target.value)}
+                        className="rounded-lg px-3 py-2 text-sm outline-none"
+                        style={{ background: "var(--inlay)", border: "1px solid rgba(255,255,255,0.1)", color: "var(--t)" }}
+                      >
+                        <option value="briefica v7">briefica v7</option>
+                        <option value="briefica v6">briefica v6</option>
+                        <option value="briefica web">briefica web</option>
+                      </select>
+                    </div>
+                    <div className="flex flex-col gap-1 flex-1">
+                      <label className="text-xs font-semibold uppercase tracking-wide" style={{ color: "var(--t50)" }}>Username</label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="your username"
+                        value={feedbackUsername}
+                        onChange={e => setFeedbackUsername(e.target.value)}
+                        className="rounded-lg px-3 py-2 text-sm outline-none"
+                        style={{ background: "var(--inlay)", border: "1px solid rgba(255,255,255,0.1)", color: "var(--t)" }}
+                      />
+                    </div>
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <label className="text-xs font-semibold uppercase tracking-wide" style={{ color: "var(--t50)" }}>Feedback</label>
+                    <textarea
+                      required
+                      rows={4}
+                      placeholder="Describe your feedback or issue..."
+                      value={feedbackMessage}
+                      onChange={e => setFeedbackMessage(e.target.value)}
+                      className="rounded-lg px-3 py-2 text-sm outline-none resize-none"
+                      style={{ background: "var(--inlay)", border: "1px solid rgba(255,255,255,0.1)", color: "var(--t)" }}
+                    />
+                  </div>
+                  {feedbackError && (
+                    <p className="text-xs" style={{ color: "#ff6b6b" }}>{feedbackError}</p>
+                  )}
+                  <button
+                    type="submit"
+                    disabled={feedbackLoading}
+                    className="self-start rounded-lg py-2 px-6 text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-50"
+                    style={{ backgroundColor: "#66b2ff", color: "#1e1e1e" }}
+                  >
+                    {feedbackLoading ? "sending…" : "send feedback"}
+                  </button>
+                </form>
+              )}
+            </div>
           )}
         </div>
       </div>
