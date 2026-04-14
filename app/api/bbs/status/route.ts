@@ -102,7 +102,7 @@ export async function GET(req: NextRequest) {
     const now = new Date();
     const nextReset = new Date(lastReset);
     nextReset.setMonth(nextReset.getMonth() + 1);
-    const daysUntilReset = Math.ceil((nextReset.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+    const daysUntilReset = Math.min(30, Math.ceil((nextReset.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)));
 
     // Check if we need to reset monthly BBs
     if (daysUntilReset <= 0) {
