@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { supabase } from "../lib/supabaseClient";
 
 export default function ConfirmedBanner() {
   const router = useRouter();
@@ -12,14 +13,31 @@ export default function ConfirmedBanner() {
     const confirmed = searchParams.get("confirmed");
     if (confirmed !== "1" && confirmed !== "gold") return;
 
-    setType(confirmed === "gold" ? "gold" : "account");
-
     const url = new URL(window.location.href);
     url.searchParams.delete("confirmed");
     router.replace(url.pathname + url.search, { scroll: false });
 
-    const t = window.setTimeout(() => setType(null), 5000);
-    return () => window.clearTimeout(t);
+    if (confirmed === "gold") {
+      // Provision gold client-side — session is guaranteed established by now
+      supabase.auth.getSession().then(async ({ data: { session } }) => {
+        if (!session) return;
+        try {
+          await fetch('/api/early-access/provision', {
+            method: 'POST',
+            headers: { Authorization: `Bearer ${session.access_token}` },
+          });
+        } catch (e) {
+          console.error('[ConfirmedBanner] provision error:', e);
+        }
+        setType("gold");
+        // Reload so dashboard re-checks goldilex_access and enables the button
+        setTimeout(() => window.location.reload(), 3000);
+      });
+    } else {
+      setType("account");
+      const t = window.setTimeout(() => setType(null), 5000);
+      return () => window.clearTimeout(t);
+    }
   }, [searchParams, router]);
 
   if (!type) return null;
